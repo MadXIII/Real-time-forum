@@ -1,0 +1,117 @@
+package sqlite
+
+import (
+	"database/sql"
+
+	_ "github.com/mattn/go-sqlite3"
+)
+
+type Store struct {
+	db *sql.DB
+}
+
+func Init(dbname string) (*Store, error) {
+	s := &Store{}
+	var err error
+
+	s.db, err = sql.Open("sqlite3", dbname)
+	// return &Store{db: s.db}, nil
+
+	if err != nil {
+		// return
+	}
+
+	userTable, err := s.db.Prepare(`CREATE TABLE user (
+		id integer PRIMARY KEY NOT NULL,
+		age integer NOT NULL,
+		nickname VARCHAR(20) NOT NULL,
+		gender VARCHAR(5),
+		first_name VARCHAR(20),
+		last_name VARCHAR(30),
+		email VARCHAR(100) NOT NULL,
+		password VARCHAR(255) NOT NULL
+	);`)
+	if err != nil {
+		// return
+	}
+
+	_, err = userTable.Exec()
+	if err != nil {
+		// return
+	}
+
+	defer userTable.Close()
+
+	postTable, err := s.db.Prepare(`CREATE TABLE post (
+		id integer PRIMARY KEY NOT NULL,
+		user_id integer NOT NULL,
+		title VARCHAR(50) NOT NULL,
+		post TEXT NOT NULL,
+		timestamp TEXT NOT NULL,
+		FOREIGN KEY (user_id) REFERENCES user(id)
+	);`)
+
+	if err != nil {
+		// return
+	}
+
+	_, err = postTable.Exec()
+	if err != nil {
+		// return
+	}
+
+	defer postTable.Close()
+
+	postLikeTable, err := s.db.Prepare(`CREATE TABLE postLike (
+		user_id integer NOT NULL,
+		post_id integer NOT NULL,
+		like integer NOT NULL,
+		FOREIGN KEY(user_id) REFERENCES user(id),
+		FOREIGN KEY(post_id) REFERENCES post(id)
+	);`)
+	if err != nil {
+		// return
+	}
+
+	_, err = postLikeTable.Exec()
+	if err != nil {
+		// return
+	}
+
+	defer postLikeTable.Close()
+
+	commentTable, err := s.db.Prepare(`CREATE TABLE comment (
+		id integer PRIMARY KEY NOT NULL,
+		user_id integer NOT NULL,
+		comment TEXT NOT NULL,
+		timestamp TEXT,
+		FOREIGN KEY(user_id) REFERENCES user(id)
+	);`)
+
+	_, err = commentTable.Exec()
+	if err != nil {
+		// return
+	}
+
+	defer commentTable.Close()
+
+	commentLikeTable, err := s.db.Prepare(`CREATE TABLE commentLike (
+		user_id integer NOT NULL,
+		comment_id integer NOT NULL,
+		like integer NOT NULL,
+		FOREIGN KEY(user_id) REFERENCES user(id),
+		FOREIGN KEY(comment_id) REFERENCES comment(id)
+	);`)
+	if err != nil {
+		// return
+	}
+
+	_, err = commentLikeTable.Exec()
+	if err != nil {
+		// return nil, err
+	}
+
+	defer commentLikeTable.Close()
+
+	return s, nil
+}
