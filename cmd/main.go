@@ -5,6 +5,8 @@ import (
 	"forum/database"
 	"forum/database/sqlite"
 	"log"
+	"net/http"
+	"os"
 )
 
 type Conf struct {
@@ -19,4 +21,14 @@ func main() {
 
 	conf := Conf{Store: store}
 	fmt.Println(conf)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Println("Server is listening:", port)
+	err = http.ListenAndServe(":"+port, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

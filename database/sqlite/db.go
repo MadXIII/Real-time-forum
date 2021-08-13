@@ -10,18 +10,15 @@ type Store struct {
 	db *sql.DB
 }
 
-func Init(dbname string) (*Store, error) {
-	s := &Store{}
-	var err error
+func Init(dbname string) (s *Store, err error) {
+	s = &Store{}
 
 	s.db, err = sql.Open("sqlite3", dbname)
-	// return &Store{db: s.db}, nil
-
 	if err != nil {
-		// return
+		return
 	}
 
-	userTable, err := s.db.Prepare(`CREATE TABLE user (
+	userTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS user (
 		id integer PRIMARY KEY NOT NULL,
 		age integer NOT NULL,
 		nickname VARCHAR(20) NOT NULL,
@@ -31,18 +28,19 @@ func Init(dbname string) (*Store, error) {
 		email VARCHAR(100) NOT NULL,
 		password VARCHAR(255) NOT NULL
 	);`)
+
 	if err != nil {
-		// return
+		return
 	}
 
 	_, err = userTable.Exec()
 	if err != nil {
-		// return
+		return
 	}
 
 	defer userTable.Close()
 
-	postTable, err := s.db.Prepare(`CREATE TABLE post (
+	postTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS post (
 		id integer PRIMARY KEY NOT NULL,
 		user_id integer NOT NULL,
 		title VARCHAR(50) NOT NULL,
@@ -52,17 +50,17 @@ func Init(dbname string) (*Store, error) {
 	);`)
 
 	if err != nil {
-		// return
+		return
 	}
 
 	_, err = postTable.Exec()
 	if err != nil {
-		// return
+		return
 	}
 
 	defer postTable.Close()
 
-	postLikeTable, err := s.db.Prepare(`CREATE TABLE postLike (
+	postLikeTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS postLike (
 		user_id integer NOT NULL,
 		post_id integer NOT NULL,
 		like integer NOT NULL,
@@ -70,17 +68,17 @@ func Init(dbname string) (*Store, error) {
 		FOREIGN KEY(post_id) REFERENCES post(id)
 	);`)
 	if err != nil {
-		// return
+		return
 	}
 
 	_, err = postLikeTable.Exec()
 	if err != nil {
-		// return
+		return
 	}
 
 	defer postLikeTable.Close()
 
-	commentTable, err := s.db.Prepare(`CREATE TABLE comment (
+	commentTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS comment (
 		id integer PRIMARY KEY NOT NULL,
 		user_id integer NOT NULL,
 		comment TEXT NOT NULL,
@@ -90,12 +88,12 @@ func Init(dbname string) (*Store, error) {
 
 	_, err = commentTable.Exec()
 	if err != nil {
-		// return
+		return
 	}
 
 	defer commentTable.Close()
 
-	commentLikeTable, err := s.db.Prepare(`CREATE TABLE commentLike (
+	commentLikeTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS commentLike (
 		user_id integer NOT NULL,
 		comment_id integer NOT NULL,
 		like integer NOT NULL,
@@ -103,15 +101,15 @@ func Init(dbname string) (*Store, error) {
 		FOREIGN KEY(comment_id) REFERENCES comment(id)
 	);`)
 	if err != nil {
-		// return
+		return
 	}
 
 	_, err = commentLikeTable.Exec()
 	if err != nil {
-		// return nil, err
+		return
 	}
 
 	defer commentLikeTable.Close()
 
-	return s, nil
+	return
 }
