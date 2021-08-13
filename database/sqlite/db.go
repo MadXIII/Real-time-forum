@@ -43,8 +43,8 @@ func Init(dbname string) (s *Store, err error) {
 	postTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS post (
 		id integer PRIMARY KEY NOT NULL,
 		user_id integer NOT NULL,
-		title VARCHAR(50) NOT NULL,
-		post TEXT NOT NULL,
+		tittle VARCHAR(50) NOT NULL,
+		content TEXT NOT NULL,
 		timestamp TEXT NOT NULL,
 		FOREIGN KEY (user_id) REFERENCES user(id)
 	);`)
@@ -81,9 +81,11 @@ func Init(dbname string) (s *Store, err error) {
 	commentTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS comment (
 		id integer PRIMARY KEY NOT NULL,
 		user_id integer NOT NULL,
+		post id integer NOT NULL,
 		comment TEXT NOT NULL,
 		timestamp TEXT,
-		FOREIGN KEY(user_id) REFERENCES user(id)
+		FOREIGN KEY(user_id) REFERENCES user(id),
+		FOREIGN KEY(post_id) REFERENCES post(id)
 	);`)
 
 	_, err = commentTable.Exec()

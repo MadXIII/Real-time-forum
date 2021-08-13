@@ -1,22 +1,25 @@
 package server
 
 import (
-	"log"
+	"forum/models"
 	"net/http"
 )
 
 func RegHandler(w http.ResponseWriter, r *http.Request) {
 
-	http.HandleFunc("/registration", func(w http.ResponseWriter, r *http.Request) {
-		log.Println(w, "Register")
-	})
-	// switch r.Method {
-	// case "POST":
-	// 	//
-	// case "GET":
-	// 	//
-	// default:
-	// 	//
-	// }
-	// return nil
+	http.HandleFunc("/registration", registration)
+}
+
+var newUser models.User
+
+func registration(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		newUser.Nickname = r.FormValue("nickname")
+		newUser.Age = r.FormValue("age")
+	case "GET":
+		//
+	default:
+		//
+	}
 }
