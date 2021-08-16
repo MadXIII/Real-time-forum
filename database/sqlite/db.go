@@ -2,6 +2,8 @@ package sqlite
 
 import (
 	"database/sql"
+	"fmt"
+	"log"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -11,6 +13,7 @@ type Store struct {
 }
 
 func Init(dbname string) (s *Store, err error) {
+	fmt.Println(1)
 	s = &Store{}
 
 	s.db, err = sql.Open("sqlite3", dbname)
@@ -81,15 +84,16 @@ func Init(dbname string) (s *Store, err error) {
 	commentTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS comment (
 		id integer PRIMARY KEY NOT NULL,
 		user_id integer NOT NULL,
-		post id integer NOT NULL,
+		post_id integer NOT NULL,
 		comment TEXT NOT NULL,
 		timestamp TEXT,
 		FOREIGN KEY(user_id) REFERENCES user(id),
 		FOREIGN KEY(post_id) REFERENCES post(id)
-	);`)
+		);`)
 
 	_, err = commentTable.Exec()
 	if err != nil {
+		log.Println(23)
 		return
 	}
 
@@ -112,6 +116,8 @@ func Init(dbname string) (s *Store, err error) {
 	}
 
 	defer commentLikeTable.Close()
+
+	fmt.Println(2)
 
 	return
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"forum/database"
 	"forum/database/sqlite"
+	"forum/server"
 	"log"
 	"net/http"
 	"os"
@@ -18,6 +19,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	http.HandleFunc("/registration", server.Регистрация)
 
 	conf := Conf{Store: store}
 	fmt.Println(conf)
