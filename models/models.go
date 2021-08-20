@@ -3,17 +3,14 @@ package models
 import "time"
 
 type User struct {
-	ID             int    `json:"id"`
-	Age            int    `json:"age"`
-	Nickname       string `json:"nickname"`
-	Gender         string `json:"gender"`
-	FirstName      string `json:"first_name"`
-	LastName       string `json:"last_name"`
-	Email          string `json:"email"`
-	Password       string `json:"password"`
-	CreatedPost    []Post
-	CreatedComment []Comment
-	LikedPosts     []PostLike
+	ID        int    `json:"id"`
+	Age       int    `json:"age"`
+	Nickname  string `json:"nickname"`
+	Gender    string `json:"gender"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
 }
 
 type Post struct {

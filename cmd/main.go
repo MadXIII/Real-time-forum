@@ -19,9 +19,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	conf := Conf{Store: store}
+	// err = sqlite.InsertUser(models.User{
+	// 	Age: 23,
+	// }, store)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
 	http.HandleFunc("/registration", server.Регистрация)
 
-	conf := Conf{Store: store}
 	fmt.Println(conf)
 	port := os.Getenv("PORT")
 	if port == "" {
