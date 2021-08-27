@@ -1,11 +1,16 @@
 package sqlite
 
 import (
+	"forum/database"
 	"forum/models"
 )
 
-func InsertUser(user models.User, s *Store) (err error) {
-	createTable, err := s.db.Prepare(`
+type User struct {
+	store *Store
+}
+
+func (u User) InsertUser(user models.User, s database.Repository) (err error) {
+	createTable, err := u.store.db.Prepare(`
 	INSERT INTO user
 	(age, nickname, gender, first_name, last_name, email, password)
 	VALUES (?, ?, ?, ?, ?, ?, ?)

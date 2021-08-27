@@ -2,36 +2,25 @@ package server
 
 import (
 	"encoding/json"
-	"forum/database/sqlite"
+	"fmt"
 	"forum/models"
 	"io/ioutil"
 	"log"
 	"net/http"
 )
 
-// func RegHandler(w http.ResponseWriter, r *http.Request) {
+var newUser models.User
 
-// 	http.HandleFunc("/registration", Регистрация)
-// }
-
-var Peremennaya models.User
-var store sqlite.Store
-
-func Регистрация(w http.ResponseWriter, r *http.Request) {
+func (s *Server) Registration(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		w.Write([]byte("TEST"))
 	}
 	if r.Method == "POST" {
 		bytes, _ := ioutil.ReadAll(r.Body)
-		err := json.Unmarshal(bytes, &Peremennaya) //
+		err := json.Unmarshal(bytes, &newUser) //
 		if err != nil {
 			log.Fatalln(err)
 		}
-
+		fmt.Println(newUser.ID)
 	}
-	// err = sqlite.InsertUser(Peremennaya, &store)
-	// if err != nil {
-	// 	log.Fatalln(err)
-	// }
-	// fmt.Println(Peremennaya)
 }
