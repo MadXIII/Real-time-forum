@@ -1,16 +1,12 @@
 package sqlite
 
 import (
-	"forum/database"
 	"forum/models"
+	"log"
 )
 
-type User struct {
-	store *Store
-}
-
-func (u User) InsertUser(user models.User, s database.Repository) (err error) {
-	createTable, err := u.store.db.Prepare(`
+func (s *Store) InsertUser(user models.User) (err error) {
+	createTable, err := s.db.Prepare(`
 	INSERT INTO user
 	(age, nickname, gender, first_name, last_name, email, password)
 	VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -18,7 +14,6 @@ func (u User) InsertUser(user models.User, s database.Repository) (err error) {
 	if err != nil {
 		return
 	}
-
 	defer createTable.Close()
 
 	res, err := createTable.Exec(
@@ -32,6 +27,7 @@ func (u User) InsertUser(user models.User, s database.Repository) (err error) {
 	)
 
 	if err != nil {
+		log.Fatal(err)
 		return
 	}
 
@@ -39,6 +35,7 @@ func (u User) InsertUser(user models.User, s database.Repository) (err error) {
 	user.ID = int(userid)
 
 	if err != nil {
+		log.Fatal(err)
 		return
 	}
 	return

@@ -6,13 +6,13 @@ import (
 )
 
 type Server struct {
-	db     database.Repository
+	store  database.Repository
 	router http.ServeMux
 }
 
-func Init(db database.Repository) *Server {
+func Init(store database.Repository) *Server {
 	return &Server{
-		db:     db,
+		store:  store,
 		router: *http.NewServeMux(),
 	}
 }

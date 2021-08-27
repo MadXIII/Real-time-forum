@@ -8,20 +8,13 @@ import (
 )
 
 func main() {
-	var store db.Store
+	store := db.Store{}
 	err := store.Init("forum.db")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	server := server.Init(store)
-	// conf := Conf{Store: store}
-	// err = sqlite.InsertUser(models.User{
-	// 	Age: 23,
-	// }, store)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	server := server.Init(&store)
 
 	// fmt.Println(conf)
 	port := os.Getenv("PORT")
@@ -31,9 +24,4 @@ func main() {
 
 	log.Println("Server is listening:", port)
 	server.ListenAndServe(":" + port)
-
-	// err = http.ListenAndServe(":"+port, nil)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
 }

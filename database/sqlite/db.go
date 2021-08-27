@@ -2,22 +2,16 @@ package sqlite
 
 import (
 	"database/sql"
-	"forum/database"
 	"log"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type Store struct {
-	db             *sql.DB
-	userRepository *database.UserRepository
+	db *sql.DB
 }
 
-func (s *Store) User() database.UserRepository {
-	return *s.userRepository
-}
-
-func (s Store) Init(dbname string) (err error) {
+func (s *Store) Init(dbname string) (err error) {
 	s.db, err = sql.Open("sqlite3", dbname)
 	if err != nil {
 		return
