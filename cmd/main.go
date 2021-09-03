@@ -1,22 +1,26 @@
 package main
 
 import (
-	"fmt"
-	"forum/database"
-	"forum/database/sqlite"
+	db "forum/database/sqlite"
+	"forum/server"
 	"log"
+	"os"
 )
 
-type Conf struct {
-	Store database.Repository
-}
-
 func main() {
-	store, err := sqlite.Init("forum.db")
+	store := db.Store{}
+	err := store.Init("forum.db")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	conf := Conf{Store: store}
-	fmt.Println(conf)
+	server := server.Init(&store)
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Println("Server is listening:", port)
+	server.ListenAndServe(":" + port)
 }
