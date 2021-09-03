@@ -18,7 +18,12 @@ func Init(store database.Repository) *Server {
 }
 
 func (s *Server) Conf() {
-	s.router.HandleFunc("/registration", s.Registration)
+	s.router.Handle("/js/", http.StripPrefix("/js", http.FileServer(http.Dir("../client/js"))))
+	s.router.HandleFunc("/", s.MainPage)
+	s.router.HandleFunc("/signup", s.SignUp)
+	// s.router.HandleFunc("/post", s.GetPost)
+
+	// s.router.HandleFunc("/registration", s.Registration)
 }
 
 func (s *Server) ListenAndServe(port string) {

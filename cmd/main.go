@@ -16,7 +16,6 @@ func main() {
 
 	server := server.Init(&store)
 
-	// fmt.Println(conf)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"

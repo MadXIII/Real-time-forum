@@ -4,13 +4,13 @@ import "time"
 
 type User struct {
 	ID        int    `json:"id"`
-	Age       int    `json:"age"`
 	Nickname  string `json:"nickname"`
-	Gender    string `json:"gender"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 	Password  string `json:"password"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Gender    string `json:"gender"`
+	Age       int    `json:"age"`
 }
 
 type Post struct {
