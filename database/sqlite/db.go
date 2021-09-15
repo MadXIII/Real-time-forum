@@ -19,9 +19,9 @@ func (s *Store) Init(dbname string) (err error) {
 	log.Println("DB creating...")
 	userTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS user (
 		id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-		nickname VARCHAR(20) NOT NULL UNIQUE,
-		email VARCHAR(100) NOT NULL UNIQUE,
-		password BLOB NOT NULL,
+		nickname VARCHAR(20) NOT NULL,
+		email VARCHAR(100) NOT NULL,
+		password VARCHAR(255) NOT NULL,
 		first_name VARCHAR(20),
 		last_name VARCHAR(30),
 		gender VARCHAR(5),

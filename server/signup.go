@@ -7,20 +7,13 @@ import (
 	"log"
 	"net/http"
 	"regexp"
-	"strings"
 	"unicode"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 //SignUp page GET, POST
 func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		if err = s.Parser(); err != nil {
-			w.WriteHeader(500)
-			log.Println(err)
-			return
-		}
+		s.Parser()
 		w.WriteHeader(http.StatusOK)
 		if err = s.temp.Execute(w, nil); err != nil {
 			w.WriteHeader(500)
@@ -34,9 +27,10 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			return
 		}
+		response := make(map[string]string)
 		var newUser models.User
 		var result string
-		// var newUser.Password []byte
+		// var hash []byte
 
 		if err = json.Unmarshal(bytes, &newUser); err != nil {
 			w.WriteHeader(500)
@@ -47,13 +41,13 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 		result, ok := isEmpty(newUser)
 
 		if ok {
-			SendNotify(w, result, 400)
+			sendNotify(w, result, response, 400)
 			return
 		}
 
 		if !isValidEmail(newUser.Email) {
 			result = "Invalid Email"
-			SendNotify(w, result, 400)
+			sendNotify(w, result, response, 400)
 			return
 		}
 
@@ -61,35 +55,23 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 
 		if newUser.Password != newUser.Confirm {
 			result = "Different second password"
-			SendNotify(w, result, 400)
+			sendNotify(w, result, response, 400)
 			return
 		}
 
 		if !isValidPass(newUser.Password) {
 			result = "Invlaid Pass"
-			SendNotify(w, result, 400)
+			sendNotify(w, result, response, 400)
 			return
 		}
 
-		bytes, err = bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.MinCost)
-		if err != nil {
-			w.WriteHeader(500)
-			log.Println(err)
-			return
-		}
-		newUser.Password = string(bytes)
+		// hash, err = bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.MinCost)
+		// if err != nil {
+		// 	log.Println(err)
+		// 	return
+		// }
 
 		if err = s.store.InsertUser(newUser); err != nil {
-			if strings.Contains(err.Error(), "nickname") {
-				result = "Nickname is already in use"
-				SendNotify(w, result, 500)
-				return
-			}
-			if strings.Contains(err.Error(), "email") {
-				result = "Email is already in use"
-				SendNotify(w, result, 500)
-				return
-			}
 			w.WriteHeader(500)
 			log.Println(err)
 			return
@@ -107,9 +89,8 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//SendNotify send Notification to Front
-func SendNotify(w http.ResponseWriter, result string, status int) {
-	response := make(map[string]string)
+//send Notification to Front
+func sendNotify(w http.ResponseWriter, result string, response map[string]string, status int) {
 	response["notify"] = result
 	notify, err := json.Marshal(response)
 	if err != nil {

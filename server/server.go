@@ -2,6 +2,7 @@ package server
 
 import (
 	"forum/database"
+	"log"
 	"net/http"
 	"text/template"
 )
@@ -33,7 +34,9 @@ func (s *Server) ListenAndServe(port string) {
 	http.ListenAndServe(port, &s.router)
 }
 
-func (s *Server) Parser() error {
+func (s *Server) Parser() {
 	s.temp, err = template.ParseFiles("../client/index.html")
-	return err
+	if err != nil {
+		log.Println(err)
+	}
 }
