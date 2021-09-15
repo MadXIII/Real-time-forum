@@ -8,7 +8,7 @@ import (
 func (s *Store) InsertUser(user models.User) (err error) {
 	createTable, err := s.db.Prepare(`
 	INSERT INTO user
-	(age, nickname, gender, first_name, last_name, email, password)
+	(nickname, email, password, first_name, last_name, gender, age)
 	VALUES (?, ?, ?, ?, ?, ?, ?)
 	`)
 	if err != nil {
@@ -17,13 +17,13 @@ func (s *Store) InsertUser(user models.User) (err error) {
 	defer createTable.Close()
 
 	res, err := createTable.Exec(
-		user.Age,
 		user.Nickname,
-		user.Gender,
-		user.FirstName,
-		user.LastName,
 		user.Email,
 		user.Password,
+		user.FirstName,
+		user.LastName,
+		user.Gender,
+		user.Age,
 	)
 
 	if err != nil {

@@ -19,13 +19,13 @@ func (s *Store) Init(dbname string) (err error) {
 	log.Println("DB creating...")
 	userTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS user (
 		id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-		age integer NOT NULL,
 		nickname VARCHAR(20) NOT NULL,
-		gender VARCHAR(5),
+		email VARCHAR(100) NOT NULL,
+		password VARCHAR(255) NOT NULL,
 		first_name VARCHAR(20),
 		last_name VARCHAR(30),
-		email VARCHAR(100) NOT NULL,
-		password VARCHAR(255) NOT NULL
+		gender VARCHAR(5),
+		age integer
 	);`)
 
 	if err != nil {
@@ -111,6 +111,6 @@ func (s *Store) Init(dbname string) (err error) {
 	}
 
 	defer commentLikeTable.Close()
-
+	log.Println("DB Created")
 	return
 }

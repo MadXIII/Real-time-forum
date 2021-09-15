@@ -16,12 +16,10 @@ func main() {
 
 	server := server.Init(&store)
 
-	// fmt.Println(conf)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
-
 	log.Println("Server is listening:", port)
 	server.ListenAndServe(":" + port)
 }
