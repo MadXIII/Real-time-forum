@@ -1,25 +1,20 @@
-import AbstractView from "./AbstratcView.js"
+import AbstractView from "./AbstractView.js"
 
 export default class extends AbstractView {
     constructor() {
         super()
-        this.setTitle("Home")
+        this.setTitle("FORUM")
 
     }
-    init(){
-        console.log('init')
-        super.showPussy()
+    init() {
     }
-
     async getHtml() {
         return `
-            <h1>Welcome my friend</h1>
-            <p>
-                This is the Real fucking time Forum!!!
-            </p>
-            <p>
-                <a href="/post" datat-link>View Posts</a>
-            </p>
+        <p><a href="/signup" data-link>Sign Up</a></p>
+        <p><a href="/signin" data-link>Sign In</a></p>
+        <h1>Home</h1>
+        <p>Welcome to the Main Page</p>
+        <p><a href="/post" datat-link>View Posts</a></p>
         `
     }
 }
