@@ -7,6 +7,8 @@ import (
 	"text/template"
 )
 
+var err error
+
 type Server struct {
 	store  database.Repository
 	router http.ServeMux
@@ -24,6 +26,7 @@ func (s *Server) Conf() {
 	s.router.Handle("/js/", http.StripPrefix("/js", http.FileServer(http.Dir("../client/js"))))
 	s.router.HandleFunc("/", s.MainPage)
 	s.router.HandleFunc("/signup", s.SignUp)
+	s.router.HandleFunc("/signin", s.SignIn)
 	s.router.HandleFunc("/post", s.GetPost)
 }
 
