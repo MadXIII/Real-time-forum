@@ -3,9 +3,8 @@ import AbstractView from "./AbstractView.js"
 export default class extends AbstractView {
     constructor() {
         super()
-        this.setTitle("SignUp")
+        this.setTitle("Sign Up")
     }
-
 
     init() {
         let signUpId = document.getElementById('signUpBtnId')
@@ -31,14 +30,14 @@ export default class extends AbstractView {
                 window.location.href = "/"
             } else {
                 let result = await response.json()
-                alert(result["notify"])
+                alert(result['notify'])
             }
         }
     }
 
     async getHtml() {
         return `
-        <h1>Real Time Forum</h1>
+        <h1>SIGN UP</h1>
         <p><input type="text" placeholder="Nickname" id="nick"></p>
         <p><input type="text" placeholder="Email address" id="email"></p>
         <p><input type="text" placeholder="Password" id="pass"></p>

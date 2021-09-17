@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"regexp"
 	"unicode"
-)
 
-var err error
+	"golang.org/x/crypto/bcrypt"
+)
 
 //SignUp page GET, POST
 func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
@@ -29,10 +29,9 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			return
 		}
-		response := make(map[string]string)
 		var newUser models.User
 		var result string
-		// var hash []byte
+		// var newUser.Password []byte
 
 		if err = json.Unmarshal(bytes, &newUser); err != nil {
 			w.WriteHeader(500)
@@ -43,13 +42,13 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 		result, ok := isEmpty(newUser)
 
 		if ok {
-			sendNotify(w, result, response, 400)
+			SendNotify(w, result, 400)
 			return
 		}
 
 		if !isValidEmail(newUser.Email) {
 			result = "Invalid Email"
-			sendNotify(w, result, response, 400)
+			SendNotify(w, result, 400)
 			return
 		}
 
@@ -57,21 +56,23 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 
 		if newUser.Password != newUser.Confirm {
 			result = "Different second password"
-			sendNotify(w, result, response, 400)
+			SendNotify(w, result, 400)
 			return
 		}
 
 		if !isValidPass(newUser.Password) {
 			result = "Invlaid Pass"
-			sendNotify(w, result, response, 400)
+			SendNotify(w, result, 400)
 			return
 		}
 
-		// hash, err = bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.MinCost)
-		// if err != nil {
-		// 	log.Println(err)
-		// 	return
-		// }
+		bytes, err = bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.MinCost)
+		if err != nil {
+			w.WriteHeader(500)
+			log.Println(err)
+			return
+		}
+		newUser.Password = string(bytes)
 
 		if err = s.store.InsertUser(newUser); err != nil {
 			w.WriteHeader(500)
@@ -91,8 +92,9 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//send Notification to Front
-func sendNotify(w http.ResponseWriter, result string, response map[string]string, status int) {
+//SendNotify send Notification to Front
+func SendNotify(w http.ResponseWriter, result string, status int) {
+	response := make(map[string]string)
 	response["notify"] = result
 	notify, err := json.Marshal(response)
 	if err != nil {
