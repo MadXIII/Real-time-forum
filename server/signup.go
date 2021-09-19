@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strings"
 	"unicode"
 )
 
@@ -30,7 +31,6 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 		response := make(map[string]string)
 		var newUser models.User
 		var result string
-		// var hash []byte
 
 		if err = json.Unmarshal(bytes, &newUser); err != nil {
 			w.WriteHeader(500)
@@ -51,8 +51,6 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		//is email/nickname exist? (checker)
-
 		if newUser.Password != newUser.Confirm {
 			result = "Different second password"
 			sendNotify(w, result, response, 400)
@@ -72,6 +70,16 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 		// }
 
 		if err = s.store.InsertUser(newUser); err != nil {
+			if strings.Contains(err.Error(), "nickname") {
+				result = "Nickname is already in use"
+				SendNotify(w, result, 500)
+				return
+			}
+			if strings.Contains(err.Error(), "email") {
+				result = "Email is already in use"
+				SendNotify(w, result, 500)
+				return
+			}
 			w.WriteHeader(500)
 			log.Println(err)
 			return
