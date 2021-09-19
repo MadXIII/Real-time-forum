@@ -16,7 +16,11 @@ import (
 //SignUp page GET, POST
 func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		s.Parser()
+		if err = s.Parser(); err != nil {
+			w.WriteHeader(500)
+			log.Println(err)
+			return
+		}
 		w.WriteHeader(http.StatusOK)
 		if err = s.temp.Execute(w, nil); err != nil {
 			w.WriteHeader(500)
