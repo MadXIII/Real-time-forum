@@ -7,6 +7,8 @@ import (
 	"text/template"
 )
 
+var err error
+
 type Server struct {
 	store  database.Repository
 	router http.ServeMux
