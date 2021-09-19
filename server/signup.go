@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strings"
 	"unicode"
 
 	"golang.org/x/crypto/bcrypt"
@@ -31,7 +32,6 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 		}
 		var newUser models.User
 		var result string
-		// var newUser.Password []byte
 
 		if err = json.Unmarshal(bytes, &newUser); err != nil {
 			w.WriteHeader(500)
@@ -51,8 +51,6 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 			SendNotify(w, result, 400)
 			return
 		}
-
-		//is email/nickname exist? (checker)
 
 		if newUser.Password != newUser.Confirm {
 			result = "Different second password"
@@ -75,6 +73,16 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 		newUser.Password = string(bytes)
 
 		if err = s.store.InsertUser(newUser); err != nil {
+			if strings.Contains(err.Error(), "nickname") {
+				result = "Nickname is already in use"
+				SendNotify(w, result, 500)
+				return
+			}
+			if strings.Contains(err.Error(), "email") {
+				result = "Email is already in use"
+				SendNotify(w, result, 500)
+				return
+			}
 			w.WriteHeader(500)
 			log.Println(err)
 			return
