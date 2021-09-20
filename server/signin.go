@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"forum/models"
 	"io/ioutil"
 	"log"
@@ -76,11 +75,8 @@ func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		fmt.Println("SUCCESS")
+		CreateSession(w, user.ID)
 
-		//check email
-		//check password
-		//create session
 		w.WriteHeader(200)
 		return
 	} else {

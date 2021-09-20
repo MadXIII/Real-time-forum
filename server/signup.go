@@ -88,7 +88,7 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		//creatSession
+		CreateSession(w, newUser.ID)
 
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("User created succesfully"))

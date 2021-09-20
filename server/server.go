@@ -5,9 +5,12 @@ import (
 	"log"
 	"net/http"
 	"text/template"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 var err error
+var cookies map[int]*http.Cookie = map[int]*http.Cookie{}
 
 type Server struct {
 	store  database.Repository
@@ -40,4 +43,17 @@ func (s *Server) Parser() {
 	if err != nil {
 		log.Println(err)
 	}
+}
+
+func CreateSession(w http.ResponseWriter, uid int) {
+	sid := uuid.NewV4().String()
+
+	cookies[uid] = &http.Cookie{
+		Name:   "session",
+		Value:  sid,
+		MaxAge: 86400,
+		Path:   "/",
+	}
+
+	http.SetCookie(w, cookies[uid])
 }
