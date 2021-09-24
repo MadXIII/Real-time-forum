@@ -13,6 +13,7 @@ func (s *Store) InsertUser(user models.User) (err error) {
 	VALUES (?, ?, ?, ?, ?, ?, ?)
 	`)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 	defer createTable.Close()

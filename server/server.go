@@ -2,26 +2,26 @@ package server
 
 import (
 	"forum/database"
+	sessions "forum/sessions"
 	"log"
 	"net/http"
 	"text/template"
-
-	uuid "github.com/satori/go.uuid"
 )
 
 var err error
 var cookies map[int]*http.Cookie = map[int]*http.Cookie{}
 
 type Server struct {
-	store  database.Repository
-	router http.ServeMux
-	temp   *template.Template
+	store        database.Repository
+	router       http.ServeMux
+	cookiesStore sessions.Repository
 }
 
-func Init(store database.Repository) *Server {
+func Init(store database.Repository, cookiesStore sessions.Repository) *Server {
 	return &Server{
-		store:  store,
-		router: *http.NewServeMux(),
+		store:        store,
+		router:       *http.NewServeMux(),
+		cookiesStore: cookiesStore,
 	}
 }
 
@@ -38,22 +38,10 @@ func (s *Server) ListenAndServe(port string) {
 	http.ListenAndServe(port, &s.router)
 }
 
-func (s *Server) Parser() {
-	s.temp, err = template.ParseFiles("../client/index.html")
+func Parser() *template.Template {
+	temp, err := template.ParseFiles("../client/index.html")
 	if err != nil {
 		log.Println(err)
 	}
-}
-
-func CreateSession(w http.ResponseWriter, uid int) {
-	sid := uuid.NewV4().String()
-
-	cookies[uid] = &http.Cookie{
-		Name:   "session",
-		Value:  sid,
-		MaxAge: 86400,
-		Path:   "/",
-	}
-
-	http.SetCookie(w, cookies[uid])
+	return temp
 }
