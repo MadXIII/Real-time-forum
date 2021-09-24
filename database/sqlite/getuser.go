@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"forum/models"
+	"log"
 )
 
 // func (s *Store) GetUserById() (int, error) {
@@ -9,43 +10,29 @@ import (
 // }
 
 //GetUserByNickname Searching User in database by Nickname
-func (s *Store) GetUserByNickname(nickname string) (models.User, error) {
+func (s *Store) GetUserByLogin(login string) (*models.User, error) {
 	var user models.User
 
 	rows, err := s.db.Query(`
-		SELECT * FROM user WHERE nickname = ?
-	`, nickname)
-
+		SELECT * FROM user WHERE nickname = ? OR email = ? 
+	`, login, login)
+	if err != nil {
+		return nil, err
+	}
 	defer rows.Close()
 
-	if err != nil {
-		return user, err
-	}
-
 	for rows.Next() {
-		rows.Scan(&user.ID, &user.Nickname, &user.Email, &user.Password, &user.FirstName, &user.LastName, &user.Gender, &user.Age)
+		err := rows.Scan(&user.ID, &user.Nickname, &user.Email, &user.Password, &user.FirstName, &user.LastName, &user.Gender, &user.Age)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
 	}
 
-	return user, err
-}
-
-//GetUserByEmail Searching User in database by Email
-func (s *Store) GetUserByEmail(email string) (models.User, error) {
-	var user models.User
-
-	rows, err := s.db.Query(`
-		SELECT * FROM user WHERE email = ?
-	`, email)
-
-	defer rows.Close()
-
-	if err != nil {
-		return user, err
+	if err := rows.Err(); err != nil {
+		log.Println(err)
+		return nil, err
 	}
 
-	for rows.Next() {
-		rows.Scan(&user.ID, &user.Nickname, &user.Email, &user.Password, &user.FirstName, &user.LastName, &user.Gender, &user.Age)
-	}
-
-	return user, err
+	return &user, err
 }

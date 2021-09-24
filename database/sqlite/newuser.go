@@ -12,6 +12,7 @@ func (s *Store) InsertUser(user models.User) (err error) {
 	VALUES (?, ?, ?, ?, ?, ?, ?)
 	`)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 	defer createTable.Close()
@@ -27,7 +28,7 @@ func (s *Store) InsertUser(user models.User) (err error) {
 	)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return
 	}
 
@@ -35,7 +36,7 @@ func (s *Store) InsertUser(user models.User) (err error) {
 	user.ID = int(userid)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return
 	}
 	return

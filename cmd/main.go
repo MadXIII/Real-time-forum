@@ -3,6 +3,7 @@ package main
 import (
 	db "forum/database/sqlite"
 	"forum/server"
+	"forum/sessions/session"
 	"log"
 	"os"
 )
@@ -14,8 +15,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	server := server.Init(&store)
+	sessionService := session.New()
 
+	server := server.Init(&store, sessionService)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"

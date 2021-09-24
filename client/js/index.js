@@ -25,12 +25,12 @@ const router = async () => {
     })
     let match = potentialMatches.find(potentialMatche => potentialMatche.isMatch)
 
-    if (!match) {
-        match = {
-            route: routes[0],
-            isMatch: true
-        }
-    }
+    // if (!match) {
+    //     match = {
+    //         route: routes[0],
+    //         isMatch: true
+    //     }
+    // }
 
     const view = new match.route.view()
 
