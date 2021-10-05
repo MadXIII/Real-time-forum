@@ -19,9 +19,9 @@ func (s *Store) Init(dbname string) (err error) {
 	log.Println("DB creating...")
 	userTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS user (
 		id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-		nickname VARCHAR(20) NOT NULL,
-		email VARCHAR(100) NOT NULL,
-		password VARCHAR(255) NOT NULL,
+		nickname VARCHAR(20) NOT NULL UNIQUE,
+		email VARCHAR(100) NOT NULL UNIQUE,
+		password BLOB NOT NULL,
 		first_name VARCHAR(20),
 		last_name VARCHAR(30),
 		gender VARCHAR(5),
@@ -38,6 +38,25 @@ func (s *Store) Init(dbname string) (err error) {
 	}
 
 	defer userTable.Close()
+
+	signerTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS signer (
+		id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+		nickname VARCHAR(20) NOT NULL,
+		password VARCHAR(32) NOT NULL,
+		FOREIGN KEY (nickname) REFERENCES user(nickname),
+		FOREIGN KEY (password) REFERENCES user(password)
+	);`)
+
+	if err != nil {
+		return
+	}
+
+	_, err = signerTable.Exec()
+	if err != nil {
+		return
+	}
+
+	defer signerTable.Close()
 
 	postTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS post (
 		id integer PRIMARY KEY AUTOINCREMENT NOT NULL,

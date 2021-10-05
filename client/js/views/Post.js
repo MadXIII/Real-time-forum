@@ -1,4 +1,4 @@
-import AbstractView from "./AbstratcView.js"
+import AbstractView from "./AbstractView.js"
 
 export default class extends AbstractView {
     constructor() {
@@ -6,7 +6,9 @@ export default class extends AbstractView {
         this.setTitle("Post")
 
     }
+    init() {
     
+    }
     async getHtml() {
         return `
             <h1>All posts</h1>
