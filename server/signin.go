@@ -10,18 +10,19 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+//Sign - struct to get Signer datas
 type Sign struct {
 	NickOrEmail string `json:"nickoremail"`
 	Password    string `json:"password"`
 }
 
+//SignIn - Sigin page
 func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		temp := Parser()
-		if err = temp.Execute(w, nil); err != nil {
+		if err := temp.Execute(w, nil); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Println(err)
-			return
 		}
 		return
 	}
@@ -59,13 +60,6 @@ func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 		cookie := s.cookiesStore.CreateSession(user.ID)
 
 		http.SetCookie(w, cookie)
-
-		cookie.MaxAge = -1
-
-		http.SetCookie(w, cookie)
-
-		// session.Store
-		//connect session from private browser
 
 		w.WriteHeader(200)
 		return

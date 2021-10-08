@@ -3,7 +3,6 @@ package server
 import (
 	"encoding/json"
 	"forum/models"
-	"forum/sessions/session"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -18,11 +17,12 @@ import (
 func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		temp := Parser()
-		if err = temp.Execute(w, nil); err != nil {
+		if err := temp.Execute(w, nil); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Println(err)
 			return
 		}
+		return
 	}
 	if r.Method == http.MethodPost {
 		bytes, err := ioutil.ReadAll(r.Body)
@@ -39,7 +39,7 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if res, ok := isCorrcetDatasToSignUp(newUser); !ok {
+		if res, ok := isCorrectDatasToSignUp(newUser); !ok {
 			SendNotify(w, res, http.StatusBadRequest)
 			return
 		}
@@ -66,20 +66,17 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		cookie := session.New().CreateSession(newUser.ID)
+		cookie := s.cookiesStore.CreateSession(newUser.ID)
 
 		http.SetCookie(w, cookie)
-		// log.Println(cookie)
-
-		//connect session from private browser
 
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("User created succesfully"))
-	} else {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte("405 method not allowed"))
 		return
 	}
+	w.WriteHeader(http.StatusMethodNotAllowed)
+	w.Write([]byte("405 method not allowed"))
+	return
 }
 
 //SendNotify send Notification to Front
@@ -97,7 +94,7 @@ func SendNotify(w http.ResponseWriter, result string, status int) {
 }
 
 //isCorrcetDataToSignUp ...
-func isCorrcetDatasToSignUp(user models.User) (string, bool) {
+func isCorrectDatasToSignUp(user models.User) (string, bool) {
 	if res, ok := isEmpty(user); ok {
 		return res, false
 	}

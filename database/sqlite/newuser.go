@@ -5,6 +5,7 @@ import (
 	"log"
 )
 
+//InsertUser - Insert user in DB
 func (s *Store) InsertUser(user models.User) (err error) {
 	createTable, err := s.db.Prepare(`
 	INSERT INTO user

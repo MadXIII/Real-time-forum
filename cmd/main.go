@@ -16,7 +16,6 @@ func main() {
 	}
 
 	sessionService := session.New()
-
 	server := server.Init(&store, sessionService)
 	port := os.Getenv("PORT")
 	if port == "" {
