@@ -41,8 +41,8 @@ export default class extends AbstractView {
         <h1>Real Time Forum</h1>
         <p><input type="text" placeholder="Nickname" id="nick"></p>
         <p><input type="text" placeholder="Email address" id="email"></p>
-        <p><input type="text" placeholder="Password" id="pass"></p>
-        <p><input type="text" placeholder="Confrim Password" id="confirm"></p>
+        <p><input type="password" placeholder="Password" id="pass"></p>
+        <p><input type="password" placeholder="Confrim Password" id="confirm"></p>
         <p><input type="text" placeholder="First name" id="firstname"></p>
         <p><input type="text" placeholder="Last name" id="lastname"></p>
         <p><input type="text" placeholder="Gender" id="gender"></p>

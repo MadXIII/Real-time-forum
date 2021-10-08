@@ -10,6 +10,8 @@ import (
 	"regexp"
 	"strings"
 	"unicode"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 //SignUp page GET, POST
@@ -38,38 +40,6 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-<<<<<<< HEAD
-		result, ok := isEmpty(newUser)
-
-		if ok {
-			sendNotify(w, result, response, 400)
-			return
-		}
-
-		if !isValidEmail(newUser.Email) {
-			result = "Invalid Email"
-			sendNotify(w, result, response, 400)
-			return
-		}
-
-		if newUser.Password != newUser.Confirm {
-			result = "Different second password"
-			sendNotify(w, result, response, 400)
-			return
-		}
-
-		if !isValidPass(newUser.Password) {
-			result = "Invlaid Pass"
-			sendNotify(w, result, response, 400)
-			return
-		}
-
-		// hash, err = bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.MinCost)
-		// if err != nil {
-		// 	log.Println(err)
-		// 	return
-		// }
-=======
 		if res, ok := isCorrcetDatasToSignUp(newUser); !ok {
 			SendNotify(w, res, http.StatusBadRequest)
 			return
@@ -82,7 +52,6 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		newUser.Password = string(bytes)
->>>>>>> fix:fix some bugs
 
 		if err = s.store.InsertUser(newUser); err != nil {
 			if strings.Contains(err.Error(), "nickname") {

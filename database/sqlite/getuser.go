@@ -9,7 +9,7 @@ import (
 
 // }
 
-//GetUserByNickname Searching User in database by Nickname
+//GetUserByLogin Searching User in database by Nickname
 func (s *Store) GetUserByLogin(login string) (*models.User, error) {
 	var user models.User
 

@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+//MainPage ...
 func (s *Server) MainPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		if r.URL.Path != "/" {
@@ -14,13 +15,11 @@ func (s *Server) MainPage(w http.ResponseWriter, r *http.Request) {
 		}
 		temp := Parser()
 		w.WriteHeader(http.StatusOK)
-		err = temp.Execute(w, nil)
-		if err != nil {
+		if err := temp.Execute(w, nil); err != nil {
 			log.Println(err)
 		}
 
 		return
-		//made logout
 		//made create post
 		//made get all posts
 

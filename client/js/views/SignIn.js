@@ -33,7 +33,7 @@ export default class extends AbstractView {
         return `
             <h1>SIGN IN</h1>
             <p><input type="text" placeholder="Nickname or Email" id="nickMail"</p>
-            <p><input type="text" placeholder="Password" id="pass"</p>
+            <p><input type="password" placeholder="Password" id="pass"</p>
             <input type="button" onclick="location.href='/signup';" value="Sign Up"/>
             or
             <button id="signInBtnId" type="submit">Sign In</button>
