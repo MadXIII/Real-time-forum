@@ -14,6 +14,7 @@ func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 		}
 	} else if r.Method == http.MethodPost {
+
 		log.Println("Need to finish this Part")
 	}
 }
