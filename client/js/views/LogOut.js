@@ -26,7 +26,6 @@ export default class extends AbstractView {
     
     }
 
-
     async getHtml() {
         return `
             <h2>are you sure?</h2>

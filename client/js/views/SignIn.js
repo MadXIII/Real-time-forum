@@ -7,8 +7,8 @@ export default class extends AbstractView {
     }
 
     init() {
-        let signInBtnId = document.getElementById('signInBtnId')
-        signInBtnId.onclick = async () => {
+        let signInId = document.getElementById('signInBtnId')
+        signInId.onclick = async () => {
             let user = {
                 nickoremail: document.getElementById('nickMail').value, 
                 password: document.getElementById('pass').value,
