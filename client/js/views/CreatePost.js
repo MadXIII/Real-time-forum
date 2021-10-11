@@ -7,12 +7,23 @@ export default class extends AbstractView {
     }
 
     init() {
-        let submitId = document.getElementById('submitBtnId')
+        let submitId = document.getElementById('creatPostBtnID')
         submitId.onclick = async () => {
+            console.log(23)
             let newPost = {
-                title: getElementById("title").value,
-                content: getElementById("content").value,
+                title: document.getElementById("title").value,
+                content: document.getElementById("content").value,
                 // timestamp:
+            }
+            let response = await fetch('http://localhost:8080/newpost', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify(newPost)
+            })
+            if (response.ok) {
+                window.location.href = "/"
             }
         }
     }
@@ -22,7 +33,7 @@ export default class extends AbstractView {
             <div>Create Post</div>
             <p><input type="text" placeholder="Title" id="title"/></p>
             <p><input type="text" placeholder="Your Post" id="content"/></p>
-            
+            <button id="creatPostBtnID">Submit</button>
         `)
     }
 }
