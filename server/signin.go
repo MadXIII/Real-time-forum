@@ -21,8 +21,7 @@ func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		temp := Parser()
 		if err := temp.Execute(w, nil); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Println(err)
+			logger(w, http.StatusInternalServerError, err)
 		}
 		return
 	}
@@ -32,14 +31,12 @@ func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 
 		bytes, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Println(err)
+			logger(w, http.StatusInternalServerError, err)
 			return
 		}
 
 		if err = json.Unmarshal(bytes, &signer); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Println(err)
+			logger(w, http.StatusInternalServerError, err)
 			return
 		}
 

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"forum/models"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"regexp"
 	"strings"
@@ -18,8 +17,7 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		temp := Parser()
 		if err := temp.Execute(w, nil); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Println(err)
+			logger(w, http.StatusInternalServerError, err)
 			return
 		}
 		return
@@ -27,15 +25,13 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		bytes, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Println(err)
+			logger(w, http.StatusInternalServerError, err)
 			return
 		}
 		var newUser models.User
 
 		if err = json.Unmarshal(bytes, &newUser); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Println(err)
+			logger(w, http.StatusInternalServerError, err)
 			return
 		}
 
@@ -46,8 +42,7 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 
 		bytes, err = bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.MinCost)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Println(err)
+			logger(w, http.StatusInternalServerError, err)
 			return
 		}
 		newUser.Password = string(bytes)
@@ -61,8 +56,7 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 				SendNotify(w, "Email is already in use", http.StatusInternalServerError)
 				return
 			}
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Println(err)
+			logger(w, http.StatusInternalServerError, err)
 			return
 		}
 
@@ -77,20 +71,6 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusMethodNotAllowed)
 	w.Write([]byte("405 method not allowed"))
 	return
-}
-
-//SendNotify send Notification to Front
-func SendNotify(w http.ResponseWriter, result string, status int) {
-	response := make(map[string]string)
-	response["notify"] = result
-	notify, err := json.Marshal(response)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Println(err)
-		return
-	}
-	w.WriteHeader(status)
-	w.Write(notify)
 }
 
 //isCorrcetDataToSignUp ...

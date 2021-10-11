@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"forum/database"
 	session "forum/sessions"
 	"log"
@@ -47,4 +48,30 @@ func Parser() *template.Template {
 		log.Println(err)
 	}
 	return temp
+}
+
+//SendNotify - send Notification to Front
+func SendNotify(w http.ResponseWriter, result string, status int) {
+	response := make(map[string]string)
+	response["notify"] = result
+	notify, err := json.Marshal(response)
+	if err != nil {
+		logger(w, http.StatusInternalServerError, err)
+		return
+	}
+	w.WriteHeader(status)
+	w.Write(notify)
+}
+
+//logger - log error and send status code
+func logger(w http.ResponseWriter, status int, err error) {
+	w.WriteHeader(status)
+	log.Println(err)
+}
+
+//logout set cookies max age to -1
+func logout(w http.ResponseWriter, ck *http.Cookie) {
+	ck.MaxAge = -1
+	http.SetCookie(w, ck)
+	w.WriteHeader(http.StatusOK)
 }
