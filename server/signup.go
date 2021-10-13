@@ -3,7 +3,6 @@ package server
 import (
 	"encoding/json"
 	"forum/models"
-	"forum/sessions/session"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -23,6 +22,7 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			return
 		}
+		return
 	}
 	if r.Method == http.MethodPost {
 		bytes, err := ioutil.ReadAll(r.Body)
@@ -39,8 +39,8 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if res, ok := isCorrcetDatasToSignUp(newUser); !ok {
-			sendNotify(w, res, http.StatusBadRequest)
+		if res, ok := isCorrectDatasToSignUp(newUser); !ok {
+			SendNotify(w, res, http.StatusBadRequest)
 			return
 		}
 
@@ -54,11 +54,11 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 
 		if err = s.store.InsertUser(newUser); err != nil {
 			if strings.Contains(err.Error(), "nickname") {
-				sendNotify(w, "Nickname is already in use", http.StatusInternalServerError)
+				SendNotify(w, "Nickname is already in use", http.StatusInternalServerError)
 				return
 			}
 			if strings.Contains(err.Error(), "email") {
-				sendNotify(w, "Email is already in use", http.StatusInternalServerError)
+				SendNotify(w, "Email is already in use", http.StatusInternalServerError)
 				return
 			}
 			w.WriteHeader(http.StatusInternalServerError)
@@ -66,24 +66,21 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		cookie := session.New().CreateSession(newUser.ID)
+		cookie := s.cookiesStore.CreateSession(newUser.ID)
 
 		http.SetCookie(w, cookie)
-		// log.Println(cookie)
-
-		//connect session from private browser
 
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("User created succesfully"))
-	} else {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte("405 method not allowed"))
 		return
 	}
+	w.WriteHeader(http.StatusMethodNotAllowed)
+	w.Write([]byte("405 method not allowed"))
+	return
 }
 
-//send Notification to Front
-func sendNotify(w http.ResponseWriter, result string, status int) {
+//SendNotify send Notification to Front
+func SendNotify(w http.ResponseWriter, result string, status int) {
 	response := make(map[string]string)
 	response["notify"] = result
 	notify, err := json.Marshal(response)
@@ -97,7 +94,7 @@ func sendNotify(w http.ResponseWriter, result string, status int) {
 }
 
 //isCorrcetDataToSignUp ...
-func isCorrcetDatasToSignUp(user models.User) (string, bool) {
+func isCorrectDatasToSignUp(user models.User) (string, bool) {
 	if res, ok := isEmpty(user); ok {
 		return res, false
 	}

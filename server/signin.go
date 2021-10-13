@@ -45,14 +45,14 @@ func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 
 		user, err = s.store.GetUserByLogin(signer.NickOrEmail)
 		if err != nil {
-			sendNotify(w, "Wrong Nickname or Email", http.StatusBadRequest)
+			SendNotify(w, "Wrong Nickname or Email", http.StatusBadRequest)
 			log.Println(err)
 			return
 		}
 
 		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(signer.Password))
 		if err != nil {
-			sendNotify(w, "Wrong Password", http.StatusBadRequest)
+			SendNotify(w, "Wrong Password", http.StatusBadRequest)
 			log.Println(err)
 			return
 		}
