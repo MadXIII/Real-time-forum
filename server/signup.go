@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	newErr "forum/internal/error"
 	"forum/models"
 	"io/ioutil"
 	"log"
@@ -39,8 +40,8 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if res, ok := isCorrectDatasToSignUp(newUser); !ok {
-			SendNotify(w, res, http.StatusBadRequest)
+		if err := isCorrectDatasToSignUp(newUser); err != nil {
+			SendNotify(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -94,20 +95,20 @@ func SendNotify(w http.ResponseWriter, result string, status int) {
 }
 
 //isCorrcetDataToSignUp ...
-func isCorrectDatasToSignUp(user models.User) (string, bool) {
-	if res, ok := isEmpty(user); ok {
-		return res, false
+func isCorrectDatasToSignUp(user models.User) error {
+	if err := checkEmpty(user); err != nil {
+		return err
 	}
 	if !isValidEmail(user.Email) {
-		return "Invalid Email", false
+		return newErr.ErrInvalidEmail
 	}
 	if user.Password != user.Confirm {
-		return "Different second password", false
+		return newErr.ErrDiffSecondPass
 	}
 	if !isValidPass(user.Password) {
-		return "Invlaid Pass", false
+		return newErr.ErrInvalidPass
 	}
-	return "", true
+	return nil
 }
 
 //checkin email for validity
@@ -140,30 +141,30 @@ func isValidPass(pass string) bool {
 }
 
 //checking for emptys in signup page
-func isEmpty(newUser models.User) (string, bool) {
+func checkEmpty(newUser models.User) error {
 	if newUser.Nickname == "" {
-		return "Nickname is empty", true
+		return newErr.ErrEmptyNickname
 	}
 	if newUser.Email == "" {
-		return "Email is empty", true
+		return newErr.ErrEmptyEmail
 	}
 	if newUser.Password == "" {
-		return "Password is empty", true
+		return newErr.ErrEmptyPassword
 	}
 	if newUser.Confirm == "" {
-		return "Confirm is empty", true
+		return newErr.ErrEmptyConfirm
 	}
 	if newUser.FirstName == "" {
-		return "Firstname is empty", true
+		return newErr.ErrEmptyFirstname
 	}
 	if newUser.LastName == "" {
-		return "Lastname is empty", true
+		return newErr.ErrEmptyLastname
 	}
 	if newUser.Gender == "" {
-		return "Gender is empty", true
+		return newErr.ErrEmptyGender
 	}
 	if newUser.Age == 0 {
-		return "Age is empty", true
+		return newErr.ErrEmptyAge
 	}
-	return "", false
+	return nil
 }
