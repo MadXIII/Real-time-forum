@@ -18,7 +18,7 @@ import (
 func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		temp := Parser()
-		if err = temp.Execute(w, nil); err != nil {
+		if err := temp.Execute(w, nil); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Println(err)
 			return
@@ -31,7 +31,6 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			return
 		}
-		response := make(map[string]string)
 		var newUser models.User
 
 		if err = json.Unmarshal(bytes, &newUser); err != nil {
@@ -41,7 +40,7 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if res, ok := isCorrcetDatasToSignUp(newUser); !ok {
-			SendNotify(w, res, http.StatusBadRequest)
+			sendNotify(w, res, http.StatusBadRequest)
 			return
 		}
 
@@ -55,11 +54,11 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 
 		if err = s.store.InsertUser(newUser); err != nil {
 			if strings.Contains(err.Error(), "nickname") {
-				SendNotify(w, "Nickname is already in use", http.StatusInternalServerError)
+				sendNotify(w, "Nickname is already in use", http.StatusInternalServerError)
 				return
 			}
 			if strings.Contains(err.Error(), "email") {
-				SendNotify(w, "Email is already in use", http.StatusInternalServerError)
+				sendNotify(w, "Email is already in use", http.StatusInternalServerError)
 				return
 			}
 			w.WriteHeader(http.StatusInternalServerError)
@@ -84,7 +83,8 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 //send Notification to Front
-func sendNotify(w http.ResponseWriter, result string, response map[string]string, status int) {
+func sendNotify(w http.ResponseWriter, result string, status int) {
+	response := make(map[string]string)
 	response["notify"] = result
 	notify, err := json.Marshal(response)
 	if err != nil {
