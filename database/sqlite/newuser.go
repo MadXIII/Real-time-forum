@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-//InsertUser - insert User data in data base
+//InsertUser - Insert user in DB
 func (s *Store) InsertUser(user models.User) (err error) {
 	createTable, err := s.db.Prepare(`
 	INSERT INTO user
@@ -13,6 +13,7 @@ func (s *Store) InsertUser(user models.User) (err error) {
 	VALUES (?, ?, ?, ?, ?, ?, ?)
 	`)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 	defer createTable.Close()

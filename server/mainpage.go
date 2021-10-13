@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+//MainPage ...
 func (s *Server) MainPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		if r.URL.Path != "/" {
@@ -12,19 +13,16 @@ func (s *Server) MainPage(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("404 not found"))
 			return
 		}
-		if err = s.Parser(); err != nil {
-			w.WriteHeader(500)
-			log.Println(err)
-			return
-		}
+		temp := Parser()
 		w.WriteHeader(http.StatusOK)
-		err = s.temp.Execute(w, nil)
-		if err != nil {
-			w.WriteHeader(500)
+		if err := temp.Execute(w, nil); err != nil {
 			log.Println(err)
-			return
 		}
+
 		return
+		//made create post
+		//made get all posts
+
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
 	w.Write([]byte("405 Method not allowed"))

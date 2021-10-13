@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	newErr "forum/internal/error"
 	"forum/models"
 	"io/ioutil"
 	"log"
@@ -16,64 +17,37 @@ import (
 //SignUp page GET, POST
 func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		if err = s.Parser(); err != nil {
-			w.WriteHeader(500)
+		temp := Parser()
+		if err := temp.Execute(w, nil); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			log.Println(err)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
-		if err = s.temp.Execute(w, nil); err != nil {
-			w.WriteHeader(500)
-			log.Println(err)
-			return
-		}
-	} else if r.Method == http.MethodPost {
+		return
+	}
+	if r.Method == http.MethodPost {
 		bytes, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			w.WriteHeader(500)
+			w.WriteHeader(http.StatusInternalServerError)
 			log.Println(err)
 			return
 		}
 		var newUser models.User
-		var result string
-		// var newUser.Password []byte
 
 		if err = json.Unmarshal(bytes, &newUser); err != nil {
-			w.WriteHeader(500)
+			w.WriteHeader(http.StatusInternalServerError)
 			log.Println(err)
 			return
 		}
 
-		result, ok := isEmpty(newUser)
-
-		if ok {
-			SendNotify(w, result, 400)
-			return
-		}
-
-		if !isValidEmail(newUser.Email) {
-			result = "Invalid Email"
-			SendNotify(w, result, 400)
-			return
-		}
-
-		//is email/nickname exist? (checker)
-
-		if newUser.Password != newUser.Confirm {
-			result = "Different second password"
-			SendNotify(w, result, 400)
-			return
-		}
-
-		if !isValidPass(newUser.Password) {
-			result = "Invlaid Pass"
-			SendNotify(w, result, 400)
+		if err := isCorrectDatasToSignUp(newUser); err != nil {
+			SendNotify(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		bytes, err = bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.MinCost)
 		if err != nil {
-			w.WriteHeader(500)
+			w.WriteHeader(http.StatusInternalServerError)
 			log.Println(err)
 			return
 		}
@@ -81,30 +55,29 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 
 		if err = s.store.InsertUser(newUser); err != nil {
 			if strings.Contains(err.Error(), "nickname") {
-				result = "Nickname is already in use"
-				SendNotify(w, result, 500)
+				SendNotify(w, "Nickname is already in use", http.StatusInternalServerError)
 				return
 			}
 			if strings.Contains(err.Error(), "email") {
-				result = "Email is already in use"
-				SendNotify(w, result, 500)
+				SendNotify(w, "Email is already in use", http.StatusInternalServerError)
 				return
 			}
-			w.WriteHeader(500)
+			w.WriteHeader(http.StatusInternalServerError)
 			log.Println(err)
 			return
 		}
 
-		//creatSession
+		cookie := s.cookiesStore.CreateSession(newUser.ID)
+
+		http.SetCookie(w, cookie)
 
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("User created succesfully"))
 		return
-	} else {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte("405 method not allowed"))
-		return
 	}
+	w.WriteHeader(http.StatusMethodNotAllowed)
+	w.Write([]byte("405 method not allowed"))
+	return
 }
 
 //SendNotify send Notification to Front
@@ -113,12 +86,29 @@ func SendNotify(w http.ResponseWriter, result string, status int) {
 	response["notify"] = result
 	notify, err := json.Marshal(response)
 	if err != nil {
-		w.WriteHeader(500)
+		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
 		return
 	}
 	w.WriteHeader(status)
 	w.Write(notify)
+}
+
+//isCorrcetDataToSignUp ...
+func isCorrectDatasToSignUp(user models.User) error {
+	if err := checkEmpty(user); err != nil {
+		return err
+	}
+	if !isValidEmail(user.Email) {
+		return newErr.ErrInvalidEmail
+	}
+	if user.Password != user.Confirm {
+		return newErr.ErrDiffSecondPass
+	}
+	if !isValidPass(user.Password) {
+		return newErr.ErrInvalidPass
+	}
+	return nil
 }
 
 //checkin email for validity
@@ -151,39 +141,30 @@ func isValidPass(pass string) bool {
 }
 
 //checking for emptys in signup page
-func isEmpty(newUser models.User) (string, bool) {
-	var res string
+func checkEmpty(newUser models.User) error {
 	if newUser.Nickname == "" {
-		res = "Nickname is empty"
-		return res, true
+		return newErr.ErrEmptyNickname
 	}
 	if newUser.Email == "" {
-		res = "Email is empty"
-		return res, true
+		return newErr.ErrEmptyEmail
 	}
 	if newUser.Password == "" {
-		res = "Password is empty"
-		return res, true
+		return newErr.ErrEmptyPassword
 	}
 	if newUser.Confirm == "" {
-		res = "Confirm is empty"
-		return res, true
+		return newErr.ErrEmptyConfirm
 	}
 	if newUser.FirstName == "" {
-		res = "Firstname is empty"
-		return res, true
+		return newErr.ErrEmptyFirstname
 	}
 	if newUser.LastName == "" {
-		res = "Lastname is empty"
-		return res, true
+		return newErr.ErrEmptyLastname
 	}
 	if newUser.Gender == "" {
-		res = "Gender is empty"
-		return res, true
+		return newErr.ErrEmptyGender
 	}
 	if newUser.Age == 0 {
-		res = "Age is empty"
-		return res, true
+		return newErr.ErrEmptyAge
 	}
-	return res, false
+	return nil
 }
