@@ -14,4 +14,7 @@ var (
 	ErrInvalidEmail   = errors.New("Invalid Email")
 	ErrInvalidPass    = errors.New("Invalid Pass")
 	ErrDiffSecondPass = errors.New("Different second password")
+	ErrNoCookie       = errors.New("Can't find Cookie in store, to creat Post")
+	ErrPostTitle      = errors.New("Title can't be empty and be more than 32 chars")
+	ErrPostContent    = errors.New("Content can't be empty")
 )

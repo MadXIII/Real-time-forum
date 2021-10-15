@@ -8,17 +8,18 @@ import (
 func (s *Store) InsertPost(newPost models.Post) error {
 	createTable, err := s.db.Prepare(`
 		INSERT INTO post 
-		(tittle, content, timestamp)
-		VALUES (?, ?, ?)
+		(user_id, tittle, content, timestamp)
+		VALUES (?, ?, ?, ?)
 	`)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	defer s.db.Close()
+	// defer s.db.Close()
 
 	res, err := createTable.Exec(
+		newPost.UserID,
 		newPost.Title,
 		newPost.Content,
 		newPost.Timestamp,

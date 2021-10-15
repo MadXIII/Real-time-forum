@@ -9,11 +9,9 @@ export default class extends AbstractView {
     init() {
         let submitId = document.getElementById('creatPostBtnID')
         submitId.onclick = async () => {
-            console.log(23)
             let newPost = {
                 title: document.getElementById("title").value,
                 content: document.getElementById("content").value,
-                // timestamp:
             }
             let response = await fetch('http://localhost:8080/newpost', {
                 method: 'POST',
@@ -24,6 +22,9 @@ export default class extends AbstractView {
             })
             if (response.ok) {
                 window.location.href = "/"
+            } else {
+                let result = await response.json()
+                alert(result['notify'])
             }
         }
     }
