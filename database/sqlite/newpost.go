@@ -5,6 +5,7 @@ import (
 	"log"
 )
 
+//InsertPost ...
 func (s *Store) InsertPost(newPost models.Post) error {
 	createTable, err := s.db.Prepare(`
 		INSERT INTO post 
