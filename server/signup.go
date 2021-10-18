@@ -120,7 +120,7 @@ func isValidPass(pass string) bool {
 	return low && up && num
 }
 
-//checking for emptys in signup page
+//checking for empty fields in signup page
 func checkEmpty(newUser models.User) error {
 	if newUser.Nickname == "" {
 		return newErr.ErrEmptyNickname
