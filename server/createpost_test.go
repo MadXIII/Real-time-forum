@@ -5,7 +5,6 @@ import (
 	newErr "forum/internal/error"
 	"forum/models"
 	"forum/sessions/testsession"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,62 +12,57 @@ import (
 
 func TestCreatePost(t *testing.T) {
 	mysrv := Init(&testdb.TestDB{}, &testsession.TestSession{})
-	mysrv.Conf()
+	mysrv.router.HandleFunc("/newpost", mysrv.CreatePost)
 	srv := httptest.NewServer(&mysrv.router)
-	// srv.URL
 
 	wantStatus := http.StatusOK
-	resp, err := http.Post(srv.URL+"/newpost", "", nil)
+
+	resp, err := http.Get(srv.URL + "/newpost")
 	if err != nil {
 		t.Fatal("ERROR TRYING RUN TEST: ", err)
 	}
 
 	if resp.StatusCode != wantStatus {
-		t.Errorf("want status: %v but got %v", wantStatus, resp.StatusCode)
+		t.Errorf("Want status: %v, but got: %v", wantStatus, resp.StatusCode)
 	}
-	log.Println(srv.URL)
-	// tests := map[string]struct {
-	// 	post       models.Post
-	// 	wantStatus error
-	// 	wantBody   []byte
-	// }{}
 
-	// for name, test := range tests {
-	// 	t.Run(name, func(t *testing.T) {
-	// 		if err := checkNewPostDatas(test.inputPost); err != test.wantErr {
-	// 			t.Errorf("Wait for '%v', but got '%v'", test.wantErr, err)
-	// 		}
-	// 	})
-	// }
+	resp, err = http.Post(srv.URL+"/newpost", "", nil)
+	if err != nil {
+		t.Fatal("ERROR TRYING RUN TEST: ", err)
+	}
+
+	if resp.StatusCode != wantStatus {
+		t.Errorf("Want status: %v but got: %v", wantStatus, resp.StatusCode)
+	}
 }
 
 func TestCheckNewPostDatas(t *testing.T) {
 	tests := map[string]struct {
 		inputPost models.Post
-		wantErr   error
+		wantError error
 	}{
 		"Wait error with empty title": {
 			inputPost: models.Post{Title: "", Content: "some content"},
-			wantErr:   newErr.ErrPostTitle,
+			wantError: newErr.ErrPostTitle,
 		},
 		"Wait error with overflow title": {
 			inputPost: models.Post{Title: string([]byte{32: '0'}), Content: "some content"},
-			wantErr:   newErr.ErrPostTitle,
+			wantError: newErr.ErrPostTitle,
 		},
 		"Wait error with empty content": {
 			inputPost: models.Post{Title: "Some Tittle", Content: ""},
-			wantErr:   newErr.ErrPostContent,
+			wantError: newErr.ErrPostContent,
 		},
 		"Success": {
 			inputPost: models.Post{Title: "Correct Title", Content: "Correct Content"},
-			wantErr:   nil,
+			wantError: nil,
 		},
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			if err := checkNewPostDatas(test.inputPost); err != test.wantErr {
-				t.Errorf("Wait for '%v', but got '%v'", test.wantErr, err)
+			if err := checkNewPostDatas(test.inputPost); err != test.wantError {
+				t.Errorf("Wait for '%v', but got '%v'", test.wantError, err)
 			}
 		})
 	}

@@ -6,6 +6,7 @@ import (
 	newErr "forum/internal/error"
 	"forum/models"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 )
@@ -22,6 +23,12 @@ func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 		bytes, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			logger(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		if len(bytes) == 0 {
+			w.WriteHeader(http.StatusBadRequest)
+			log.Println("Request Body = nil")
 			return
 		}
 		var newPost models.Post
@@ -47,12 +54,12 @@ func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		fmt.Println(newPost)
-		// w.WriteHeader(200)
+		w.WriteHeader(200)
 	}
 }
 
 func checkNewPostDatas(post models.Post) error {
-	if len(post.Title) == 0 || len(post.Title) > 31 {
+	if len(post.Title) == 0 || len(post.Title) > 32 {
 		return newErr.ErrPostTitle
 	}
 	if len(post.Content) == 0 {

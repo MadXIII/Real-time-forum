@@ -16,7 +16,6 @@ func (s *TestSession) CheckCookie(string) error {
 }
 func (s *TestSession) GetCookies() map[int]*http.Cookie {
 	return nil
-
 }
 func (s *TestSession) GetIdByCookie(*http.Request) int {
 	return 0

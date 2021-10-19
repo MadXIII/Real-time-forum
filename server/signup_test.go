@@ -6,18 +6,100 @@ import (
 	"testing"
 )
 
+func TestIsCorrectDatasToSignUp(t *testing.T) {
+	tests := map[string]struct {
+		inputDatas models.User
+		wantError  error
+	}{
+		"Wait error with empty fields": {
+			inputDatas: models.User{Nickname: ""},
+			wantError:  newErr.ErrEmptyNickname,
+		},
+		"Wait error if email is not valid": {
+			inputDatas: models.User{1, "nickname", "a@a.a", "password", "confirm", "firstname", "lastname", "gender", 7},
+			wantError:  newErr.ErrInvalidEmail,
+		},
+		"Wait error if confirm not same as password": {
+			inputDatas: models.User{1, "nickname", "mail@mail.ru", "password", "confirm", "firstname", "lastname", "gender", 7},
+			wantError:  newErr.ErrDiffSecondPass,
+		},
+		"Wait error if password is not valid": {
+			inputDatas: models.User{1, "nickname", "mail@mail.ru", "password", "password", "firstname", "lastname", "gender", 7},
+			wantError:  newErr.ErrInvalidPass,
+		},
+		"Success": {
+			inputDatas: models.User{1, "nickname", "mail@mail.ru", "123456Aa", "123456Aa", "firstname", "lastname", "gender", 7},
+			wantError:  nil,
+		},
+	}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			if err := isCorrectDatasToSignUp(test.inputDatas); err != test.wantError {
+				t.Errorf("Wait for %v, but got %v", test.wantError, err)
+			}
+		})
+	}
+}
+
+func TestIsValidEmail(t *testing.T) {
+	tests := map[string]struct {
+		inputEmail string
+		wantResult bool
+	}{
+		"Wait false if email was incorrect": {
+			inputEmail: "a@a.a",
+			wantResult: false,
+		},
+		"Success": {
+			inputEmail: "test@test.tt",
+			wantResult: true,
+		},
+	}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			if result := isValidEmail(test.inputEmail); result != test.wantResult {
+				t.Errorf("Wait for %v, but got %v", test.wantResult, result)
+			}
+		})
+	}
+}
+
 func TestIsValidPass(t *testing.T) {
 	tests := map[string]struct {
 		inputPass  string
 		wantResult bool
 	}{
 		"Wait false if pass less than 8 chars": {
-			inputPass:  "1234567",
+			inputPass:  string([]byte{6: '0'}),
 			wantResult: false,
 		},
-		"Wait false if pass more than 32 chars" : {
-			inputPass:
-		}
+		"Wait false if pass more than 32 chars": {
+			inputPass:  string([]byte{32: '0'}),
+			wantResult: false,
+		},
+		"Wait false if pass has no Lower char": {
+			inputPass:  "123456AA",
+			wantResult: false,
+		},
+		"Wait false if pass has no Upper char": {
+			inputPass:  "123456aa",
+			wantResult: false,
+		},
+		"Wait false if pass has no Digit char": {
+			inputPass:  "AAAAaaaa",
+			wantResult: false,
+		},
+		"Success": {
+			inputPass:  "123456Aa",
+			wantResult: true,
+		},
+	}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			if result := isValidPass(test.inputPass); result != test.wantResult {
+				t.Errorf("Wait for %v, but got %v", test.wantResult, result)
+			}
+		})
 	}
 }
 
