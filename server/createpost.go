@@ -20,6 +20,7 @@ func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else if r.Method == http.MethodPost {
+		log.Println(r.Body)
 		bytes, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			logger(w, http.StatusInternalServerError, err)

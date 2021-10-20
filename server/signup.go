@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	newErr "forum/internal/error"
 	"forum/models"
 	"io/ioutil"
@@ -35,6 +36,7 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 			logger(w, http.StatusInternalServerError, err)
 			return
 		}
+		fmt.Print()
 
 		if err := isCorrectDatasToSignUp(newUser); err != nil {
 			SendNotify(w, err.Error(), http.StatusBadRequest)

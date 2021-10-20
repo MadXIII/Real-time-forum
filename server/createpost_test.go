@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bytes"
 	"forum/database/testdb"
 	newErr "forum/internal/error"
 	"forum/models"
@@ -15,6 +16,24 @@ func TestCreatePost(t *testing.T) {
 	mysrv.router.HandleFunc("/newpost", mysrv.CreatePost)
 	srv := httptest.NewServer(&mysrv.router)
 
+	tests := map[string]struct {
+		inputBody  []byte
+		wantStatus int
+	}{
+		"Wait error with nil request body": {
+			inputBody:  nil,
+			wantStatus: http.StatusBadRequest,
+		},
+		"Succes": {
+			inputBody:  []byte(`{"title":"1","content":"1"}`),
+			wantStatus: http.StatusOK,
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {})
+	}
+
 	wantStatus := http.StatusOK
 
 	resp, err := http.Get(srv.URL + "/newpost")
@@ -26,14 +45,28 @@ func TestCreatePost(t *testing.T) {
 		t.Errorf("Want status: %v, but got: %v", wantStatus, resp.StatusCode)
 	}
 
+	//--------------------------------------
+	//need to refactor
+	buf := bytes.NewBuffer([]byte(`{"title":"1","content":"1"}`))
+	resp, err = http.Post(srv.URL+"/newpost", "", buf)
+	if err != nil {
+		t.Fatal("ERROR TRYING RUN TEST: ", err)
+	}
+	if resp.StatusCode != wantStatus {
+		t.Errorf("Want status: %v but got: %v", wantStatus, resp.StatusCode)
+	}
+	//--------------------------------------
+
+	wantStatus = http.StatusBadRequest
+
 	resp, err = http.Post(srv.URL+"/newpost", "", nil)
 	if err != nil {
 		t.Fatal("ERROR TRYING RUN TEST: ", err)
 	}
-
 	if resp.StatusCode != wantStatus {
-		t.Errorf("Want status: %v but got: %v", wantStatus, resp.StatusCode)
+		t.Errorf("Want status: %v, but got: %v", wantStatus, resp.StatusCode)
 	}
+
 }
 
 func TestCheckNewPostDatas(t *testing.T) {
@@ -54,7 +87,7 @@ func TestCheckNewPostDatas(t *testing.T) {
 			wantError: newErr.ErrPostContent,
 		},
 		"Success": {
-			inputPost: models.Post{Title: "Correct Title", Content: "Correct Content"},
+			inputPost: models.Post{Title: "Correct Title", Content: ""},
 			wantError: nil,
 		},
 	}
