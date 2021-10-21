@@ -17,56 +17,52 @@ func TestCreatePost(t *testing.T) {
 	srv := httptest.NewServer(&mysrv.router)
 
 	tests := map[string]struct {
+		method     string
 		inputBody  []byte
 		wantStatus int
 	}{
-		"Wait error with nil request body": {
+		"Succes GET": {
+			method:     "GET",
 			inputBody:  nil,
-			wantStatus: http.StatusBadRequest,
+			wantStatus: http.StatusOK,
 		},
-		"Succes": {
+		"Succes POST": {
+			method:     "POST",
 			inputBody:  []byte(`{"title":"1","content":"1"}`),
 			wantStatus: http.StatusOK,
 		},
+		"Wait BadRequest with nil request body": {
+			method:     "POST",
+			inputBody:  nil,
+			wantStatus: http.StatusBadRequest,
+		},
+		"Wait BadRequest with empty request body": {
+			method:     "POST",
+			inputBody:  []byte(`{"title":"","content":""}`),
+			wantStatus: http.StatusBadRequest,
+		},
+		// "Wait InternalError without CookieID": {
+		// 	method:     "POST",
+		// 	inputBody:  []byte(`{"tite":""}`),
+		// 	wantStatus: http.StatusInternalServerError,
+		// },
 	}
 
 	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {})
+		t.Run(name, func(t *testing.T) {
+			r, err := http.NewRequest(test.method, srv.URL+"/newpost", bytes.NewBuffer(test.inputBody))
+			if err != nil {
+				t.Fatal("Problem with TEST", err)
+			}
+			resp, err := http.DefaultClient.Do(r)
+			if err != nil {
+				t.Fatal("ERROR TRYING RUN TEST: ")
+			}
+			if resp.StatusCode != test.wantStatus {
+				t.Errorf("Want status: %v, but got: %v", test.wantStatus, resp.StatusCode)
+			}
+		})
 	}
-
-	wantStatus := http.StatusOK
-
-	resp, err := http.Get(srv.URL + "/newpost")
-	if err != nil {
-		t.Fatal("ERROR TRYING RUN TEST: ", err)
-	}
-
-	if resp.StatusCode != wantStatus {
-		t.Errorf("Want status: %v, but got: %v", wantStatus, resp.StatusCode)
-	}
-
-	//--------------------------------------
-	//need to refactor
-	buf := bytes.NewBuffer([]byte(`{"title":"1","content":"1"}`))
-	resp, err = http.Post(srv.URL+"/newpost", "", buf)
-	if err != nil {
-		t.Fatal("ERROR TRYING RUN TEST: ", err)
-	}
-	if resp.StatusCode != wantStatus {
-		t.Errorf("Want status: %v but got: %v", wantStatus, resp.StatusCode)
-	}
-	//--------------------------------------
-
-	wantStatus = http.StatusBadRequest
-
-	resp, err = http.Post(srv.URL+"/newpost", "", nil)
-	if err != nil {
-		t.Fatal("ERROR TRYING RUN TEST: ", err)
-	}
-	if resp.StatusCode != wantStatus {
-		t.Errorf("Want status: %v, but got: %v", wantStatus, resp.StatusCode)
-	}
-
 }
 
 func TestCheckNewPostDatas(t *testing.T) {
@@ -75,11 +71,11 @@ func TestCheckNewPostDatas(t *testing.T) {
 		wantError error
 	}{
 		"Wait error with empty title": {
-			inputPost: models.Post{Title: "", Content: "some content"},
+			inputPost: models.Post{Title: "", Content: "Content"},
 			wantError: newErr.ErrPostTitle,
 		},
 		"Wait error with overflow title": {
-			inputPost: models.Post{Title: string([]byte{32: '0'}), Content: "some content"},
+			inputPost: models.Post{Title: string([]byte{32: '0'}), Content: "Content"},
 			wantError: newErr.ErrPostTitle,
 		},
 		"Wait error with empty content": {
@@ -87,7 +83,7 @@ func TestCheckNewPostDatas(t *testing.T) {
 			wantError: newErr.ErrPostContent,
 		},
 		"Success": {
-			inputPost: models.Post{Title: "Correct Title", Content: ""},
+			inputPost: models.Post{Title: "Title", Content: "Content"},
 			wantError: nil,
 		},
 	}
