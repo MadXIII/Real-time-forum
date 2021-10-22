@@ -2,13 +2,10 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	newErr "forum/internal/error"
 	"forum/models"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"time"
 )
 
 //CreatePost ...
@@ -20,7 +17,6 @@ func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else if r.Method == http.MethodPost {
-		log.Println(r.Body)
 		bytes, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			logger(w, http.StatusInternalServerError, err)
@@ -28,12 +24,11 @@ func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if len(bytes) == 0 {
-			w.WriteHeader(http.StatusBadRequest)
-			log.Println("Request Body = nil")
+			logger(w, http.StatusBadRequest, newErr.ErrNilBody)
 			return
 		}
 		var newPost models.Post
-		newPost.Timestamp = time.Now()
+		// newPost := {Timestamp: time.Now().Format()}
 
 		if err = json.Unmarshal(bytes, &newPost); err != nil {
 			logger(w, http.StatusInternalServerError, err)
@@ -55,7 +50,6 @@ func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 			logger(w, http.StatusInternalServerError, err)
 			return
 		}
-		fmt.Println(newPost)
 		w.WriteHeader(200)
 	}
 }

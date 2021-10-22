@@ -31,6 +31,10 @@ func TestIsCorrectDatasToSignUp(t *testing.T) {
 			inputDatas: models.User{1, "nickname", "mail@mail.ru", "123456Aa", "123456Aa", "firstname", "lastname", "gender", 7},
 			wantError:  nil,
 		},
+		"Success1": {
+			inputDatas: models.User{1, "nickname", "mail@mail.ru", "1Aaффф", "1Aaффф", "firstname", "lastname", "gender", 7},
+			wantError:  nil,
+		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {

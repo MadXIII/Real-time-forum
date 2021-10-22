@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	newErr "forum/internal/error"
 	"forum/models"
 	"io/ioutil"
@@ -36,7 +35,6 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 			logger(w, http.StatusInternalServerError, err)
 			return
 		}
-		fmt.Print()
 
 		if err := isCorrectDatasToSignUp(newUser); err != nil {
 			SendNotify(w, err.Error(), http.StatusBadRequest)
@@ -50,6 +48,7 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 		}
 		newUser.Password = string(bytes)
 
+		//move outside body
 		if err = s.store.InsertUser(newUser); err != nil {
 			if strings.Contains(err.Error(), "nickname") {
 				SendNotify(w, "Nickname is already in use", http.StatusInternalServerError)

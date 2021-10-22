@@ -3,6 +3,7 @@ package error
 import "errors"
 
 var (
+	ErrNotFound       = errors.New("404 Not Found")
 	ErrEmptyNickname  = errors.New("Nickname is empty")
 	ErrEmptyEmail     = errors.New("Email is empty")
 	ErrEmptyPassword  = errors.New("Password is empty")
@@ -17,4 +18,5 @@ var (
 	ErrNoCookie       = errors.New("Can't find Cookie in store, to creat Post")
 	ErrPostTitle      = errors.New("Title can't be empty and be more than 32 chars")
 	ErrPostContent    = errors.New("Content can't be empty")
+	ErrNilBody        = errors.New("Request Body doesn't be nil")
 )

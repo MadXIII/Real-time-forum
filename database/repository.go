@@ -8,4 +8,5 @@ type Repository interface {
 	InsertUser(models.User) error
 	GetUserByLogin(string) (*models.User, error)
 	InsertPost(models.Post) error
+	Close()
 }

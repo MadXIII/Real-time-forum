@@ -52,9 +52,7 @@ func Parser() *template.Template {
 
 //SendNotify - send Notification to Front
 func SendNotify(w http.ResponseWriter, result string, status int) {
-	response := make(map[string]string)
-	response["notify"] = result
-	notify, err := json.Marshal(response)
+	notify, err := json.Marshal(result)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return

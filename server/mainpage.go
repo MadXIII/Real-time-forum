@@ -1,7 +1,7 @@
 package server
 
 import (
-	"log"
+	newErr "forum/internal/error"
 	"net/http"
 )
 
@@ -9,16 +9,16 @@ import (
 func (s *Server) MainPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		if r.URL.Path != "/" {
-			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("404 not found"))
+			logger(w, http.StatusNotFound, newErr.ErrNotFound)
 			return
 		}
 		temp := Parser()
-		w.WriteHeader(http.StatusOK)
 		if err := temp.Execute(w, nil); err != nil {
-			log.Println(err)
+			logger(w, http.StatusInternalServerError, err)
+			return
 		}
 
+		w.WriteHeader(http.StatusOK)
 		return
 		//made create post
 		//made get all posts
