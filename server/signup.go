@@ -103,10 +103,15 @@ func isValidEmail(email string) bool {
 
 //checking pass for validity
 func isValidPass(pass string) bool {
-	var low, up, num bool
 	if len(pass) < 8 || len(pass) > 32 {
 		return false
 	}
+	for _, r := range pass {
+		if r < 33 || r > 126 {
+			return false
+		}
+	}
+	var low, up, num bool
 	for _, r := range pass {
 		if unicode.IsLower(r) {
 			low = true

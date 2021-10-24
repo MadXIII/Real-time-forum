@@ -19,3 +19,6 @@ func (t *TestDB) GetUserByLogin(string) (*models.User, error) {
 func (t *TestDB) InsertPost(models.Post) error {
 	return nil
 }
+func (t *TestDB) Close() {
+
+}

@@ -28,7 +28,7 @@ func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		var newPost models.Post
-		// newPost := {Timestamp: time.Now().Format()}
+		// newPost := models.Post{Timestamp: time.Now().Format("Mon Jan 2 15:04:05 -0700 MST 2006")}
 
 		if err = json.Unmarshal(bytes, &newPost); err != nil {
 			logger(w, http.StatusInternalServerError, err)
