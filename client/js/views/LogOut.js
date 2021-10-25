@@ -16,14 +16,12 @@ export default class extends AbstractView {
                 },
             })
             if (response.ok) {
-                window.location.href = "/"
+                // window.location.href = "/"
             } else {
                 let result = await response.json()
-                alert(result['notify'])
+                alert(result)
             }
         }
-
-    
     }
 
     async getHtml() {

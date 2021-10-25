@@ -7,6 +7,6 @@ type Repository interface {
 	CreateSession(int) *http.Cookie
 	DeleteCookie(*http.Cookie) error
 	CheckCookie(string) error
-	GetIdByCookie(*http.Request) int
+	GetIDByCookie(*http.Request) int
 	// LogOut(http.ResponseWriter, *http.Request)
 }

@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	newErr "forum/internal/error"
 	"forum/models"
 	"io/ioutil"
@@ -16,63 +17,70 @@ import (
 //SignUp page GET, POST
 func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		temp := Parser()
-		if err := temp.Execute(w, nil); err != nil {
-			logger(w, http.StatusInternalServerError, err)
-			return
-		}
+		s.handleSignUpPage(w)
 		return
 	}
 	if r.Method == http.MethodPost {
-		bytes, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			logger(w, http.StatusInternalServerError, err)
-			return
-		}
-		var newUser models.User
-
-		if err = json.Unmarshal(bytes, &newUser); err != nil {
-			logger(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		if err := isCorrectDatasToSignUp(newUser); err != nil {
-			SendNotify(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		bytes, err = bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.MinCost)
-		if err != nil {
-			logger(w, http.StatusInternalServerError, err)
-			return
-		}
-		newUser.Password = string(bytes)
-
-		//move outside body
-		if err = s.store.InsertUser(newUser); err != nil {
-			if strings.Contains(err.Error(), "nickname") {
-				SendNotify(w, "Nickname is already in use", http.StatusInternalServerError)
-				return
-			}
-			if strings.Contains(err.Error(), "email") {
-				SendNotify(w, "Email is already in use", http.StatusInternalServerError)
-				return
-			}
-			logger(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		cookie := s.cookiesStore.CreateSession(newUser.ID)
-
-		http.SetCookie(w, cookie)
-
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("User created succesfully"))
+		s.handleCreateAccount(w, r)
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
 	w.Write([]byte("405 method not allowed"))
 	return
+}
+
+func (s *Server) handleSignUpPage(w http.ResponseWriter) {
+	temp := Parser()
+	if err := temp.Execute(w, nil); err != nil {
+		logger(w, http.StatusInternalServerError, err)
+	}
+}
+
+func (s *Server) handleCreateAccount(w http.ResponseWriter, r *http.Request) {
+	bytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		logger(w, http.StatusInternalServerError, err)
+		return
+	}
+	var newUser models.User
+
+	if err = json.Unmarshal(bytes, &newUser); err != nil {
+		logger(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if err := isCorrectDatasToSignUp(newUser); err != nil {
+		SendNotify(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	bytes, err = bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.MinCost)
+	if err != nil {
+		logger(w, http.StatusInternalServerError, err)
+		return
+	}
+	newUser.Password = string(bytes)
+
+	//move outside body
+	if err = s.store.InsertUser(newUser); err != nil {
+		fmt.Println(err)
+		if strings.Contains(err.Error(), "nickname") {
+			SendNotify(w, "Nickname is already in use", http.StatusBadRequest)
+			return
+		}
+		if strings.Contains(err.Error(), "email") {
+			SendNotify(w, "Email is already in use", http.StatusBadRequest)
+			return
+		}
+		logger(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	cookie := s.cookiesStore.CreateSession(newUser.ID)
+
+	http.SetCookie(w, cookie)
+
+	w.WriteHeader(http.StatusOK)
 }
 
 //isCorrcetDataToSignUp ...

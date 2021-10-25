@@ -41,7 +41,7 @@ func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 		}
 
 		//cant find how to error
-		if newPost.UserID = s.cookiesStore.GetIdByCookie(r); newPost.UserID < 0 {
+		if newPost.UserID = s.cookiesStore.GetIDByCookie(r); newPost.UserID < 0 {
 			logger(w, http.StatusInternalServerError, newErr.ErrNoCookie)
 			return
 		}

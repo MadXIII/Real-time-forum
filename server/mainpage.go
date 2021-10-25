@@ -17,13 +17,10 @@ func (s *Server) MainPage(w http.ResponseWriter, r *http.Request) {
 			logger(w, http.StatusInternalServerError, err)
 			return
 		}
-
-		w.WriteHeader(http.StatusOK)
 		return
 		//made create post
 		//made get all posts
-
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
-	w.Write([]byte("405 Method not allowed"))
+	return
 }

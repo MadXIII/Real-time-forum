@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"forum/database"
 	session "forum/sessions"
 	"log"
@@ -32,8 +33,8 @@ func (s *Server) Conf() {
 	s.router.HandleFunc("/signin", s.middleWare(false, s.SignIn))
 	s.router.HandleFunc("/signup", s.middleWare(false, s.SignUp))
 	s.router.HandleFunc("/newpost", s.middleWare(true, s.CreatePost))
-	s.router.HandleFunc("/logout/", s.middleWare(true, s.LogOut))
-	s.router.HandleFunc("/post/", s.middleWare(false, s.GetPost))
+	s.router.HandleFunc("/logout", s.middleWare(true, s.LogOut))
+	s.router.HandleFunc("/post/:id", s.middleWare(false, s.GetPost))
 }
 
 //ListenAndServe - Listener with Configurations to ServMUX
@@ -70,6 +71,7 @@ func logger(w http.ResponseWriter, status int, err error) {
 
 //logout set cookies max age to -1
 func logout(w http.ResponseWriter, ck *http.Cookie) {
+	fmt.Println("Check")
 	ck.MaxAge = -1
 	http.SetCookie(w, ck)
 	w.WriteHeader(http.StatusOK)

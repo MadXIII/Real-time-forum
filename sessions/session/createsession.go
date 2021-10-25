@@ -52,8 +52,8 @@ func (s *Store) CheckCookie(cookieHash string) error {
 	return fmt.Errorf("Problem with cookie")
 }
 
-//GetIdByCookie - search userid in cookies by request.Cookie
-func (s *Store) GetIdByCookie(req *http.Request) int {
+//GetIDByCookie - search userid in cookies by request.Cookie
+func (s *Store) GetIDByCookie(req *http.Request) int {
 	userCk, err := req.Cookie("session")
 	if err != nil {
 		return -1
