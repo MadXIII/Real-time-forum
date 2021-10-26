@@ -2,8 +2,8 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"forum/database"
+	"forum/internal"
 	session "forum/sessions"
 	"log"
 	"net/http"
@@ -15,14 +15,16 @@ type Server struct {
 	store        database.Repository
 	router       http.ServeMux
 	cookiesStore session.Repository
+	err          internal.Repository
 }
 
 //Init - Generator of Server struct
-func Init(store database.Repository, cookiesStore session.Repository) *Server {
+func Init(store database.Repository, cookiesStore session.Repository, err internal.Repository) *Server {
 	return &Server{
 		store:        store,
 		router:       *http.NewServeMux(),
 		cookiesStore: cookiesStore,
+		err:          err,
 	}
 }
 
@@ -53,14 +55,15 @@ func Parser() *template.Template {
 }
 
 //SendNotify - send Notification to Front
-func SendNotify(w http.ResponseWriter, result string, status int) {
-	notify, err := json.Marshal(result)
+func SendNotify(w http.ResponseWriter, status int, newErr error) {
+	notify, err := json.Marshal(newErr.Error())
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return
 	}
 	w.WriteHeader(status)
 	w.Write(notify)
+	log.Println(newErr)
 }
 
 //logger - log error and send status code
@@ -71,7 +74,6 @@ func logger(w http.ResponseWriter, status int, err error) {
 
 //logout set cookies max age to -1
 func logout(w http.ResponseWriter, ck *http.Cookie) {
-	fmt.Println("Check")
 	ck.MaxAge = -1
 	http.SetCookie(w, ck)
 	w.WriteHeader(http.StatusOK)

@@ -3,7 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	newErr "forum/internal/error"
+	newErr "forum/internal/errorface"
 	"forum/models"
 	"io/ioutil"
 	"net/http"
@@ -25,10 +25,10 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
-	w.Write([]byte("405 method not allowed"))
 	return
 }
 
+//handleSignUpPage - if SignUp GET method
 func (s *Server) handleSignUpPage(w http.ResponseWriter) {
 	temp := Parser()
 	if err := temp.Execute(w, nil); err != nil {
@@ -36,6 +36,7 @@ func (s *Server) handleSignUpPage(w http.ResponseWriter) {
 	}
 }
 
+//handleCreateAccount - if SignUp POST method
 func (s *Server) handleCreateAccount(w http.ResponseWriter, r *http.Request) {
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -50,7 +51,7 @@ func (s *Server) handleCreateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := isCorrectDatasToSignUp(newUser); err != nil {
-		SendNotify(w, err.Error(), http.StatusBadRequest)
+		SendNotify(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -60,27 +61,29 @@ func (s *Server) handleCreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	newUser.Password = string(bytes)
-
-	//move outside body
-	if err = s.store.InsertUser(newUser); err != nil {
-		fmt.Println(err)
-		if strings.Contains(err.Error(), "nickname") {
-			SendNotify(w, "Nickname is already in use", http.StatusBadRequest)
-			return
-		}
-		if strings.Contains(err.Error(), "email") {
-			SendNotify(w, "Email is already in use", http.StatusBadRequest)
-			return
-		}
-		logger(w, http.StatusInternalServerError, err)
-		return
+	fmt.Println(newUser)
+	if err = s.insertUserDB(newUser); err != nil {
+		SendNotify(w, http.StatusBadRequest, err)
 	}
 
+	fmt.Println(newUser)
 	cookie := s.cookiesStore.CreateSession(newUser.ID)
 
 	http.SetCookie(w, cookie)
+}
 
-	w.WriteHeader(http.StatusOK)
+//insertUserDB - Insert User in DB if no error
+func (s *Server) insertUserDB(user models.User) error {
+	if err := s.store.InsertUser(user); err != nil {
+		if strings.Contains(err.Error(), "nickname") {
+			return newErr.ErrNickname
+		}
+		if strings.Contains(err.Error(), "email") {
+			return newErr.ErrEmail
+		}
+		return err
+	}
+	return nil
 }
 
 //isCorrcetDataToSignUp ...

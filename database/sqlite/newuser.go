@@ -29,13 +29,11 @@ func (s *Store) InsertUser(user models.User) error {
 	)
 
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 
 	userid, err := res.LastInsertId()
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 	user.ID = int(userid)

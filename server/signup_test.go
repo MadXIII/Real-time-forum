@@ -1,7 +1,7 @@
 package server
 
 import (
-	newErr "forum/internal/error"
+	newErr "forum/internal/errorface"
 	"forum/models"
 	"testing"
 )

@@ -3,7 +3,7 @@ package server
 import (
 	"bytes"
 	"forum/database/testdb"
-	newErr "forum/internal/error"
+	newErr "forum/internal/errorface"
 	"forum/models"
 	"forum/sessions/testsession"
 	"net/http"
@@ -41,11 +41,6 @@ func TestCreatePost(t *testing.T) {
 			inputBody:  []byte(`{"title":"","content":""}`),
 			wantStatus: http.StatusBadRequest,
 		},
-		// "Wait InternalError without CookieID": {
-		// 	method:     "POST",
-		// 	inputBody:  []byte(`{"tite":""}`),
-		// 	wantStatus: http.StatusInternalServerError,
-		// },
 	}
 
 	for name, test := range tests {

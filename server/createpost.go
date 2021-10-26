@@ -2,7 +2,7 @@ package server
 
 import (
 	"encoding/json"
-	newErr "forum/internal/error"
+	newErr "forum/internal/errorface"
 	"forum/models"
 	"io/ioutil"
 	"net/http"
@@ -11,46 +11,60 @@ import (
 //CreatePost ...
 func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		temp := Parser()
-		if err := temp.Execute(w, nil); err != nil {
-			logger(w, http.StatusInternalServerError, err)
-			return
-		}
-	} else if r.Method == http.MethodPost {
-		bytes, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			logger(w, http.StatusInternalServerError, err)
-			return
-		}
+		s.handleNewPostPage(w)
+		return
+	}
+	if r.Method == http.MethodPost {
+		s.handleCreatePost(w, r)
+		return
+	}
+	w.WriteHeader(http.StatusMethodNotAllowed)
+	return
+}
 
-		if len(bytes) == 0 {
-			logger(w, http.StatusBadRequest, newErr.ErrNilBody)
-			return
-		}
-		var newPost models.Post
-		// newPost := models.Post{Timestamp: time.Now().Format("Mon Jan 2 15:04:05 -0700 MST 2006")}
+//handleNewPostPage - if CreatePost GET method
+func (s *Server) handleNewPostPage(w http.ResponseWriter) {
+	temp := Parser()
+	if err := temp.Execute(w, nil); err != nil {
+		logger(w, http.StatusInternalServerError, err)
+	}
+}
 
-		if err = json.Unmarshal(bytes, &newPost); err != nil {
-			logger(w, http.StatusInternalServerError, err)
-			return
-		}
+//handleCreatePost - if CreatePost POST method
+func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
+	s.handleCreatePost(w, r)
+	bytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		logger(w, http.StatusInternalServerError, err)
+		return
+	}
 
-		if err = checkNewPostDatas(newPost); err != nil {
-			SendNotify(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+	if len(bytes) == 0 {
+		logger(w, http.StatusBadRequest, newErr.ErrNilBody)
+		return
+	}
+	var newPost models.Post
+	// newPost := models.Post{Timestamp: time.Now().Format("Mon Jan 2 15:04:05 -0700 MST 2006")}
 
-		//cant find how to error
-		if newPost.UserID = s.cookiesStore.GetIDByCookie(r); newPost.UserID < 0 {
-			logger(w, http.StatusInternalServerError, newErr.ErrNoCookie)
-			return
-		}
-		//cant find how to error
-		if err = s.store.InsertPost(newPost); err != nil {
-			logger(w, http.StatusInternalServerError, err)
-			return
-		}
-		w.WriteHeader(200)
+	if err = json.Unmarshal(bytes, &newPost); err != nil {
+		logger(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if err = checkNewPostDatas(newPost); err != nil {
+		SendNotify(w, http.StatusBadRequest, err)
+		return
+	}
+
+	//cant find how to error
+	if newPost.UserID = s.cookiesStore.GetIDByCookie(r); newPost.UserID < 0 {
+		logger(w, http.StatusInternalServerError, newErr.ErrNoCookie)
+		return
+	}
+	//cant find how to error
+	if err = s.store.InsertPost(newPost); err != nil {
+		logger(w, http.StatusInternalServerError, err)
+		return
 	}
 }
 

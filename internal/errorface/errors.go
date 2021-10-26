@@ -1,6 +1,24 @@
-package error
+package errorface
 
 import "errors"
+
+type toSend struct {
+	Err map[string]error
+}
+
+func New() *toSend {
+	m := new(toSend)
+	m.Err = make(map[string]error{
+		"r": errors.New("asd"),
+	})
+}
+
+func (t *toSend) Error(name string) string {
+	if name == "ErrNotFound" {
+		return "404 Not Found"
+	}
+	return ""
+}
 
 var (
 	ErrNotFound       = errors.New("404 Not Found")
@@ -19,4 +37,9 @@ var (
 	ErrPostTitle      = errors.New("Title can't be empty and be more than 32 chars")
 	ErrPostContent    = errors.New("Content can't be empty")
 	ErrNilBody        = errors.New("Request Body doesn't be nil")
+	ErrPassCompare    = errors.New("Password is uncomparable")
+	ErrWrongPass      = errors.New("Wrong Password")
+	ErrWrongLogin     = errors.New("Wrong Nickname or Email")
+	ErrNickname       = errors.New("Nickname is already in use")
+	ErrEmail          = errors.New("Email is already in use")
 )

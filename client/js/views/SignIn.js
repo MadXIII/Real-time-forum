@@ -10,7 +10,7 @@ export default class extends AbstractView {
         let signInId = document.getElementById('signInBtnId')
         signInId.onclick = async () => {
             let user = {
-                nickoremail: document.getElementById('nickMail').value, 
+                login: document.getElementById('login').value, 
                 password: document.getElementById('pass').value,
             }
             let response = await fetch('http://localhost:8080/signin', {
@@ -32,7 +32,7 @@ export default class extends AbstractView {
     async getHtml() {
         return `
             <h1>SIGN IN</h1>
-            <p><input type="text" placeholder="Nickname or Email" id="nickMail"</p>
+            <p><input type="text" placeholder="Nickname or Email" id="login"</p>
             <p><input type="password" placeholder="Password" id="pass"</p>
             <input type="button" onclick="location.href='/signup';" value="Sign Up"/>
             or
