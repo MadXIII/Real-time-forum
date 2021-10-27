@@ -1,6 +1,7 @@
 package server
 
 import (
+	newErr "forum/internal/error"
 	"net/http"
 )
 
@@ -8,7 +9,7 @@ import (
 func (s *Server) MainPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		if r.URL.Path != "/" {
-			logger(w, http.StatusNotFound, s.err.Error("ErrNotFound"))
+			logger(w, http.StatusNotFound, newErr.ErrNotFound)
 			return
 		}
 		temp := Parser()

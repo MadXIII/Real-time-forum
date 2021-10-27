@@ -1,23 +1,58 @@
-package errorface
+package error
 
 import "errors"
 
-type toSend struct {
-	Err map[string]error
-}
-
-func New() *toSend {
-	m := new(toSend)
-	m.Err = make(map[string]error{
-		"r": errors.New("asd"),
-	})
-}
-
-func (t *toSend) Error(name string) string {
-	if name == "ErrNotFound" {
-		return "404 Not Found"
+func CheckErr(err error) bool {
+	switch err {
+	case ErrNotFound:
+		return true
+	case ErrEmptyNickname:
+		return true
+	case ErrEmptyEmail:
+		return true
+	case ErrEmptyPassword:
+		return true
+	case ErrEmptyConfirm:
+		return true
+	case ErrEmptyFirstname:
+		return true
+	case ErrEmptyLastname:
+		return true
+	case ErrEmptyGender:
+		return true
+	case ErrEmptyAge:
+		return true
+	case ErrInvalidEmail:
+		return true
+	case ErrInvalidPass:
+		return true
+	case ErrDiffSecondPass:
+		return true
+	case ErrNoCookie:
+		return true
+	case ErrPostTitle:
+		return true
+	case ErrPostContent:
+		return true
+	case ErrNilBody:
+		return true
+	case ErrPassData:
+		return true
+	case ErrLoginData:
+		return true
+	case ErrWrongPass:
+		return true
+	case ErrWrongLogin:
+		return true
+	case ErrNickname:
+		return true
+	case ErrEmail:
+		return true
+	case ErrDelCookie:
+		return true
+	default:
+		return false
 	}
-	return ""
 }
 
 var (
@@ -37,9 +72,11 @@ var (
 	ErrPostTitle      = errors.New("Title can't be empty and be more than 32 chars")
 	ErrPostContent    = errors.New("Content can't be empty")
 	ErrNilBody        = errors.New("Request Body doesn't be nil")
-	ErrPassCompare    = errors.New("Password is uncomparable")
+	ErrPassData       = errors.New("Password field can't be empty")
+	ErrLoginData      = errors.New("Login field can't be empty")
 	ErrWrongPass      = errors.New("Wrong Password")
 	ErrWrongLogin     = errors.New("Wrong Nickname or Email")
 	ErrNickname       = errors.New("Nickname is already in use")
 	ErrEmail          = errors.New("Email is already in use")
+	ErrDelCookie      = errors.New("Can't delete cookie")
 )

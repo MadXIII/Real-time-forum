@@ -3,7 +3,7 @@ package server
 import (
 	"bytes"
 	"forum/database/testdb"
-	newErr "forum/internal/errorface"
+	newErr "forum/internal/error"
 	"forum/models"
 	"forum/sessions/testsession"
 	"net/http"

@@ -2,7 +2,7 @@ package server
 
 import (
 	"encoding/json"
-	newErr "forum/internal/errorface"
+	newErr "forum/internal/error"
 	"forum/models"
 	"io/ioutil"
 	"net/http"
@@ -32,7 +32,6 @@ func (s *Server) handleNewPostPage(w http.ResponseWriter) {
 
 //handleCreatePost - if CreatePost POST method
 func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
-	s.handleCreatePost(w, r)
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
@@ -52,7 +51,7 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = checkNewPostDatas(newPost); err != nil {
-		SendNotify(w, http.StatusBadRequest, err)
+		logger(w, http.StatusBadRequest, err)
 		return
 	}
 

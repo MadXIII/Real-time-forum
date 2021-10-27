@@ -2,8 +2,7 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
-	newErr "forum/internal/errorface"
+	newErr "forum/internal/error"
 	"forum/models"
 	"io/ioutil"
 	"net/http"
@@ -51,7 +50,7 @@ func (s *Server) handleCreateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := isCorrectDatasToSignUp(newUser); err != nil {
-		SendNotify(w, http.StatusBadRequest, err)
+		logger(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -61,12 +60,11 @@ func (s *Server) handleCreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	newUser.Password = string(bytes)
-	fmt.Println(newUser)
+
 	if err = s.insertUserDB(newUser); err != nil {
-		SendNotify(w, http.StatusBadRequest, err)
+		logger(w, http.StatusBadRequest, err)
 	}
 
-	fmt.Println(newUser)
 	cookie := s.cookiesStore.CreateSession(newUser.ID)
 
 	http.SetCookie(w, cookie)
