@@ -62,7 +62,7 @@ func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = comparer(&user.Password, signer.Password); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(signer.Password)); err != nil {
 		logger(w, http.StatusBadRequest, err)
 		return
 	}
@@ -78,14 +78,6 @@ func checkLoginDatas(user *Sign) error {
 	}
 	if len(user.Password) < 8 || len(user.Password) > 32 {
 		return newErr.ErrPassData
-	}
-	return nil
-}
-
-//comparer - compare pass & hash
-func comparer(hash *string, pass string) error {
-	if err := bcrypt.CompareHashAndPassword([]byte(*hash), []byte(pass)); err != nil {
-		return newErr.ErrWrongPass
 	}
 	return nil
 }

@@ -1,8 +1,6 @@
 package server
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 )
 
@@ -15,11 +13,8 @@ func (s *Server) middleWare(login bool, handler func(http.ResponseWriter, *http.
 				http.Redirect(w, r, "/signin", http.StatusSeeOther)
 				return
 			}
-
 			if err := s.cookiesStore.CheckCookie(ck.Value); err != nil {
-				fmt.Println("MW2")
 				http.Redirect(w, r, "/signin", http.StatusSeeOther)
-				log.Println(err)
 				return
 			}
 		}

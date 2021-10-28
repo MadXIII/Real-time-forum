@@ -41,15 +41,20 @@ func TestCreatePost(t *testing.T) {
 			inputBody:  []byte(`{"title":"","content":""}`),
 			wantStatus: http.StatusBadRequest,
 		},
+		"Wait MethodNotAllowed": {
+			method:     "ERROR",
+			inputBody:  nil,
+			wantStatus: http.StatusMethodNotAllowed,
+		},
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			r, err := http.NewRequest(test.method, srv.URL+"/newpost", bytes.NewBuffer(test.inputBody))
+			req, err := http.NewRequest(test.method, srv.URL+"/newpost", bytes.NewBuffer(test.inputBody))
 			if err != nil {
-				t.Fatal("Problem with TEST", err)
+				t.Fatal("Problem with TEST")
 			}
-			resp, err := http.DefaultClient.Do(r)
+			resp, err := http.DefaultClient.Do(req)
 			if err != nil {
 				t.Fatal("ERROR TRYING RUN TEST: ")
 			}
