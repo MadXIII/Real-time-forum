@@ -42,3 +42,8 @@ type CommentLike struct {
 	CommentID int `json:"comment_id"`
 	VoteState int `json:"vote_state"`
 }
+
+type Sign struct {
+	Login    string `json:"login"`
+	Password string `json:"password"`
+}

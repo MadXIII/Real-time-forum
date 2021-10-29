@@ -7,12 +7,12 @@ export default class extends AbstractView{
     }
     
     init(){
-
+        console.log(123);
     }
-
+    
     async getHtml(){
-        return (`
+        return `
             <div>TEST<div>
-        `)
+        `
     }
 }

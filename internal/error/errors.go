@@ -72,7 +72,7 @@ var (
 	ErrPostTitle      = errors.New("Title can't be empty and be more than 32 chars")
 	ErrPostContent    = errors.New("Content can't be empty")
 	ErrNilBody        = errors.New("Request Body doesn't be nil")
-	ErrPassData       = errors.New("Password field can't be empty")
+	ErrPassData       = errors.New("Password can't be less than 8 chars and more than 32 chars")
 	ErrLoginData      = errors.New("Login field can't be empty")
 	ErrWrongPass      = errors.New("Wrong Password")
 	ErrWrongLogin     = errors.New("Wrong Nickname or Email")

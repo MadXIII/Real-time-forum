@@ -1,10 +1,64 @@
 package server
 
 import (
+	"bytes"
+	"forum/database/testdb"
 	newErr "forum/internal/error"
 	"forum/models"
+	"forum/sessions/testsession"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
+
+func TestSignUp(t *testing.T) {
+	mysrv := Init(&testdb.TestDB{}, &testsession.TestSession{})
+	mysrv.router.HandleFunc("/signup", mysrv.SignUp)
+	srv := httptest.NewServer(&mysrv.router)
+
+	tests := map[string]struct {
+		method     string
+		inputBody  []byte
+		wantStatus int
+	}{
+		"Wait StatusOK GET": {
+			method:     "GET",
+			inputBody:  nil,
+			wantStatus: http.StatusOK,
+		},
+		"Wait MethodNotAllowed": {
+			method:     "ERROR",
+			inputBody:  nil,
+			wantStatus: http.StatusMethodNotAllowed,
+		},
+		"Wait InternalServerError nil body": {
+			method:     "POST",
+			inputBody:  nil,
+			wantStatus: http.StatusInternalServerError,
+		},
+		"Wait BadRequest empty fields": {
+			method:     "POST",
+			inputBody:  []byte(`{}`),
+			wantStatus: http.StatusBadRequest,
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			req, err := http.NewRequest(test.method, srv.URL+"/signup", bytes.NewBuffer(test.inputBody))
+			if err != nil {
+				t.Errorf("Sign Up request err: %v", err)
+			}
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				t.Errorf("Sign Up request err: %v", err)
+			}
+			if resp.StatusCode != test.wantStatus {
+				t.Errorf("Wait status: %v, but got: %v", test.wantStatus, resp.StatusCode)
+			}
+		})
+	}
+}
 
 func TestIsCorrectDatasToSignUp(t *testing.T) {
 	tests := map[string]struct {
