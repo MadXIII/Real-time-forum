@@ -15,6 +15,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	defer store.Close()
+
 	sessionService := session.New()
 	server := server.Init(&store, sessionService)
 	port := os.Getenv("PORT")

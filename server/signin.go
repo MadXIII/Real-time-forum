@@ -2,69 +2,82 @@ package server
 
 import (
 	"encoding/json"
-	"forum/models"
+	newErr "forum/internal/error"
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-//Sign - struct to get Signer datas
+//Sign - struct to store Signer datas
 type Sign struct {
-	NickOrEmail string `json:"nickoremail"`
-	Password    string `json:"password"`
+	Login    string `json:"login"`
+	Password string `json:"password"`
 }
 
 //SignIn - Sigin page
 func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		temp := Parser()
-		if err := temp.Execute(w, nil); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Println(err)
-		}
+		s.handleSignInPage(w)
 		return
 	}
 	if r.Method == http.MethodPost {
-		var signer Sign
-		var user *models.User
-
-		bytes, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Println(err)
-			return
-		}
-
-		if err = json.Unmarshal(bytes, &signer); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Println(err)
-			return
-		}
-
-		user, err = s.store.GetUserByLogin(signer.NickOrEmail)
-		if err != nil {
-			SendNotify(w, "Wrong Nickname or Email", http.StatusBadRequest)
-			log.Println(err)
-			return
-		}
-
-		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(signer.Password))
-		if err != nil {
-			SendNotify(w, "Wrong Password", http.StatusBadRequest)
-			log.Println(err)
-			return
-		}
-
-		cookie := s.cookiesStore.CreateSession(user.ID)
-
-		http.SetCookie(w, cookie)
-
-		w.WriteHeader(200)
+		s.handleSignIn(w, r)
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
-	w.Write([]byte("405 method not allowed"))
 	return
+}
+
+//handleSignInPage - if SigIn GET method
+func (s *Server) handleSignInPage(w http.ResponseWriter) {
+	temp := Parser()
+	if err := temp.Execute(w, nil); err != nil {
+		logger(w, http.StatusInternalServerError, err)
+	}
+}
+
+//handleSignIn - if SignIn POST method
+func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
+	bytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		logger(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	var signer Sign
+	if err = json.Unmarshal(bytes, &signer); err != nil {
+		logger(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if err = checkLoginDatas(&signer); err != nil {
+		logger(w, http.StatusBadRequest, err)
+		return
+	}
+
+	user, err := s.store.GetUserByLogin(signer.Login)
+	if err != nil {
+		logger(w, http.StatusBadRequest, newErr.ErrWrongLogin)
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(signer.Password)); err != nil {
+		logger(w, http.StatusBadRequest, err)
+		return
+	}
+
+	cookie := s.cookiesStore.CreateSession(user.ID)
+	http.SetCookie(w, cookie)
+}
+
+//checkLoginDatas - is empty or too long login datas
+func checkLoginDatas(user *Sign) error {
+	if len(user.Login) == 0 || len(user.Login) > 32 {
+		return newErr.ErrLoginData
+	}
+	if len(user.Password) < 8 || len(user.Password) > 32 {
+		return newErr.ErrPassData
+	}
+	return nil
 }

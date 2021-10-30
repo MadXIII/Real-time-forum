@@ -19,18 +19,15 @@ export default class extends AbstractView {
                 window.location.href = "/"
             } else {
                 let result = await response.json()
-                alert(result['notify'])
+                alert(result)
             }
         }
-
-    
     }
-
 
     async getHtml() {
         return `
             <h2>are you sure?</h2>
-            <button id="logoutBtnId" >Yes</button >
+            <button id="logoutBtnId">Yes</button >
             <input type="button" onclick="location.href='/'"value="No" >
         `
     }

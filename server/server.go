@@ -1,7 +1,9 @@
 package server
 
 import (
+	"encoding/json"
 	"forum/database"
+	newErr "forum/internal/error"
 	session "forum/sessions"
 	"log"
 	"net/http"
@@ -32,6 +34,7 @@ func (s *Server) Conf() {
 	s.router.HandleFunc("/signup", s.middleWare(false, s.SignUp))
 	s.router.HandleFunc("/newpost", s.middleWare(true, s.CreatePost))
 	s.router.HandleFunc("/logout", s.middleWare(true, s.LogOut))
+	s.router.HandleFunc("/post/", s.middleWare(false, s.GetPost))
 }
 
 //ListenAndServe - Listener with Configurations to ServMUX
@@ -47,4 +50,29 @@ func Parser() *template.Template {
 		log.Println(err)
 	}
 	return temp
+}
+
+//logger - send Notification to Client & log error
+func logger(w http.ResponseWriter, status int, inputErr error) {
+	if newErr.CheckErr(inputErr) {
+		notify, err := json.Marshal(inputErr.Error())
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Println(err)
+			return
+		}
+		w.WriteHeader(status)
+		w.Write(notify)
+		log.Println(inputErr)
+		return
+	}
+	w.WriteHeader(status)
+	log.Println(inputErr)
+}
+
+//logout set cookies max age to -1
+func logout(w http.ResponseWriter, ck *http.Cookie) {
+	ck.MaxAge = -1
+	http.SetCookie(w, ck)
+	w.WriteHeader(http.StatusOK)
 }

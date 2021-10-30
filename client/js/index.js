@@ -3,6 +3,7 @@ import Signup from "./views/SignUp.js"
 import Signin from "./views/SignIn.js"
 import LogOut from "./views/LogOut.js"
 import CreatePost from "./views/CreatePost.js"
+import GetPost from "./views/GetPost.js"
 
 const navigateTo = url => {
     history.pushState(null, null, url)
@@ -16,6 +17,7 @@ const router = async () => {
         { path: "/signin", view: Signin },
         { path: "/logout", view: LogOut },
         { path: "/newpost", view: CreatePost },
+        { path: "/post", view: GetPost },
     ];
 
     const potentialMatches = routes.map(route => {

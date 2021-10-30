@@ -1,7 +1,7 @@
 package session
 
 import (
-	"fmt"
+	newErr "forum/internal/error"
 	"net/http"
 
 	uuid "github.com/satori/go.uuid"
@@ -39,7 +39,7 @@ func (s *Store) DeleteCookie(ck *http.Cookie) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("Something wrong with cookies to delete it")
+	return newErr.ErrDelCookie
 }
 
 //CheckCookie - check cookie in map
@@ -49,10 +49,19 @@ func (s *Store) CheckCookie(cookieHash string) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("Problem with cookie")
+	return newErr.ErrNoCookie
 }
 
-//GetCookies - Getter
-func (s Store) GetCookies() map[int]*http.Cookie {
-	return s.cookies
+//GetIDByCookie - search userid in cookies by request.Cookie
+func (s *Store) GetIDByCookie(req *http.Request) int {
+	userCk, err := req.Cookie("session")
+	if err != nil {
+		return -1
+	}
+	for id, ck := range s.cookies {
+		if ck.Value == userCk.Value {
+			return id
+		}
+	}
+	return -1
 }
