@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	"fmt"
 	"forum/database/testdb"
 	newErr "forum/internal/error"
 	"forum/models"
@@ -10,16 +11,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func TestSignIn(t *testing.T) {
 	db := &testdb.TestDB{}
-	byteses, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.MinCost)
-	if err != nil {
-		t.Fatal(err)
-	}
-	db.InsertUser(models.User{Nickname: "testlogin", Password: string(byteses)})
+
+	// db.InsertUser(models.User{Nickname: "testlogin", Password: string(byteses)})
 
 	mysrv := Init(db, &testsession.TestSession{})
 	mysrv.router.HandleFunc("/signin", mysrv.SignIn)
@@ -29,46 +28,70 @@ func TestSignIn(t *testing.T) {
 
 	tests := map[string]struct {
 		method     string
+		password   string
+		login      string
 		inputBody  []byte
 		wantStatus int
 	}{
-		"Wait StatusOK GET": {
-			method:     "GET",
-			inputBody:  nil,
-			wantStatus: http.StatusOK,
-		},
+		// "Wait StatusOK GET": {
+		// 	method:     "GET",
+		// 	inputBody:  nil,
+		// 	wantStatus: http.StatusOK,
+		// },
 		"Wait StatusOK  POST": {
 			method:     "POST",
-			inputBody:  []byte(`{"login":"testlogin","password":"password"}`),
+			password:   "password",
+			login:      "login",
 			wantStatus: http.StatusOK,
 		},
-		"Wait BadRequest empty fields": {
-			method:     "POST",
-			inputBody:  []byte(`{"login":"","password":""}`),
-			wantStatus: http.StatusBadRequest,
-		},
-		"Wait MethodNotAllowed": {
-			method:     "ERROR",
-			inputBody:  nil,
-			wantStatus: http.StatusMethodNotAllowed,
-		},
+		// "Wait BadRequest empty fields": {
+		// 	method:     "POST",
+		// 	inputBody:  []byte(`{"login":"","password":""}`),
+		// 	wantStatus: http.StatusBadRequest,
+		// },
+		// "Wait MethodNotAllowed": {
+		// 	method:     "ERROR",
+		// 	inputBody:  nil,
+		// 	wantStatus: http.StatusMethodNotAllowed,
+		// },
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			req, err := http.NewRequest(test.method, srv.URL+"/signin", bytes.NewBuffer(test.inputBody))
+			b, err := bcrypt.GenerateFromPassword([]byte(test.password), bcrypt.MinCost)
 			if err != nil {
-				t.Errorf("Sign In request error: %v", err)
+				t.Fatal(err)
 			}
+
+			db.On("GetUserByLogin", test.login).Return(
+				&models.User{
+					Nickname: test.login,
+					Password: string(b),
+				},
+				nil,
+			)
+
+			req, err := http.NewRequest(test.method, srv.URL+"/signin", bytes.NewBuffer(generateBody(test.password, test.login)))
+			assert.Nil(t, err)
+			// if err != nil {
+			// 	t.Errorf("Sign In request error: %v", err)
+			// }
 			resp, err := http.DefaultClient.Do(req)
-			if err != nil {
-				t.Errorf("Sign in response error: %v", err)
-			}
-			if resp.StatusCode != test.wantStatus {
-				t.Errorf("Wait status: %v, but got: %v", test.wantStatus, resp.StatusCode)
-			}
+			assert.Nil(t, err)
+
+			// if err != nil {
+			// 	t.Errorf("Sign in response error: %v", err)
+			// }
+			assert.Equal(t, test.wantStatus, resp.StatusCode)
+			// if resp.StatusCode != test.wantStatus {
+			// 	t.Errorf("Wait status: %v, but got: %v", test.wantStatus, resp.StatusCode)
+			// }
 		})
 	}
+}
+
+func generateBody(password, login string) []byte {
+	return []byte(fmt.Sprintf(`{"login":"%s","password":"%s"}`, login, password))
 }
 
 func TestCheckLoginDatas(t *testing.T) {

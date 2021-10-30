@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	newErr "forum/internal/error"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -63,6 +64,7 @@ func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(signer.Password)); err != nil {
+		log.Println(user.Password, signer.Password)
 		logger(w, http.StatusBadRequest, err)
 		return
 	}

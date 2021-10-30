@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"forum/models"
-	"log"
 )
 
 // func (s *Store) GetUserById() (int, error) {
@@ -24,13 +23,11 @@ func (s *Store) GetUserByLogin(login string) (*models.User, error) {
 	for rows.Next() {
 		err := rows.Scan(&user.ID, &user.Nickname, &user.Email, &user.Password, &user.FirstName, &user.LastName, &user.Gender, &user.Age)
 		if err != nil {
-			log.Println(err)
 			return nil, err
 		}
 	}
 
 	if err := rows.Err(); err != nil {
-		log.Println(err)
 		return nil, err
 	}
 

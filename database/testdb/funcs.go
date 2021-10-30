@@ -1,34 +1,32 @@
 package testdb
 
 import (
-	newErr "forum/internal/error"
 	"forum/models"
+
+	"github.com/stretchr/testify/mock"
 )
 
 type TestDB struct {
-	user []models.User
+	mock.Mock
 	// name string
 	// pass string
 }
 
-func (t *TestDB) Init(dbname string) error {
+func (db *TestDB) Init(dbname string) error {
 	return nil
 }
-func (t *TestDB) InsertUser(user models.User) error {
-	t.user = append(t.user, user)
-	return nil
+func (db *TestDB) InsertUser(user models.User) error {
+	args := db.Called(user)
+	return args.Error(0)
 }
-func (t *TestDB) GetUserByLogin(login string) (*models.User, error) {
-	for _, r := range t.user {
-		if login == r.Nickname {
-			return &r, nil
-		}
-	}
-	return &models.User{}, newErr.ErrWrongLogin
+func (db *TestDB) GetUserByLogin(login string) (*models.User, error) {
+	args := db.Called(login)
+	return args.Get(0).(*models.User), args.Error(1)
 }
-func (t *TestDB) InsertPost(models.Post) error {
-	return nil
+func (db *TestDB) InsertPost(post models.Post) error {
+	args := db.Called(post)
+	return args.Error(0)
 }
-func (t *TestDB) Close() {
+func (db *TestDB) Close() {
 
 }
