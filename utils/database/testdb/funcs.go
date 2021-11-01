@@ -1,7 +1,7 @@
 package testdb
 
 import (
-	"forum/models"
+	"forum/utils/models"
 
 	"github.com/stretchr/testify/mock"
 )
@@ -26,6 +26,10 @@ func (db *TestDB) GetUserByLogin(login string) (*models.User, error) {
 func (db *TestDB) InsertPost(post models.Post) error {
 	args := db.Called(post)
 	return args.Error(0)
+}
+func (db *TestDB) GetPostByID(id int) (*models.Post, error) {
+	args := db.Called(id)
+	return args.Get(0).(*models.Post), args.Error(1)
 }
 func (db *TestDB) Close() {
 

@@ -1,6 +1,6 @@
 package database
 
-import "forum/models"
+import "forum/utils/models"
 
 //Repository - interface to work with DB
 type Repository interface {
@@ -8,5 +8,6 @@ type Repository interface {
 	InsertUser(models.User) error
 	GetUserByLogin(string) (*models.User, error)
 	InsertPost(models.Post) error
+	GetPostByID(int) (*models.Post, error)
 	Close()
 }

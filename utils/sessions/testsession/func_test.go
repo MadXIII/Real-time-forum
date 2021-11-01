@@ -1,5 +1,5 @@
 package testsession
 
-import session "forum/sessions"
+import session "forum/utils/sessions"
 
 var _ session.Repository = (*TestSession)(nil)

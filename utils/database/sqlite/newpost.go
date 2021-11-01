@@ -1,7 +1,7 @@
 package sqlite
 
 import (
-	"forum/models"
+	"forum/utils/models"
 	"log"
 )
 

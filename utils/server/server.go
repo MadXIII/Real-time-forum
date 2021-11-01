@@ -2,9 +2,9 @@ package server
 
 import (
 	"encoding/json"
-	"forum/database"
-	newErr "forum/internal/error"
-	session "forum/sessions"
+	"forum/utils/database"
+	newErr "forum/utils/internal/error"
+	session "forum/utils/sessions"
 	"log"
 	"net/http"
 	"text/template"
@@ -34,7 +34,7 @@ func (s *Server) Conf() {
 	s.router.HandleFunc("/signup", s.middleWare(false, s.SignUp))
 	s.router.HandleFunc("/newpost", s.middleWare(true, s.CreatePost))
 	s.router.HandleFunc("/logout", s.middleWare(true, s.LogOut))
-	s.router.HandleFunc("/post/", s.middleWare(false, s.GetPost))
+	s.router.HandleFunc("/post", s.middleWare(false, s.GetPost))
 }
 
 //ListenAndServe - Listener with Configurations to ServMUX

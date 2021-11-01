@@ -1,5 +1,5 @@
 package testdb
 
-import "forum/database"
+import "forum/utils/database"
 
 var _ database.Repository = (*TestDB)(nil)

@@ -2,8 +2,8 @@ package server
 
 import (
 	"encoding/json"
-	newErr "forum/internal/error"
-	"forum/models"
+	newErr "forum/utils/internal/error"
+	"forum/utils/models"
 	"io/ioutil"
 	"net/http"
 )

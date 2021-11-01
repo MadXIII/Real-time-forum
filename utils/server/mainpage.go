@@ -1,7 +1,7 @@
 package server
 
 import (
-	newErr "forum/internal/error"
+	newErr "forum/utils/internal/error"
 	"net/http"
 )
 

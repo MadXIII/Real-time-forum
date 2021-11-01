@@ -2,7 +2,7 @@ package server
 
 import (
 	"encoding/json"
-	newErr "forum/internal/error"
+	newErr "forum/utils/internal/error"
 	"io/ioutil"
 	"log"
 	"net/http"

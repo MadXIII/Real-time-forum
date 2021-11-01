@@ -1,7 +1,7 @@
 package session
 
 import (
-	newErr "forum/internal/error"
+	newErr "forum/utils/internal/error"
 	"net/http"
 
 	uuid "github.com/satori/go.uuid"
