@@ -2,10 +2,12 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	newErr "forum/utils/internal/error"
 	"forum/utils/models"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 //CreatePost ...
@@ -43,7 +45,7 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var newPost models.Post
-	// newPost := models.Post{Timestamp: time.Now().Format("Mon Jan 2 15:04:05 -0700 MST 2006")}
+	newPost = models.Post{Timestamp: time.Now().Format("2.Jan.2006, 15:04")}
 
 	if err = json.Unmarshal(bytes, &newPost); err != nil {
 		logger(w, http.StatusInternalServerError, err)
@@ -61,10 +63,18 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//cant find how to error
-	if err = s.store.InsertPost(newPost); err != nil {
+	postID, err := s.store.InsertPost(newPost)
+	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return
 	}
+
+	fmt.Println(postID)
+	resp, err := json.Marshal(postID)
+	if err != nil {
+		logger(w, http.StatusInternalServerError, err)
+	}
+	w.Write(resp)
 }
 
 func checkNewPostDatas(post models.Post) error {

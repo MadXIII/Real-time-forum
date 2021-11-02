@@ -2,22 +2,18 @@ package sqlite
 
 import (
 	"forum/utils/models"
-	"log"
 )
 
 //InsertPost ...
-func (s *Store) InsertPost(newPost models.Post) error {
+func (s *Store) InsertPost(newPost models.Post) (int, error) {
 	createTable, err := s.db.Prepare(`
 		INSERT INTO post 
 		(user_id, tittle, content, timestamp)
 		VALUES (?, ?, ?, ?)
 	`)
 	if err != nil {
-		log.Println(err)
-		return err
+		return 0, err
 	}
-
-	// defer s.db.Close()
 
 	res, err := createTable.Exec(
 		newPost.UserID,
@@ -26,16 +22,14 @@ func (s *Store) InsertPost(newPost models.Post) error {
 		newPost.Timestamp,
 	)
 	if err != nil {
-		log.Println(err)
-		return err
+		return 0, err
 	}
 
 	postid, err := res.LastInsertId()
 	if err != nil {
-		log.Println(err)
-		return err
+		return 0, err
 	}
 	newPost.ID = int(postid)
 
-	return nil
+	return newPost.ID, nil
 }

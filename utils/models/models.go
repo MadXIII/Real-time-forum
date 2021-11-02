@@ -15,11 +15,11 @@ type User struct {
 }
 
 type Post struct {
-	ID        int       `json:"id"`
-	UserID    int       `json:"user_id"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
-	Timestamp time.Time `json:"timestamp"`
+	ID        int    `json:"id"`
+	UserID    int    `json:"user_id"`
+	Title     string `json:"title"`
+	Content   string `json:"content"`
+	Timestamp string `json:"timestamp"`
 }
 
 type PostLike struct {

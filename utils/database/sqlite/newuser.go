@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"forum/utils/models"
-	"log"
 )
 
 //InsertUser - Insert user in DB
@@ -13,10 +12,9 @@ func (s *Store) InsertUser(user models.User) error {
 	VALUES (?, ?, ?, ?, ?, ?, ?)
 	`)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
-	defer createTable.Close()
+	// defer createTable.Close()
 
 	res, err := createTable.Exec(
 		user.Nickname,
