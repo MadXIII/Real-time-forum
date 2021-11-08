@@ -23,9 +23,11 @@ func (db *TestDB) GetUserByLogin(login string) (*models.User, error) {
 	args := db.Called(login)
 	return args.Get(0).(*models.User), args.Error(1)
 }
-func (db *TestDB) InsertPost(post models.Post) error {
+
+//output problem - int
+func (db *TestDB) InsertPost(post models.Post) (int, error) {
 	args := db.Called(post)
-	return args.Error(0)
+	return args.Int(0), args.Error(1)
 }
 func (db *TestDB) GetPostByID(id int) (*models.Post, error) {
 	args := db.Called(id)
