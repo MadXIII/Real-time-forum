@@ -2,15 +2,11 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
-	"path"
+	"strconv"
 )
 
 func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
-
-	log.Println("here")
 	if r.Method == http.MethodGet {
 		s.handlerGetPostPage(w, r)
 		return
@@ -21,21 +17,23 @@ func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
 	// 	s.handlerGetPost(w, r)
 	// 	return
 	// }
-
 }
 
 func (s *Server) handlerGetPostPage(w http.ResponseWriter, r *http.Request) {
-	log.Println("here")
 	temp := Parser()
 	if err := temp.Execute(w, nil); err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	_, ep := path.Split(r.URL.Path)
-	fmt.Println(ep)
+	//ep - endpoint
+	postID, err := ParsePostID(r)
+	if err != nil {
+		logger(w, http.StatusInternalServerError, err)
+		return
+	}
 
-	post, err := s.store.GetPostByID(5)
+	post, err := s.store.GetPostByID(postID)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return
@@ -48,9 +46,20 @@ func (s *Server) handlerGetPostPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(bytes)
-	log.Println(bytes)
 }
 
 // func (s *Server) handlerGetPost(w http.ResponseWriter, r *http.Request) {
 
 // }
+
+func ParsePostID(r *http.Request) (int, error) {
+	r.ParseForm()
+	val := r.Form.Get("id")
+
+	postID, err := strconv.Atoi(val)
+	if err != nil {
+		return 0, err
+	}
+
+	return postID, nil
+}

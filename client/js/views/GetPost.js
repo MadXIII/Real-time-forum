@@ -1,13 +1,17 @@
 import AbstractView from "./AbstractView.js"
 
+
 export default class extends AbstractView {
     constructor() {
         super()
         this.setTitle("Post")
     }
 
-    init() {
+    init() { 
         console.log(123);
+        let body = {
+            
+        }
     }
 
     async getHtml() {

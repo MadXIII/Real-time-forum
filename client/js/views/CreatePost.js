@@ -1,5 +1,5 @@
 import AbstractView from "./AbstractView.js"
-import {router} from "../index.js"
+import { router } from "../index.js"
 
 export default class extends AbstractView {
     constructor() {
@@ -23,12 +23,7 @@ export default class extends AbstractView {
             })
             if (response.ok) {
                 let postID = await response.json()
-                // window.location.href = "/post/" + postID
-                window.location.replace("http://localhost:8080/post/" + postID)
-                             //   window.location.replace("http://localhost:8080/post/" + postID)export const redirect = (endpoint) => {
-    //   history.pushState(null, "", `http://localhost:8080/post/${postID}`);
-    //     window.addEventListener("popstate", router());
-                
+                window.location.replace("http://localhost:8080/post?id=" + `${postID}`)
             } else {
                 let result = await response.json()
                 alert(result)

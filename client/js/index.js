@@ -17,15 +17,14 @@ export const router = async () => {
         { path: "/signin", view: Signin },
         { path: "/logout", view: LogOut },
         { path: "/newpost", view: CreatePost },
-        { path: "/post/:id", view: GetPost },
+        { path: "/post", view: GetPost },
     ];
     console.log(routes, "pat")
-
+    
     const potentialMatches = routes.map(route => {
         return {
             route: route,
             isMatch: location.pathname === route.path,
-
         }
     })
     let match = potentialMatches.find(potentialMatche => potentialMatche.isMatch)

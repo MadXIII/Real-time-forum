@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	newErr "forum/utils/internal/error"
 	"forum/utils/models"
 	"io/ioutil"
@@ -69,7 +68,6 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(postID)
 	resp, err := json.Marshal(postID)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
