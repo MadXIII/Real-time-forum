@@ -7,6 +7,10 @@ export default class extends AbstractView {
 
     }
     init() {
+        console.log("ok")
+        let response = await fetch('http://localhost:8080')
+        // if (response.ok) {
+        // }
     }
     async getHtml() {
         let tags = `

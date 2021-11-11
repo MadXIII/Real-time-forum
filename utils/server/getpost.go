@@ -26,7 +26,6 @@ func (s *Server) handlerGetPostPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//ep - endpoint
 	postID, err := ParsePostID(r)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)

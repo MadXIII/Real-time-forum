@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	newErr "forum/utils/internal/error"
 	"net/http"
 )
@@ -17,8 +18,21 @@ func (s *Server) MainPage(w http.ResponseWriter, r *http.Request) {
 			logger(w, http.StatusInternalServerError, err)
 			return
 		}
+
+		posts, err := s.store.GetAllPosts()
+		if err != nil {
+			logger(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		bytes, err := json.Marshal(posts)
+		if err != nil {
+			logger(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		w.Write(bytes)
 		return
-		//made create post
 		//made get all posts
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
