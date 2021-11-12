@@ -8,10 +8,10 @@ export default class extends AbstractView {
     }
 
     init() { 
-        console.log(123);
-        let body = {
-            
-        }
+
+        let searchParams = new URLSearchParams(window.location.search)
+        console.log(searchParams.get('id'));
+
     }
 
     async getHtml() {

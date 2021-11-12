@@ -2,9 +2,14 @@ package server
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 )
+
+type post struct {
+	id int `json:"id"`
+}
 
 func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
@@ -26,13 +31,26 @@ func (s *Server) handlerGetPostPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postID, err := ParsePostID(r)
+	var postID post
+
+	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	post, err := s.store.GetPostByID(postID)
+	if err := json.Unmarshal(bytes, &postID); err != nil {
+		logger(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	// postID, err := ParsePostID(r)
+	// if err != nil {
+	// 	logger(w, http.StatusInternalServerError, err)
+	// 	return
+	// }
+
+	post, err := s.store.GetPostByID(postID.id)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return
@@ -45,6 +63,7 @@ func (s *Server) handlerGetPostPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(bytes)
+	return
 }
 
 // func (s *Server) handlerGetPost(w http.ResponseWriter, r *http.Request) {

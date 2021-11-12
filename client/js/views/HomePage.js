@@ -7,8 +7,11 @@ export default class extends AbstractView {
 
     }
     init() {
-        console.log("ok")
-        let response = await fetch('http://localhost:8080')
+        let response = fetch('http://localhost:8080')
+        if (response.ok) {
+            
+        }
+        
         // if (response.ok) {
         // }
     }
