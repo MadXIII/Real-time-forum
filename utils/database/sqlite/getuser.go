@@ -18,19 +18,5 @@ func (s *Store) GetUserByLogin(login string) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// defer rows.Close()
-
-	// for rows.Next() {
-	// 	err := rows.Scan(&user.ID, &user.Nickname, &user.Email, &user.Password, &user.FirstName, &user.LastName, &user.Gender, &user.Age)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// }
-
-	// if err := rows.Err(); err != nil {
-	// 	return nil, err
-	// }
-
 	return &user, err
 }

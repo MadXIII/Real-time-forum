@@ -4,34 +4,24 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 )
 
-type post struct {
-	id int `json:"id"`
+type Post struct {
+	Id int `json:"id"`
 }
 
 func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
+	if r.Method == http.MethodPost {
 		s.handlerGetPostPage(w, r)
 		return
 	}
-	// if r.URL.Path != "/post" {}
-	//
-	// if r.Method == http.MethodPost {
-	// 	s.handlerGetPost(w, r)
-	// 	return
-	// }
+	w.WriteHeader(http.StatusMethodNotAllowed)
+	return
 }
 
 func (s *Server) handlerGetPostPage(w http.ResponseWriter, r *http.Request) {
-	temp := Parser()
-	if err := temp.Execute(w, nil); err != nil {
-		logger(w, http.StatusInternalServerError, err)
-		return
-	}
 
-	var postID post
+	var postID Post
 
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -44,19 +34,13 @@ func (s *Server) handlerGetPostPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// postID, err := ParsePostID(r)
-	// if err != nil {
-	// 	logger(w, http.StatusInternalServerError, err)
-	// 	return
-	// }
-
-	post, err := s.store.GetPostByID(postID.id)
+	post, err := s.store.GetPostByID(postID.Id)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	bytes, err := json.Marshal(post)
+	bytes, err = json.Marshal(post)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return
@@ -69,15 +53,3 @@ func (s *Server) handlerGetPostPage(w http.ResponseWriter, r *http.Request) {
 // func (s *Server) handlerGetPost(w http.ResponseWriter, r *http.Request) {
 
 // }
-
-func ParsePostID(r *http.Request) (int, error) {
-	r.ParseForm()
-	val := r.Form.Get("id")
-
-	postID, err := strconv.Atoi(val)
-	if err != nil {
-		return 0, err
-	}
-
-	return postID, nil
-}

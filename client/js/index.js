@@ -19,7 +19,6 @@ export const router = async () => {
         { path: "/newpost", view: CreatePost },
         { path: "/post", view: GetPost },
     ];
-    console.log(routes, "pat")
     
     const potentialMatches = routes.map(route => {
         return {

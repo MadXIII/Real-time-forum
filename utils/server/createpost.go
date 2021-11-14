@@ -11,24 +11,12 @@ import (
 
 //CreatePost ...
 func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		s.handleNewPostPage(w)
-		return
-	}
 	if r.Method == http.MethodPost {
 		s.handleCreatePost(w, r)
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
 	return
-}
-
-//handleNewPostPage - if CreatePost GET method
-func (s *Server) handleNewPostPage(w http.ResponseWriter) {
-	temp := Parser()
-	if err := temp.Execute(w, nil); err != nil {
-		logger(w, http.StatusInternalServerError, err)
-	}
 }
 
 //handleCreatePost - if CreatePost POST method

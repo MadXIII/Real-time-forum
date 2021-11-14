@@ -29,12 +29,17 @@ func Init(store database.Repository, cookiesStore session.Repository) *Server {
 //Conf - Hanlders to routes
 func (s *Server) Conf() {
 	s.router.Handle("/js/", http.StripPrefix("/js", http.FileServer(http.Dir("../client/js"))))
-	s.router.HandleFunc("/", s.MainPage)
-	s.router.HandleFunc("/signin", s.middleWare(false, s.SignIn))
-	s.router.HandleFunc("/signup", s.middleWare(false, s.SignUp))
-	s.router.HandleFunc("/newpost", s.middleWare(true, s.CreatePost))
+	s.router.HandleFunc("/", s.Index)
+
+	s.router.HandleFunc("/newpost", s.middleWare(true, s.Index))
 	s.router.HandleFunc("/logout", s.middleWare(true, s.LogOut))
-	s.router.HandleFunc("/post", s.middleWare(false, s.GetPost))
+
+	s.router.HandleFunc("/api/", s.MainPage)
+	s.router.HandleFunc("/api/signin", s.middleWare(false, s.SignIn))
+	s.router.HandleFunc("/api/signup", s.middleWare(false, s.SignUp))
+	s.router.HandleFunc("/api/newpost", s.middleWare(true, s.CreatePost))
+	s.router.HandleFunc("/api/post", s.middleWare(false, s.GetPost))
+
 }
 
 //ListenAndServe - Listener with Configurations to ServMUX
@@ -67,7 +72,6 @@ func logger(w http.ResponseWriter, status int, inputErr error) {
 		return
 	}
 	w.WriteHeader(status)
-	log.Println(inputErr)
 }
 
 //logout set cookies max age to -1

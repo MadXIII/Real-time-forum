@@ -18,24 +18,12 @@ type Sign struct {
 
 //SignIn - Sigin page
 func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		s.handleSignInPage(w)
-		return
-	}
 	if r.Method == http.MethodPost {
 		s.handleSignIn(w, r)
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
 	return
-}
-
-//handleSignInPage - if SigIn GET method
-func (s *Server) handleSignInPage(w http.ResponseWriter) {
-	temp := Parser()
-	if err := temp.Execute(w, nil); err != nil {
-		logger(w, http.StatusInternalServerError, err)
-	}
 }
 
 //handleSignIn - if SignIn POST method

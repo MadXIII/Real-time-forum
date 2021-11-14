@@ -21,7 +21,7 @@ export default class extends AbstractView {
                 let result = await response.json()
                 alert(result)
             }
-        }
+        } 
     }
 
     async getHtml() {

@@ -14,7 +14,7 @@ export default class extends AbstractView {
                 title: document.getElementById("title").value,
                 content: document.getElementById("content").value,
             }
-            let response = await fetch('http://localhost:8080/newpost', {
+            let response = await fetch('http://localhost:8080/api/newpost', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'

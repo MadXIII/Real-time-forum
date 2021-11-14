@@ -15,24 +15,12 @@ import (
 
 //SignUp page GET, POST
 func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		s.handleSignUpPage(w)
-		return
-	}
 	if r.Method == http.MethodPost {
 		s.handleCreateAccount(w, r)
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
 	return
-}
-
-//handleSignUpPage - if SignUp GET method
-func (s *Server) handleSignUpPage(w http.ResponseWriter) {
-	temp := Parser()
-	if err := temp.Execute(w, nil); err != nil {
-		logger(w, http.StatusInternalServerError, err)
-	}
 }
 
 //handleCreateAccount - if SignUp POST method
