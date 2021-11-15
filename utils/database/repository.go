@@ -8,8 +8,9 @@ type Repository interface {
 	InsertUser(models.User) error
 	GetUserByLogin(string) (*models.User, error)
 	InsertPost(models.Post) (int, error)
-	GetPostByID(int) (*models.Post, error)
+	GetPostByID(string) (*models.Post, error)
 	GetAllPosts() (*[]models.Post, error)
+	GetUsernameByUID(int) (string, error)
 	// GetMyPosts() (*[]models.Post, error)
 	Close()
 }

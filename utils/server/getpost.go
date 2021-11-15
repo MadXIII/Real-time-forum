@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 type Post struct {
-	Id int `json:"id"`
+	ID string `json:"id"`
 }
 
 func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
@@ -34,9 +35,14 @@ func (s *Server) handlerGetPostPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post, err := s.store.GetPostByID(postID.Id)
+	if err := checkPostID(postID.ID); err != nil {
+		logger(w, http.StatusBadRequest, err)
+		return
+	}
+
+	post, err := s.store.GetPostByID(postID.ID)
 	if err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -48,6 +54,14 @@ func (s *Server) handlerGetPostPage(w http.ResponseWriter, r *http.Request) {
 
 	w.Write(bytes)
 	return
+}
+
+func checkPostID(id string) error {
+	_, err := strconv.Atoi(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // func (s *Server) handlerGetPost(w http.ResponseWriter, r *http.Request) {

@@ -20,3 +20,16 @@ func (s *Store) GetUserByLogin(login string) (*models.User, error) {
 	}
 	return &user, err
 }
+
+func (s *Store) GetUsernameByUID(id int) (string, error) {
+	var username string
+	err := s.db.QueryRow(`
+	SELECT nickname FROM user WHERE id = ?
+	`, id).
+		Scan(&username)
+
+	if err != nil {
+		return "", err
+	}
+	return username, nil
+}

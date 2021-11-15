@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	newErr "forum/utils/internal/error"
 	"forum/utils/models"
 	"io/ioutil"
@@ -49,6 +50,14 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		logger(w, http.StatusInternalServerError, newErr.ErrNoCookie)
 		return
 	}
+
+	newPost.Username, err = s.store.GetUsernameByUID(newPost.UserID)
+	if err != nil {
+		logger(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	fmt.Println("Insert")
 	//cant find how to error
 	postID, err := s.store.InsertPost(newPost)
 	if err != nil {
@@ -59,6 +68,7 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 	resp, err := json.Marshal(postID)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
+		return
 	}
 	w.Write(resp)
 }

@@ -72,6 +72,7 @@ func logger(w http.ResponseWriter, status int, inputErr error) {
 		return
 	}
 	w.WriteHeader(status)
+	log.Println(inputErr)
 }
 
 //logout set cookies max age to -1

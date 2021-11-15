@@ -17,6 +17,7 @@ type User struct {
 type Post struct {
 	ID        int    `json:"id"`
 	UserID    int    `json:"user_id"`
+	Username  string `json:"username"`
 	Title     string `json:"title"`
 	Content   string `json:"content"`
 	Timestamp string `json:"timestamp"`

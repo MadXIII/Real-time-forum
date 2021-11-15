@@ -9,7 +9,7 @@ export default class extends AbstractView {
 
     async init() {
         let searchParams = new URLSearchParams(window.location.search)
-        let obj = { id: parseInt(searchParams.get('id')) }
+        let obj = { id: searchParams.get('id') }
 
         let response = await fetch('http://localhost:8080/api/post', {
             method: 'POST',
@@ -20,11 +20,11 @@ export default class extends AbstractView {
         })
         if (response.ok) {
             let res = await response.json()
-            let divUid = document.getElementById("PostDataUID");
+            let divUsername = document.getElementById("PostDataUsername");
             let divTitle = document.getElementById("PostDataTitle");
             let divContent = document.getElementById("PostDataContent");
             let divTime = document.getElementById("PostDataTime");
-            divUid.innerText = `Post UserID : ${res.user_id}`;
+            divUsername.innerText = `Post Username : ${res.username}`;
             divTitle.innerHTML = `Post Title: ${res.title}`;
             divContent.innerHTML = `Post Content: ${res.content}`;
             divTime.innerHTML = `Post Time: ${res.timestamp}`;
@@ -34,7 +34,7 @@ export default class extends AbstractView {
 
     async getHtml() {
         return `
-        <div id="PostDataUID"></div>
+        <div id="PostDataUsername"></div>
         <div id="PostDataTitle"></div>
         <div id="PostDataContent"></div>
         <div id="PostDataTime"></div>
