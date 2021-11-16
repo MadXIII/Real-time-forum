@@ -16,7 +16,7 @@ export default class extends AbstractView {
         let tags = `
             <h1>Home</h1>
             <p>Welcome to the Main Page</p>
-            <p><a href="/newpost" datat-link>Create Post</a></p>
+            <p><a href="/newpost" data-link>Create Post</a></p>
         `
         return super.isAuth() + tags
     }

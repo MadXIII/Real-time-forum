@@ -8,7 +8,8 @@ import (
 )
 
 type Post struct {
-	ID string `json:"id"`
+	ID      string `json:"id"`
+	Comment string `json:"commnet"`
 }
 
 func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
