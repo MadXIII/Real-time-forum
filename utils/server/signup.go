@@ -49,17 +49,16 @@ func (s *Server) handleCreateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 	newUser.Password = string(bytes)
 
-	if err = s.insertUserDB(newUser); err != nil {
+	if err = s.insertUserDB(&newUser); err != nil {
 		logger(w, http.StatusBadRequest, err)
 	}
 
 	cookie := s.cookiesStore.CreateSession(newUser.ID)
-
 	http.SetCookie(w, cookie)
 }
 
 //insertUserDB - Insert User in DB if no error
-func (s *Server) insertUserDB(user models.User) error {
+func (s *Server) insertUserDB(user *models.User) error {
 	if err := s.store.InsertUser(user); err != nil {
 		if strings.Contains(err.Error(), "nickname") {
 			return newErr.ErrNickname

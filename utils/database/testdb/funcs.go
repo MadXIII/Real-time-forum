@@ -15,7 +15,7 @@ type TestDB struct {
 func (db *TestDB) Init(dbname string) error {
 	return nil
 }
-func (db *TestDB) InsertUser(user models.User) error {
+func (db *TestDB) InsertUser(user *models.User) error {
 	args := db.Called(user)
 	return args.Error(0)
 }

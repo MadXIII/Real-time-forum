@@ -5,7 +5,7 @@ import (
 )
 
 //InsertUser - Insert user in DB
-func (s *Store) InsertUser(user models.User) error {
+func (s *Store) InsertUser(user *models.User) error {
 	createTable, err := s.db.Prepare(`
 	INSERT INTO user
 	(nickname, email, password, first_name, last_name, gender, age)

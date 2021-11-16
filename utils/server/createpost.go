@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	newErr "forum/utils/internal/error"
 	"forum/utils/models"
 	"io/ioutil"
@@ -57,7 +56,6 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("Insert")
 	//cant find how to error
 	postID, err := s.store.InsertPost(newPost)
 	if err != nil {
