@@ -44,19 +44,12 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//cant find how to error
-	if newPost.UserID = s.cookiesStore.GetIDByCookie(r); newPost.UserID < 0 {
-		logger(w, http.StatusInternalServerError, newErr.ErrNoCookie)
-		return
-	}
-
-	newPost.Username, err = s.store.GetUsernameByUID(newPost.UserID)
+	newPost.Username, err = s.getUsernameByCookie(r)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	//cant find how to error
 	postID, err := s.store.InsertPost(newPost)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
@@ -79,4 +72,17 @@ func checkNewPostDatas(post models.Post) error {
 		return newErr.ErrPostContent
 	}
 	return nil
+}
+
+func (s *Server) getUsernameByCookie(req *http.Request) (string, error) {
+	id, err := s.cookiesStore.GetIDByCookie(req)
+	if err != nil {
+		return "", err
+	}
+	username, err := s.store.GetUsernameByID(id)
+	if err != nil {
+		return "", err
+	}
+
+	return username, err
 }

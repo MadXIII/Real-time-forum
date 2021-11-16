@@ -39,7 +39,7 @@ func (db *TestDB) GetAllPosts() (*[]models.Post, error) {
 	args := db.Called()
 	return args.Get(0).(*[]models.Post), args.Error(1)
 }
-func (db *TestDB) GetUsernameByUID(id int) (string, error) {
+func (db *TestDB) GetUsernameByID(id int) (string, error) {
 	args := db.Called(id)
 	return args.Get(0).(string), args.Error(1)
 }

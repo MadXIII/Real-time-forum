@@ -53,15 +53,15 @@ func (s *Store) CheckCookie(cookieHash string) error {
 }
 
 //GetIDByCookie - search userid in cookies by request.Cookie
-func (s *Store) GetIDByCookie(req *http.Request) int {
+func (s *Store) GetIDByCookie(req *http.Request) (int, error) {
 	userCk, err := req.Cookie("session")
 	if err != nil {
-		return -1
+		return 0, err
 	}
 	for id, ck := range s.cookies {
 		if ck.Value == userCk.Value {
-			return id
+			return id, nil
 		}
 	}
-	return -1
+	return 0, err
 }

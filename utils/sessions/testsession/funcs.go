@@ -14,6 +14,6 @@ func (s *TestSession) DeleteCookie(*http.Cookie) error {
 func (s *TestSession) CheckCookie(string) error {
 	return nil
 }
-func (s *TestSession) GetIDByCookie(*http.Request) int {
-	return 0
+func (s *TestSession) GetIDByCookie(*http.Request) (int, error) {
+	return 0, nil
 }

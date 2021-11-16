@@ -21,7 +21,8 @@ func (s *Store) GetUserByLogin(login string) (*models.User, error) {
 	return &user, err
 }
 
-func (s *Store) GetUsernameByUID(id int) (string, error) {
+//GetUsernameByID - ...
+func (s *Store) GetUsernameByID(id int) (string, error) {
 	var username string
 	err := s.db.QueryRow(`
 	SELECT nickname FROM user WHERE id = ?
