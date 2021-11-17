@@ -22,8 +22,9 @@ export default class extends AbstractView {
                 body: JSON.stringify(newPost)
             })
             if (response.ok) {
-                let postID = await response.json()
-                window.location.replace("http://localhost:8080/post?id=" + `${postID}`)
+                let result = await response.json()
+                alert(result.notify)
+                window.location.replace(`http://localhost:8080/post?id=${result.id}`)
             } else {
                 let result = await response.json()
                 alert(result)

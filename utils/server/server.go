@@ -31,7 +31,7 @@ func (s *Server) Conf() {
 	s.router.Handle("/js/", http.StripPrefix("/js", http.FileServer(http.Dir("../client/js"))))
 	s.router.HandleFunc("/", s.Index)
 
-	s.router.HandleFunc("/newpost", s.middleWare(true, s.Index))
+	s.router.HandleFunc("/newpost", s.middleWare(true, s.CreatePost))
 	s.router.HandleFunc("/logout", s.middleWare(true, s.LogOut))
 
 	s.router.HandleFunc("/api/", s.MainPage)
@@ -60,14 +60,14 @@ func Parser() *template.Template {
 //logger - send Notification to Client & log error
 func logger(w http.ResponseWriter, status int, inputErr error) {
 	if newErr.CheckErr(inputErr) {
-		notify, err := json.Marshal(inputErr.Error())
+		bytes, err := json.Marshal(inputErr.Error())
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Println(err)
 			return
 		}
 		w.WriteHeader(status)
-		w.Write(notify)
+		w.Write(bytes)
 		log.Println(inputErr)
 		return
 	}
@@ -80,4 +80,14 @@ func logout(w http.ResponseWriter, ck *http.Cookie) {
 	ck.MaxAge = -1
 	http.SetCookie(w, ck)
 	w.WriteHeader(http.StatusOK)
+}
+
+//success - send Notification to Client about success
+func success(w http.ResponseWriter, notify string) {
+	bytes, err := json.Marshal(notify)
+	if err != nil {
+		logger(w, http.StatusInternalServerError, err)
+		return
+	}
+	w.Write(bytes)
 }

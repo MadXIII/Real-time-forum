@@ -11,7 +11,7 @@ type User struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Gender    string `json:"gender"`
-	Age       int    `json:"age"`
+	Age       string `json:"age"`
 }
 
 type Post struct {

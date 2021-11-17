@@ -9,6 +9,11 @@ import (
 	"time"
 )
 
+type Response struct {
+	ID     int    `json:"id"`
+	Notify string `json:"notify"`
+}
+
 //CreatePost ...
 func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
@@ -31,8 +36,8 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		logger(w, http.StatusBadRequest, newErr.ErrNilBody)
 		return
 	}
-	var newPost models.Post
-	newPost = models.Post{Timestamp: time.Now().Format("2.Jan.2006, 15:04")}
+	//Set date format
+	var newPost models.Post = models.Post{Timestamp: time.Now().Format("2.Jan.2006, 15:04")}
 
 	if err = json.Unmarshal(bytes, &newPost); err != nil {
 		logger(w, http.StatusInternalServerError, err)
@@ -56,12 +61,16 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := json.Marshal(postID)
+	//create object to Response about Success
+	resp := Response{postID, "Post is Created"}
+
+	bytes, err = json.Marshal(resp)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return
 	}
-	w.Write(resp)
+
+	w.Write(bytes)
 }
 
 func checkNewPostDatas(post models.Post) error {

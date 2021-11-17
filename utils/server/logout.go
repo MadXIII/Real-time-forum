@@ -17,6 +17,7 @@ func (s *Server) LogOut(w http.ResponseWriter, r *http.Request) {
 			logger(w, http.StatusInternalServerError, err)
 			return
 		}
+		success(w, "Logout is Done")
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)

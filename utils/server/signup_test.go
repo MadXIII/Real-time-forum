@@ -182,22 +182,6 @@ func TestCheckEmpty(t *testing.T) {
 			inputUser: models.User{1, "nickname", "email", "password", "", "firstname", "lastname", "gender", 7},
 			wantErr:   newErr.ErrEmptyConfirm,
 		},
-		"Wait error with empty firstname": {
-			inputUser: models.User{1, "nickname", "email", "password", "confirm", "", "lastname", "gender", 7},
-			wantErr:   newErr.ErrEmptyFirstname,
-		},
-		"Wait error with empty lastname": {
-			inputUser: models.User{1, "nickname", "email", "password", "confirm", "firstname", "", "gender", 7},
-			wantErr:   newErr.ErrEmptyLastname,
-		},
-		"Wait error with empty gender": {
-			inputUser: models.User{1, "nickname", "email", "password", "confirm", "firstname", "lastname", "", 7},
-			wantErr:   newErr.ErrEmptyGender,
-		},
-		"Wait error with empty age": {
-			inputUser: models.User{1, "nickname", "email", "password", "confirm", "firstname", "lastname", "gender", 0},
-			wantErr:   newErr.ErrEmptyAge,
-		},
 		"Success": {
 			inputUser: models.User{1, "nickname", "email", "password", "confirm", "firstname", "lastname", "gender", 7},
 			wantErr:   nil,

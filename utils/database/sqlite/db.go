@@ -19,6 +19,7 @@ func (s *Store) Init(dbname string) (err error) {
 		return
 	}
 	log.Println("DB creating...")
+
 	userTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS user (
 		id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 		nickname VARCHAR(100) NOT NULL UNIQUE,
@@ -27,9 +28,8 @@ func (s *Store) Init(dbname string) (err error) {
 		first_name VARCHAR(100),
 		last_name VARCHAR(100),
 		gender VARCHAR(100),
-		age integer
+		age VARCHAR(50)
 	);`)
-
 	if err != nil {
 		return
 	}
@@ -38,6 +38,7 @@ func (s *Store) Init(dbname string) (err error) {
 	if err != nil {
 		return
 	}
+	log.Println("userTable created")
 
 	defer userTable.Close()
 
@@ -48,7 +49,6 @@ func (s *Store) Init(dbname string) (err error) {
 		FOREIGN KEY (nickname) REFERENCES user(nickname),
 		FOREIGN KEY (password) REFERENCES user(password)
 	);`)
-
 	if err != nil {
 		return
 	}
@@ -57,6 +57,7 @@ func (s *Store) Init(dbname string) (err error) {
 	if err != nil {
 		return
 	}
+	log.Println("signerTable created")
 
 	defer signerTable.Close()
 
@@ -70,7 +71,6 @@ func (s *Store) Init(dbname string) (err error) {
 		FOREIGN KEY (user_id) REFERENCES user(id)
 		FOREIGN KEY (username) REFERENCES user(nickname)
 	);`)
-
 	if err != nil {
 		return
 	}
@@ -79,6 +79,7 @@ func (s *Store) Init(dbname string) (err error) {
 	if err != nil {
 		return
 	}
+	log.Println("postTable created")
 
 	defer postTable.Close()
 
@@ -97,6 +98,7 @@ func (s *Store) Init(dbname string) (err error) {
 	if err != nil {
 		return
 	}
+	log.Println("postLikeTable created")
 
 	defer postLikeTable.Close()
 
@@ -109,11 +111,14 @@ func (s *Store) Init(dbname string) (err error) {
 		FOREIGN KEY(user_id) REFERENCES user(id),
 		FOREIGN KEY(post_id) REFERENCES post(id)
 		);`)
-
+	if err != nil {
+		return
+	}
 	_, err = commentTable.Exec()
 	if err != nil {
 		return
 	}
+	log.Println("commentTable created")
 
 	defer commentTable.Close()
 
@@ -132,8 +137,10 @@ func (s *Store) Init(dbname string) (err error) {
 	if err != nil {
 		return
 	}
+	log.Println("commentLikeTable created")
 
 	defer commentLikeTable.Close()
+
 	log.Println("DB Created")
 	return
 }

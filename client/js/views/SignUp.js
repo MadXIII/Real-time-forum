@@ -17,7 +17,7 @@ export default class extends AbstractView {
                 first_name: document.getElementById('firstname').value,
                 last_name: document.getElementById('lastname').value,
                 gender: document.getElementById('gender').value,
-                age: parseInt(document.getElementById('age').value),
+                age: document.getElementById('age').value,
             }
             let response = await fetch('http://localhost:8080/api/signup', {
                 method: 'POST',
@@ -27,6 +27,8 @@ export default class extends AbstractView {
                 body: JSON.stringify(user)
             })
             if (response.ok) {
+                let result = await response.json()
+                alert(result)
                 window.location.href = "/"
             } else {
                 let result = await response.json()

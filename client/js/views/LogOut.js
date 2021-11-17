@@ -16,6 +16,8 @@ export default class extends AbstractView {
                 },
             })
             if (response.ok) {
+                let result = await response.json()
+                alert(result)
                 window.location.href = "/"
             } else {
                 let result = await response.json()

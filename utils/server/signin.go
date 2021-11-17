@@ -59,6 +59,7 @@ func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 
 	cookie := s.cookiesStore.CreateSession(user.ID)
 	http.SetCookie(w, cookie)
+	success(w, "Login is Done")
 }
 
 //checkLoginDatas - is empty or too long login datas

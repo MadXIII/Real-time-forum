@@ -22,14 +22,12 @@ func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handlerGetPostPage(w http.ResponseWriter, r *http.Request) {
-
-	var postID Post
-
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return
 	}
+	var postID Post
 
 	if err := json.Unmarshal(bytes, &postID); err != nil {
 		logger(w, http.StatusInternalServerError, err)

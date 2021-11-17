@@ -23,6 +23,7 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
+
 	log.Println("Server is listening:", port)
 	server.ListenAndServe(":" + port)
 }
