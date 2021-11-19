@@ -106,10 +106,12 @@ func (s *Store) Init(dbname string) (err error) {
 		id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 		user_id integer NOT NULL,
 		post_id integer NOT NULL,
-		comment TEXT NOT NULL,
-		timestamp TEXT,
+		username VARCHAR(100) NOT NULL,
+		content TEXT NOT NULL,
+		timestamp TEXT NOT NULL,
 		FOREIGN KEY(user_id) REFERENCES user(id),
 		FOREIGN KEY(post_id) REFERENCES post(id)
+		FOREIGN KEY (username) REFERENCES user(nickname)
 		);`)
 	if err != nil {
 		return

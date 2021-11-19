@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 type User struct {
 	ID        int    `json:"id"`
 	Nickname  string `json:"nickname"`
@@ -30,11 +28,12 @@ type PostLike struct {
 }
 
 type Comment struct {
-	ID        int       `json:"id"`
-	UserID    int       `json:"user_id"`
-	PostID    int       `json:"post_id"`
-	Content   string    `json:"content"`
-	Timestamp time.Time `json:"timestamp"`
+	ID        int    `json:"id"`
+	UserID    int    `json:"user_id"`
+	PostID    int    `json:"post_id"`
+	Username  string `json:"username"`
+	Content   string `json:"content"`
+	Timestamp string `json:"timestamp"`
 }
 
 //nolint

@@ -25,7 +25,7 @@ func (db *TestDB) GetUserByLogin(login string) (*models.User, error) {
 }
 
 //output problem - int
-func (db *TestDB) InsertPost(post models.Post) (int, error) {
+func (db *TestDB) InsertPost(post *models.Post) (int, error) {
 	args := db.Called(post)
 	return args.Get(0).(int), args.Error(1)
 }
@@ -42,6 +42,10 @@ func (db *TestDB) GetAllPosts() (*[]models.Post, error) {
 func (db *TestDB) GetUsernameByID(id int) (string, error) {
 	args := db.Called(id)
 	return args.Get(0).(string), args.Error(1)
+}
+func (db *TestDB) InsertComment(Comment *models.Comment) (int, error) {
+	args := db.Called(Comment)
+	return args.Get(0).(int), args.Error(1)
 }
 func (db *TestDB) Close() {
 

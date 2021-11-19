@@ -130,6 +130,7 @@ func isValidPass(pass string) error {
 	return newErr.ErrInvalidPass
 }
 
+//isValidAge - is input age is valid?
 func isValidAge(age string) error {
 	if age == "" {
 		return nil

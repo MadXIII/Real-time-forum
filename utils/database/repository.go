@@ -7,10 +7,11 @@ type Repository interface {
 	Init(dbname string) error
 	InsertUser(*models.User) error
 	GetUserByLogin(string) (*models.User, error)
-	InsertPost(models.Post) (int, error)
+	InsertPost(*models.Post) (int, error)
 	GetPostByID(string) (*models.Post, error)
 	GetAllPosts() (*[]models.Post, error)
 	GetUsernameByID(int) (string, error)
 	// GetMyPosts() (*[]models.Post, error)
+	InsertComment(*models.Comment) (int, error)
 	Close()
 }

@@ -12,18 +12,30 @@ export default class extends AbstractView {
         let obj = {
             id: searchParams.get('id'),
         }
-        let response = await fetch('http://localhost:8080/api/post', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            body: JSON.stringify(obj)
-        })
+        let response = await fetch(`http://localhost:8080/api/post?id=${obj.id}`)
+      
         let submitID = document.getElementById('creatCommentBtnID')
         submitID.onclick = async () => {
-            let comment
+            let obj2 = {
+                post_id: parseInt(`${obj.id}`),
+                content: document.getElementById('newComment').value,
+            }
+            let response = await fetch('http://localhost:8080/api/post', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify(obj2)
+            })
+            if (response.ok) {
+                let result = await response.json()
+                alert(result)
+                window.location.href = `/post?id=${obj.id}`
+            } else {
+                let result = await response.json()
+                alert(result)
+            }
         }
-        // comment: document.getElementById('newComment').value,
         if (response.ok) {
             let res = await response.json()
             let divUsername = document.getElementById("PostDataUsername");
