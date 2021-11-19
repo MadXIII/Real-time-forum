@@ -43,9 +43,9 @@ func (db *TestDB) GetUsernameByID(id int) (string, error) {
 	args := db.Called(id)
 	return args.Get(0).(string), args.Error(1)
 }
-func (db *TestDB) InsertComment(Comment *models.Comment) (int, error) {
+func (db *TestDB) InsertComment(Comment *models.Comment) error {
 	args := db.Called(Comment)
-	return args.Get(0).(int), args.Error(1)
+	return args.Error(0)
 }
 func (db *TestDB) Close() {
 

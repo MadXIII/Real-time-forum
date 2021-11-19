@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	newErr "forum/utils/internal/error"
 	"forum/utils/models"
 	"io/ioutil"
@@ -37,8 +36,7 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		logger(w, http.StatusBadRequest, newErr.ErrNilBody)
 		return
 	}
-	//Set date format
-	var newPost models.Post = models.Post{Timestamp: time.Now().Format("2.Jan.2006, 15:04")}
+	var newPost models.Post
 
 	if err = json.Unmarshal(bytes, &newPost); err != nil {
 		logger(w, http.StatusInternalServerError, err)
@@ -49,6 +47,9 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		logger(w, http.StatusBadRequest, err)
 		return
 	}
+
+	//Set date format
+	newPost.Timestamp = time.Now().Format("2.Jan.2006, 15:04")
 
 	newPost.Username, err = s.getUsernameByCookie(r)
 	if err != nil {
@@ -71,7 +72,6 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(newPost)
 	w.Write(bytes)
 }
 

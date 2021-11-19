@@ -14,7 +14,6 @@ type User struct {
 
 type Post struct {
 	ID        int    `json:"id"`
-	UserID    int    `json:"user_id"`
 	Username  string `json:"username"`
 	Title     string `json:"title"`
 	Content   string `json:"content"`
@@ -29,7 +28,6 @@ type PostLike struct {
 
 type Comment struct {
 	ID        int    `json:"id"`
-	UserID    int    `json:"user_id"`
 	PostID    int    `json:"post_id"`
 	Username  string `json:"username"`
 	Content   string `json:"content"`

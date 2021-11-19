@@ -44,6 +44,10 @@ func CheckErr(err error) bool {
 		return true
 	case ErrDelCookie:
 		return true
+	case ErrEmptyComment:
+		return true
+	case ErrLenComment:
+		return true
 	default:
 		return false
 	}
@@ -70,4 +74,6 @@ var (
 	ErrNickname       = errors.New("Nickname is already in use")
 	ErrEmail          = errors.New("Email is already in use")
 	ErrDelCookie      = errors.New("Can't delete cookie")
+	ErrEmptyComment   = errors.New("Comment is empty ")
+	ErrLenComment     = errors.New("Comment is too Long")
 )

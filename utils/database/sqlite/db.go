@@ -63,12 +63,10 @@ func (s *Store) Init(dbname string) (err error) {
 
 	postTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS post (
 		id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-		user_id integer NOT NULL,
 		username VARCHAR(100) NOT NULL,
 		title VARCHAR(50) NOT NULL,
 		content TEXT NOT NULL,
 		timestamp TEXT NOT NULL,
-		FOREIGN KEY (user_id) REFERENCES user(id)
 		FOREIGN KEY (username) REFERENCES user(nickname)
 	);`)
 	if err != nil {
@@ -104,12 +102,10 @@ func (s *Store) Init(dbname string) (err error) {
 
 	commentTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS comment (
 		id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-		user_id integer NOT NULL,
 		post_id integer NOT NULL,
 		username VARCHAR(100) NOT NULL,
 		content TEXT NOT NULL,
 		timestamp TEXT NOT NULL,
-		FOREIGN KEY(user_id) REFERENCES user(id),
 		FOREIGN KEY(post_id) REFERENCES post(id)
 		FOREIGN KEY (username) REFERENCES user(nickname)
 		);`)

@@ -2,34 +2,33 @@ package sqlite
 
 import "forum/utils/models"
 
-func (s *Store) InsertComment(newComment *models.Comment) (int, error) {
+func (s *Store) InsertComment(newComment *models.Comment) error {
 	createRow, err := s.db.Prepare(`
 		INSERT INTO comment
-		(user_id, post_id, username, content, timestamp)
-		VALUES (?, ?, ?, ?, ?)
+		(post_id, username, content, timestamp)
+		VALUES (?, ?, ?, ?)
 	`)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	defer createRow.Close()
 
 	res, err := createRow.Exec(
-		newComment.UserID,
 		newComment.PostID,
 		newComment.Username,
 		newComment.Content,
 		newComment.Timestamp,
 	)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	commnetID, err := res.LastInsertId()
 	if err != nil {
-		return 0, err
+		return err
 	}
 	newComment.ID = int(commnetID)
 
-	return newComment.ID, nil
+	return nil
 }

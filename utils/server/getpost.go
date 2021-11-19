@@ -2,12 +2,13 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"forum/utils/models"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
+
+	newErr "forum/utils/internal/error"
 )
 
 func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
@@ -56,12 +57,17 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 		logger(w, http.StatusInternalServerError, err)
 	}
 
-	newComment := models.Comment{}
+	var newComment models.Comment
 
 	if err = json.Unmarshal(bytes, &newComment); err != nil {
 		logger(w, http.StatusInternalServerError, err)
 	}
 
+	if err = checkComment(newComment.Content); err != nil {
+		logger(w, http.StatusBadRequest, err)
+	}
+
+	//Set date format
 	newComment.Timestamp = time.Now().Format("2.Jan.2006, 15:04")
 
 	newComment.Username, err = s.getUsernameByCookie(r)
@@ -69,20 +75,27 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 		logger(w, http.StatusInternalServerError, err)
 	}
 
-	commentID, err := s.store.InsertComment(&newComment)
-	if err != nil {
+	if err := s.store.InsertComment(&newComment); err != nil {
 		logger(w, http.StatusInternalServerError, err)
 	}
 
-	fmt.Println(commentID)
-	fmt.Println(newComment)
-
+	success(w, "Comment is created")
 }
 
 func checkPostID(id string) error {
 	_, err := strconv.Atoi(id)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func checkComment(comment string) error {
+	if len(comment) < 1 {
+		return newErr.ErrEmptyComment
+	}
+	if len(comment) > 256 {
+		return newErr.ErrLenComment
 	}
 	return nil
 }
