@@ -9,16 +9,16 @@ import (
 // }
 
 //GetUserByLogin Searching User in database by Nickname
-func (s *Store) GetUserByLogin(login string) (*models.User, error) {
+func (s *Store) GetUserByLogin(login string) (models.User, error) {
 	var user models.User
 	err := s.db.QueryRow(`
 	SELECT * FROM user WHERE nickname = ? OR email = ?
 	`, login, login).
 		Scan(&user.ID, &user.Nickname, &user.Email, &user.Password, &user.FirstName, &user.LastName, &user.Gender, &user.Age)
 	if err != nil {
-		return nil, err
+		return user, err
 	}
-	return &user, err
+	return user, nil
 }
 
 //GetUsernameByID - ...

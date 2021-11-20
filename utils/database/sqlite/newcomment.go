@@ -32,3 +32,26 @@ func (s *Store) InsertComment(newComment *models.Comment) error {
 
 	return nil
 }
+
+func (s *Store) GetCommentsByPostID(pid string) ([]models.Comment, error) {
+	var comments []models.Comment
+
+	rows, err := s.db.Query(`
+		SELECT * FROM comment WHERE post_id = ?
+	`, pid)
+
+	defer rows.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var comment models.Comment
+		if err := rows.Scan(&comment.ID, &comment.PostID, &comment.Username, &comment.Content, &comment.Timestamp); err != nil {
+			return nil, err
+		}
+		comments = append(comments, comment)
+	}
+	return comments, nil
+}

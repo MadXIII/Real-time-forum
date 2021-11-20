@@ -11,6 +11,11 @@ import (
 	newErr "forum/utils/internal/error"
 )
 
+// type PostPageData struct {
+// 	Post     models.Post      `json:"Post"`
+// 	Comments []models.Comment `json:"Comments"`
+// }
+
 func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		s.handleGetPostPage(w, r)
@@ -25,21 +30,33 @@ func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleGetPostPage(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	value := r.FormValue("id")
-
-	if err := checkPostID(value); err != nil {
-		logger(w, http.StatusBadRequest, err)
-		return
-	}
-
-	post, err := s.store.GetPostByID(value)
+	postid, err := checkAndGetPostID(r)
 	if err != nil {
 		logger(w, http.StatusBadRequest, err)
 		return
 	}
 
-	bytes, err := json.Marshal(post)
+	post, err := s.store.GetPostByID(postid)
+	if err != nil {
+		logger(w, http.StatusBadRequest, err)
+		return
+	}
+
+	comments, err := s.store.GetCommentsByPostID(postid)
+	if err != nil {
+		logger(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	PostPageData := struct {
+		Post     models.Post      `json:"Post"`
+		Comments []models.Comment `json:"Comments"`
+	}{
+		Post:     post,
+		Comments: comments,
+	}
+
+	bytes, err := json.Marshal(PostPageData)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return
@@ -82,12 +99,15 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 	success(w, "Comment is created")
 }
 
-func checkPostID(id string) error {
-	_, err := strconv.Atoi(id)
+func checkAndGetPostID(r *http.Request) (string, error) {
+	r.ParseForm()
+	value := r.FormValue("id")
+
+	_, err := strconv.Atoi(value)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return value, nil
 }
 
 func checkComment(comment string) error {
@@ -99,7 +119,3 @@ func checkComment(comment string) error {
 	}
 	return nil
 }
-
-// func (s *Server) handlerGetPost(w http.ResponseWriter, r *http.Request) {
-
-// }
