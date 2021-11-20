@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"forum/utils/database"
 	newErr "forum/utils/internal/error"
 	session "forum/utils/sessions"
@@ -52,7 +53,7 @@ func (s *Server) ListenAndServe(port string) {
 func Parser() *template.Template {
 	temp, err := template.ParseFiles("../client/index.html")
 	if err != nil {
-		log.Println(err)
+		log.Println(fmt.Errorf("ParseFiles: %w", err))
 	}
 	return temp
 }

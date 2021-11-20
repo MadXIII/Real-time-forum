@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"forum/utils/models"
 	"io/ioutil"
 	"net/http"
@@ -10,11 +11,6 @@ import (
 
 	newErr "forum/utils/internal/error"
 )
-
-// type PostPageData struct {
-// 	Post     models.Post      `json:"Post"`
-// 	Comments []models.Comment `json:"Comments"`
-// }
 
 func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
@@ -32,19 +28,19 @@ func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleGetPostPage(w http.ResponseWriter, r *http.Request) {
 	postid, err := checkAndGetPostID(r)
 	if err != nil {
-		logger(w, http.StatusBadRequest, err)
+		logger(w, http.StatusBadRequest, fmt.Errorf("handleGetPostPage, checkAndGetPostID: %w", err))
 		return
 	}
 
 	post, err := s.store.GetPostByID(postid)
 	if err != nil {
-		logger(w, http.StatusBadRequest, err)
+		logger(w, http.StatusBadRequest, fmt.Errorf("handleGetPostPage, GetPostByID: %w", err))
 		return
 	}
 
 	comments, err := s.store.GetCommentsByPostID(postid)
 	if err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handleGetPostPage, GetCommentsByPostID: %w", err))
 		return
 	}
 
@@ -58,7 +54,7 @@ func (s *Server) handleGetPostPage(w http.ResponseWriter, r *http.Request) {
 
 	bytes, err := json.Marshal(PostPageData)
 	if err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handleGetPostPage, Marshal(PostData): %w", err))
 		return
 	}
 
@@ -71,13 +67,13 @@ func (s *Server) handleGetPostPage(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, ReadAll(r.Body): %w", err))
 	}
 
 	var newComment models.Comment
 
 	if err = json.Unmarshal(bytes, &newComment); err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, Unmarshal(newPost): %w", err))
 	}
 
 	if err = checkComment(newComment.Content); err != nil {
@@ -89,11 +85,11 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 
 	newComment.Username, err = s.getUsernameByCookie(r)
 	if err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, getUsernameByCookie: %w", err))
 	}
 
 	if err := s.store.InsertComment(&newComment); err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, InsertComment: %w", err))
 	}
 
 	success(w, "Comment is created")
@@ -105,7 +101,7 @@ func checkAndGetPostID(r *http.Request) (string, error) {
 
 	_, err := strconv.Atoi(value)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("checkAndGetPostID, Atoi: %w", err)
 	}
 	return value, nil
 }

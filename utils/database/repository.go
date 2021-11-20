@@ -11,7 +11,6 @@ type Repository interface {
 	GetPostByID(string) (models.Post, error)
 	GetAllPosts() ([]models.Post, error)
 	GetUsernameByID(int) (string, error)
-	// GetMyPosts() (*[]models.Post, error)
 	InsertComment(*models.Comment) error
 	GetCommentsByPostID(string) ([]models.Comment, error)
 	Close()

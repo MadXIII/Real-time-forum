@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	newErr "forum/utils/internal/error"
 	"forum/utils/models"
 	"io/ioutil"
@@ -28,13 +29,13 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleCreateAccount(w http.ResponseWriter, r *http.Request) {
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreateAccount, ReadAll(r.Body): %w", err))
 		return
 	}
 	var newUser models.User
 
 	if err = json.Unmarshal(bytes, &newUser); err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreateAccount, Unmarshal: %w", err))
 		return
 	}
 
@@ -45,13 +46,13 @@ func (s *Server) handleCreateAccount(w http.ResponseWriter, r *http.Request) {
 
 	bytes, err = bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.MinCost)
 	if err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreateAccount, GenerateFromPassword: %w", err))
 		return
 	}
 	newUser.Password = string(bytes)
 
 	if err = s.insertUserDB(&newUser); err != nil {
-		logger(w, http.StatusBadRequest, err)
+		logger(w, http.StatusBadRequest, fmt.Errorf("handleCreateAccount, insertUserDB: %w", err))
 	}
 
 	cookie := s.cookiesStore.CreateSession(newUser.ID)

@@ -34,7 +34,6 @@ type Comment struct {
 	Timestamp string `json:"timestamp"`
 }
 
-//nolint
 type CommentLike struct {
 	UserID    int `json:"user_id"`
 	CommentID int `json:"comment_id"`

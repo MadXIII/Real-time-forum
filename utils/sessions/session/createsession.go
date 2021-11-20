@@ -1,6 +1,7 @@
 package session
 
 import (
+	"fmt"
 	newErr "forum/utils/internal/error"
 	"net/http"
 
@@ -33,6 +34,7 @@ func New() *Store {
 
 //DeleteCookie - delete cookie if find from map
 func (s *Store) DeleteCookie(ck *http.Cookie) error {
+	//need to refactor without range
 	for key, val := range s.cookies {
 		if val.Value == ck.Value {
 			delete(s.cookies, key)
@@ -56,12 +58,16 @@ func (s *Store) CheckCookie(cookieHash string) error {
 func (s *Store) GetIDByCookie(req *http.Request) (int, error) {
 	userCk, err := req.Cookie("session")
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("GetIDByCookie, r.Cookie(session): %w", err)
 	}
+
+	//foundID - create special to not return useless error in the end of func
+	var foundID int
+
 	for id, ck := range s.cookies {
 		if ck.Value == userCk.Value {
-			return id, nil
+			foundID = id
 		}
 	}
-	return 0, err
+	return foundID, nil
 }

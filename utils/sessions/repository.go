@@ -8,5 +8,4 @@ type Repository interface {
 	DeleteCookie(*http.Cookie) error
 	CheckCookie(string) error
 	GetIDByCookie(*http.Request) (int, error)
-	// LogOut(http.ResponseWriter, *http.Request)
 }

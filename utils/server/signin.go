@@ -2,9 +2,9 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	newErr "forum/utils/internal/error"
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -30,13 +30,13 @@ func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handleSignIn, ReadAll(r.Body): %w", err))
 		return
 	}
 
 	var signer Sign
 	if err = json.Unmarshal(bytes, &signer); err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handleSignIn, Unmarshal %w", err))
 		return
 	}
 
@@ -45,6 +45,7 @@ func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//wrong error GetUserByLogin with newErr ========================================================
 	user, err := s.store.GetUserByLogin(signer.Login)
 	if err != nil {
 		logger(w, http.StatusBadRequest, newErr.ErrWrongLogin)
@@ -52,8 +53,7 @@ func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(signer.Password)); err != nil {
-		log.Println(user.Password, signer.Password)
-		logger(w, http.StatusBadRequest, err)
+		logger(w, http.StatusBadRequest, fmt.Errorf("handleSignIn, CompareHashAndPassword: %w", err))
 		return
 	}
 

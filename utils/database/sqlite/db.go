@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -16,9 +17,10 @@ type Store struct {
 func (s *Store) Init(dbname string) (err error) {
 	s.db, err = sql.Open("sqlite3", dbname)
 	if err != nil {
-		return
+		return fmt.Errorf("InitDB, sql.Open: %w", err)
 	}
-	log.Println("DB creating...")
+
+	log.Println("DB Creating...")
 
 	userTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS user (
 		id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -31,14 +33,13 @@ func (s *Store) Init(dbname string) (err error) {
 		age VARCHAR(50)
 	);`)
 	if err != nil {
-		return
+		return fmt.Errorf("InitDB, userTable.Prepare: %w", err)
 	}
 
 	_, err = userTable.Exec()
 	if err != nil {
-		return
+		return fmt.Errorf("InitDB, userTable.Exec: %w", err)
 	}
-	log.Println("userTable created")
 
 	defer userTable.Close()
 
@@ -50,14 +51,13 @@ func (s *Store) Init(dbname string) (err error) {
 		FOREIGN KEY (password) REFERENCES user(password)
 	);`)
 	if err != nil {
-		return
+		return fmt.Errorf("InitDB, signerTable.Prepare: %w", err)
 	}
 
 	_, err = signerTable.Exec()
 	if err != nil {
-		return
+		return fmt.Errorf("InitDB, signerTable.Exec: %w", err)
 	}
-	log.Println("signerTable created")
 
 	defer signerTable.Close()
 
@@ -70,14 +70,13 @@ func (s *Store) Init(dbname string) (err error) {
 		FOREIGN KEY (username) REFERENCES user(nickname)
 	);`)
 	if err != nil {
-		return
+		return fmt.Errorf("InitDB, postTable.Prepare: %w", err)
 	}
 
 	_, err = postTable.Exec()
 	if err != nil {
-		return
+		return fmt.Errorf("InitDB, postTable.Exec: %w", err)
 	}
-	log.Println("postTable created")
 
 	defer postTable.Close()
 
@@ -89,14 +88,13 @@ func (s *Store) Init(dbname string) (err error) {
 		FOREIGN KEY(post_id) REFERENCES post(id)
 	);`)
 	if err != nil {
-		return
+		return fmt.Errorf("InitDB, postLikeTable.Prepare: %w", err)
 	}
 
 	_, err = postLikeTable.Exec()
 	if err != nil {
-		return
+		return fmt.Errorf("InitDB, postLikeTable.Exec: %w", err)
 	}
-	log.Println("postLikeTable created")
 
 	defer postLikeTable.Close()
 
@@ -110,13 +108,13 @@ func (s *Store) Init(dbname string) (err error) {
 		FOREIGN KEY (username) REFERENCES user(nickname)
 		);`)
 	if err != nil {
-		return
+		return fmt.Errorf("InitDB, commentTable.Prepare: %w", err)
 	}
+
 	_, err = commentTable.Exec()
 	if err != nil {
-		return
+		return fmt.Errorf("InitDB, commentTable.Exec: %w", err)
 	}
-	log.Println("commentTable created")
 
 	defer commentTable.Close()
 
@@ -128,14 +126,13 @@ func (s *Store) Init(dbname string) (err error) {
 		FOREIGN KEY(comment_id) REFERENCES comment(id)
 	);`)
 	if err != nil {
-		return
+		return fmt.Errorf("InitDB, commentLikeTable.Prepare: %w", err)
 	}
 
 	_, err = commentLikeTable.Exec()
 	if err != nil {
-		return
+		return fmt.Errorf("InitDB, commentLikeTable.Exec: %w", err)
 	}
-	log.Println("commentLikeTable created")
 
 	defer commentLikeTable.Close()
 

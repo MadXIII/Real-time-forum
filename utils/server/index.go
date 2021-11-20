@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	newErr "forum/utils/internal/error"
 	"net/http"
 )
@@ -8,12 +9,12 @@ import (
 func (s *Server) Index(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		if err := checkURLPath(r.URL.Path); err != nil {
-			logger(w, http.StatusNotFound, newErr.ErrNotFound)
+			logger(w, http.StatusNotFound, err)
 			return
 		}
 		temp := Parser()
 		if err := temp.Execute(w, nil); err != nil {
-			logger(w, http.StatusInternalServerError, err)
+			logger(w, http.StatusInternalServerError, fmt.Errorf("Index, Execute: %w", err))
 			return
 		}
 		return

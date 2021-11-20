@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	newErr "forum/utils/internal/error"
 	"forum/utils/models"
 	"io/ioutil"
@@ -9,12 +10,7 @@ import (
 	"time"
 )
 
-type Response struct {
-	ID     int    `json:"id"`
-	Notify string `json:"notify"`
-}
-
-//CreatePost ...
+//CreatePost - /newpost's handler
 func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		s.handleCreatePost(w, r)
@@ -28,7 +24,7 @@ func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePost, ReadAll(r.Body): %w", err))
 		return
 	}
 
@@ -39,7 +35,7 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 	var newPost models.Post
 
 	if err = json.Unmarshal(bytes, &newPost); err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePost, Unmarshal(newPost): %w", err))
 		return
 	}
 
@@ -53,18 +49,24 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 
 	newPost.Username, err = s.getUsernameByCookie(r)
 	if err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePost, getUsernameByCookie: %w", err))
 		return
 	}
 
 	postID, err := s.store.InsertPost(&newPost)
 	if err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePost, InsertPost: %w", err))
 		return
 	}
 
 	//create object to Response about Success
-	resp := Response{postID, "Post is Created"}
+	resp := struct {
+		ID     int    `json:"id"`
+		Notify string `json:"notify"`
+	}{
+		ID:     postID,
+		Notify: "Post is Created",
+	}
 
 	bytes, err = json.Marshal(resp)
 	if err != nil {
