@@ -45,8 +45,9 @@ func (s *Server) handleGetPostPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	PostPageData := struct {
-		Post     models.Post      `json:"Post"`
-		Comments []models.Comment `json:"Comments"`
+		Post     models.Post       `json:"Post"`
+		Comments []models.Comment  `json:"Comments"`
+		Likes    []models.PostLike `json:"Like"`
 	}{
 		Post:     post,
 		Comments: comments,
@@ -68,16 +69,19 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, ReadAll(r.Body): %w", err))
+		return
 	}
 
 	var newComment models.Comment
 
 	if err = json.Unmarshal(bytes, &newComment); err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, Unmarshal(newPost): %w", err))
+		return
 	}
 
 	if err = checkComment(newComment.Content); err != nil {
 		logger(w, http.StatusBadRequest, err)
+		return
 	}
 
 	//Set date format
@@ -86,10 +90,12 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 	newComment.Username, err = s.getUsernameByCookie(r)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, getUsernameByCookie: %w", err))
+		return
 	}
 
 	if err := s.store.InsertComment(&newComment); err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, InsertComment: %w", err))
+		return
 	}
 
 	success(w, "Comment is created")

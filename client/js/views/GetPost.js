@@ -8,16 +8,14 @@ export default class extends AbstractView {
     }
 
     async init() {
-        let searchParams = new URLSearchParams(window.location.search)
-        let obj = {
-            id: searchParams.get('id'),
-        }
-        let response = await fetch(`http://localhost:8080/api/post?id=${obj.id}`)
+        let urlID = new URLSearchParams(window.location.search).get('id')
+       
+        let response = await fetch(`http://localhost:8080/api/post?id=${urlID}`)
 
         let submitID = document.getElementById('creatCommentBtnID')
         submitID.onclick = async () => {
-            let obj2 = {
-                post_id: parseInt(`${obj.id}`),
+            let obj = {
+                post_id: parseInt(`${urlID}`),
                 content: document.getElementById('newComment').value,
             }
             let response = await fetch('http://localhost:8080/api/post', {
@@ -25,12 +23,12 @@ export default class extends AbstractView {
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
                 },
-                body: JSON.stringify(obj2)
+                body: JSON.stringify(obj)
             })
             if (response.ok) {
                 let result = await response.json()
                 alert(result)
-                window.location.href = `/post?id=${obj.id}`
+                window.location.href = `/post?id=${urlID}`
             } else {
                 let result = await response.json()
                 alert(result)
@@ -38,7 +36,6 @@ export default class extends AbstractView {
         }
         if (response.ok) {
             let res = await response.json()
-            console.log(res)
             let divPostUsername = document.getElementById("PostDataUsername");
             let divPostTitle = document.getElementById("PostDataTitle");
             let divPostContent = document.getElementById("PostDataContent");
@@ -52,10 +49,12 @@ export default class extends AbstractView {
             divPostTitle.innerHTML = `Title: ${res.Post.title}`;
             divPostContent.innerHTML = `Content: ${res.Post.content}`;
             divPostTime.innerHTML = `Time: ${res.Post.timestamp}`;
+            if (res.Comments != null) {
+                divCommentUsername.innerHTML = `CommentUsername: ${res.Comments[0].username}`;
+                divCommentTimestamp.innerHTML = `CommentTimestamp: ${res.Comments[0].timestamp}`;
+                divCommentContent.innerHTML = `CommentContent: ${res.Comments[0].content}`;
+            }
 
-            divCommentUsername.innerHTML = `CommentUsername: ${res.Comments[0].username}`;
-            divCommentTimestamp.innerHTML = `CommentTimestamp: ${res.Comments[0].timestamp}`;
-            divCommentContent.innerHTML = `CommentContent: ${res.Comments[0].content}`;
         } else {
             let res = await response.json()
             alert(res)
@@ -63,7 +62,7 @@ export default class extends AbstractView {
     }
 
     async getHtml() {
-        let likeCount = 0
+        let likeCount = 11
         let dislikeCount = 0
         return `
         <p><a href="/" data-link>Home</a></p>
