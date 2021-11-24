@@ -53,7 +53,7 @@ func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(signer.Password)); err != nil {
-		logger(w, http.StatusBadRequest, fmt.Errorf("handleSignIn, CompareHashAndPassword: %w", err))
+		logger(w, http.StatusBadRequest, newErr.ErrWrongPass)
 		return
 	}
 

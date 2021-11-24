@@ -32,20 +32,19 @@ func (s *Server) Conf() {
 	s.router.Handle("/js/", http.StripPrefix("/js", http.FileServer(http.Dir("../client/js"))))
 	s.router.HandleFunc("/", s.Index)
 
-	s.router.HandleFunc("/newpost", s.middleWare(true, s.CreatePost))
-	s.router.HandleFunc("/logout", s.middleWare(true, s.LogOut))
-
 	s.router.HandleFunc("/api/", s.MainPage)
-	s.router.HandleFunc("/api/signin", s.middleWare(false, s.SignIn))
-	s.router.HandleFunc("/api/signup", s.middleWare(false, s.SignUp))
-	s.router.HandleFunc("/api/newpost", s.middleWare(true, s.CreatePost))
-	s.router.HandleFunc("/api/post", s.middleWare(false, s.GetPost))
+	s.router.HandleFunc("/api/signin", s.SignIn)
+	s.router.HandleFunc("/api/signup", s.SignUp)
+	s.router.HandleFunc("/api/newpost", s.middleWare(s.CreatePost))
+	s.router.HandleFunc("/api/post", s.GetPost)
+	s.router.HandleFunc("/api/logout", s.middleWare(s.LogOut))
 
 }
 
 //ListenAndServe - Listener with Configurations to ServMUX
 func (s *Server) ListenAndServe(port string) {
 	s.Conf()
+	log.Println("Server is listening" + port)
 	http.ListenAndServe(port, &s.router)
 }
 

@@ -5,15 +5,13 @@ export default class {
     setTitle(title) {
         document.title = title
     }
-    async getHtml() {
-        return ""
-    }
 
     isAuth() {
         let tags = ""
         if (document.cookie.indexOf('session') != -1) {
             tags = `
             <a id="logout" href="/logout" data-link>Log Out</a>
+            <p><a href="/newpost" data-link>Create Post</a></p>
             `
         } else {
             tags = `

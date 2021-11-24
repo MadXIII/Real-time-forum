@@ -9,8 +9,6 @@ export default class extends AbstractView {
 
     async init() {
         let urlID = new URLSearchParams(window.location.search).get('id')
-       
-        let response = await fetch(`http://localhost:8080/api/post?id=${urlID}`)
 
         let submitID = document.getElementById('creatCommentBtnID')
         submitID.onclick = async () => {
@@ -34,6 +32,9 @@ export default class extends AbstractView {
                 alert(result)
             }
         }
+
+        let response = await fetch(`http://localhost:8080/api/post?id=${urlID}`)
+
         if (response.ok) {
             let res = await response.json()
             let divPostUsername = document.getElementById("PostDataUsername");
@@ -54,7 +55,6 @@ export default class extends AbstractView {
                 divCommentTimestamp.innerHTML = `CommentTimestamp: ${res.Comments[0].timestamp}`;
                 divCommentContent.innerHTML = `CommentContent: ${res.Comments[0].content}`;
             }
-
         } else {
             let res = await response.json()
             alert(res)
@@ -62,8 +62,6 @@ export default class extends AbstractView {
     }
 
     async getHtml() {
-        let likeCount = 11
-        let dislikeCount = 0
         return `
         <p><a href="/" data-link>Home</a></p>
         <h1>Post</h1>
@@ -71,8 +69,8 @@ export default class extends AbstractView {
         <div id="PostDataTitle"></div>
         <div id="PostDataContent"></div>
         <div id="PostDataTime"></div>
-        <button id="likeBtnID">${likeCount} Like</button>
-        <button id="dislikeBtnID">${dislikeCount} Dislike</button>
+        <button id="likeBtnID">Like</button>
+        <button id="dislikeBtnID">Dislike</button>
         <h3>Comments</h3>
         <p><input type="text" placeholder="Comment" id="newComment"/></p>
         <button id="creatCommentBtnID">Submit</button>

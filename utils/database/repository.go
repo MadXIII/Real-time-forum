@@ -13,6 +13,6 @@ type Repository interface {
 	GetUsernameByID(int) (string, error)
 	InsertComment(*models.Comment) error
 	GetCommentsByPostID(string) ([]models.Comment, error)
-	InsertLike(*models.Comment) error
+	InsertLike(*models.PostLike) error
 	Close()
 }
