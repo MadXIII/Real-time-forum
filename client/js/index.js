@@ -10,16 +10,24 @@ const navigateTo = url => {
     router()
 }
 
+//it works)))
+let middleware = (handler) => {
+    if (document.cookie.indexOf('session') != -1) {
+        return handler
+    }
+    return Signin
+}
+
 export const router = async () => {
     const routes = [
         { path: "/", view: HomePage },
         { path: "/signup", view: Signup },
         { path: "/signin", view: Signin },
-        { path: "/logout", view: LogOut },
-        { path: "/newpost", view: CreatePost },
+        { path: "/logout", view: middleware(LogOut) },
+        { path: "/newpost", view: middleware(CreatePost) },
         { path: "/post", view: GetPost },
     ];
-    
+
     const potentialMatches = routes.map(route => {
         return {
             route: route,
@@ -40,6 +48,8 @@ export const router = async () => {
     document.querySelector("#app").innerHTML = await view.getHtml();
     view.init();
 }
+
+
 
 window.addEventListener("popstate", router)
 

@@ -52,7 +52,8 @@ func (s *Server) handleCreateAccount(w http.ResponseWriter, r *http.Request) {
 	newUser.Password = string(bytes)
 
 	if err = s.insertUserDB(&newUser); err != nil {
-		logger(w, http.StatusBadRequest, fmt.Errorf("handleCreateAccount, insertUserDB: %w", err))
+		logger(w, http.StatusBadRequest, err)
+		return
 	}
 
 	cookie := s.cookiesStore.CreateSession(newUser.ID)

@@ -16,6 +16,7 @@ export default class extends AbstractView {
                 },
             })
             if (response.ok) {
+                document.cookie = `${document.cookie}; max-age=0`
                 let result = await response.json()
                 alert(result)
                 window.location.href = "/"
