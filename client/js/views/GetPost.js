@@ -10,11 +10,29 @@ export default class extends AbstractView {
     async init() {
         let urlID = new URLSearchParams(window.location.search).get('id')
 
-        let submitID = document.getElementById('creatCommentBtnID')
-        submitID.onclick = async () => {
+        let response = await fetch(`http://localhost:8080/api/post?id=${urlID}`)
+
+        if (response.ok) {
+            let res = await response.json()
+
+            PostDataUsername.innerText = `Username: ${res.Post.username}`;
+            PostDataTitle.innerHTML = `Title: ${res.Post.title}`;
+            PostDataContent.innerHTML = `Content: ${res.Post.content}`;
+            PostDataTime.innerHTML = `Time: ${res.Post.timestamp}`;
+            if (res.Comments != null) {
+                comment1Username.innerHTML = `CommentUsername: ${res.Comments[0].username}`;
+                comment1Timestamp.innerHTML = `CommentTimestamp: ${res.Comments[0].timestamp}`;
+                comment1Content.innerHTML = `CommentContent: ${res.Comments[0].content}`;
+            }
+        } else {
+            let res = await response.json()
+            alert(res)
+        }
+
+        creatCommentBtnID.onclick = async () => {
             let obj = {
                 post_id: parseInt(`${urlID}`),
-                content: document.getElementById('newComment').value,
+                content: newComment.value,
             }
             let response = await fetch('http://localhost:8080/api/post', {
                 method: 'POST',
@@ -32,33 +50,7 @@ export default class extends AbstractView {
                 alert(result)
             }
         }
-
-        let response = await fetch(`http://localhost:8080/api/post?id=${urlID}`)
-
-        if (response.ok) {
-            let res = await response.json()
-            let divPostUsername = document.getElementById("PostDataUsername");
-            let divPostTitle = document.getElementById("PostDataTitle");
-            let divPostContent = document.getElementById("PostDataContent");
-            let divPostTime = document.getElementById("PostDataTime");
-
-            let divCommentUsername = document.getElementById("comment1Username");
-            let divCommentTimestamp = document.getElementById("comment1Timestamp");
-            let divCommentContent = document.getElementById("comment1Content");
-
-            divPostUsername.innerText = `Username: ${res.Post.username}`;
-            divPostTitle.innerHTML = `Title: ${res.Post.title}`;
-            divPostContent.innerHTML = `Content: ${res.Post.content}`;
-            divPostTime.innerHTML = `Time: ${res.Post.timestamp}`;
-            if (res.Comments != null) {
-                divCommentUsername.innerHTML = `CommentUsername: ${res.Comments[0].username}`;
-                divCommentTimestamp.innerHTML = `CommentTimestamp: ${res.Comments[0].timestamp}`;
-                divCommentContent.innerHTML = `CommentContent: ${res.Comments[0].content}`;
-            }
-        } else {
-            let res = await response.json()
-            alert(res)
-        }
+        
     }
 
     async getHtml() {

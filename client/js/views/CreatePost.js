@@ -10,8 +10,8 @@ export default class extends AbstractView {
         let submitId = document.getElementById('creatPostBtnID')
         submitId.onclick = async () => {
             let newPost = {
-                title: document.getElementById("title").value,
-                content: document.getElementById("content").value,
+                title: titleID.value,
+                content: contentID.value,
             }
             let response = await fetch('http://localhost:8080/api/newpost', {
                 method: 'POST',
@@ -34,8 +34,8 @@ export default class extends AbstractView {
         return `
             <a id="logout" href="/logout" data-link>Log Out</a>
             <div>Create Post</div>
-            <p><input type="text" placeholder="Title" id="title"/></p>
-            <p><input type="text" placeholder="Your Post" id="content"/></p>
+            <p><input type="text" placeholder="Title" id="titleID"/></p>
+            <p><input type="text" placeholder="Your Post" id="contentID"/></p>
             <button id="creatPostBtnID">Submit</button>
             `
     }

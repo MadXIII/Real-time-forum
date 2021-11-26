@@ -7,8 +7,7 @@ export default class extends AbstractView {
     }
 
     init(){
-        let logoutID = document.getElementById('logoutBtnId')
-        logoutID.onclick = async () => {
+        logoutBtnId.onclick = async () => {
             let response = await fetch('http://localhost:8080/api/logout', {
                 method: 'POST',
                 headers: {
