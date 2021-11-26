@@ -31,7 +31,7 @@ export default class extends AbstractView {
 
         creatCommentBtnID.onclick = async () => {
             let obj = {
-                post_id: parseInt(`${urlID}`),
+                cpost_id: parseInt(urlID),
                 content: newComment.value,
             }
             let response = await fetch('http://localhost:8080/api/post', {
@@ -51,6 +51,25 @@ export default class extends AbstractView {
             }
         }
         
+        likeBtnID.onclick = async () => {
+            let obj = {
+                post_id: parseInt(urlID),
+                vote_state: 1,
+            }
+            let response = await fetch('http://localhost:8080/api/post', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify(obj)
+            })
+            if (response.ok) {
+                console.log(true)
+            } else {
+                console.log(false)
+            }
+        }
+
     }
 
     async getHtml() {

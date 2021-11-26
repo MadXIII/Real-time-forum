@@ -15,7 +15,7 @@ func (s *Store) InsertLike(like *models.PostLike) error {
 		return err
 	}
 
-	res, err := createRow.Exec(
+	_, err = createRow.Exec(
 		like.UserID,
 		like.PostID,
 		like.VoteState,
@@ -23,8 +23,6 @@ func (s *Store) InsertLike(like *models.PostLike) error {
 	if err != nil {
 		return err
 	}
-
-	res = res
 
 	return nil
 }

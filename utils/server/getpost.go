@@ -72,28 +72,31 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var newComment models.Comment
+	data := struct {
+		models.Comment
+		models.PostLike
+	}{}
 
-	if err = json.Unmarshal(bytes, &newComment); err != nil {
+	if err = json.Unmarshal(bytes, &data); err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, Unmarshal(newPost): %w", err))
 		return
 	}
 
-	if err = checkComment(newComment.Content); err != nil {
+	if err = checkComment(data.Comment.Content); err != nil {
 		logger(w, http.StatusBadRequest, err)
 		return
 	}
 
 	//Set date format
-	newComment.Timestamp = time.Now().Format("2.Jan.2006, 15:04")
+	data.Comment.Timestamp = time.Now().Format("2.Jan.2006, 15:04")
 
-	newComment.Username, err = s.getUsernameByCookie(r)
+	data.Comment.Username, err = s.getUsernameByCookie(r)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, getUsernameByCookie: %w", err))
 		return
 	}
 
-	if err := s.store.InsertComment(&newComment); err != nil {
+	if err := s.store.InsertComment(&data.Comment); err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, InsertComment: %w", err))
 		return
 	}
@@ -121,3 +124,14 @@ func checkComment(comment string) error {
 	}
 	return nil
 }
+
+// func (s *Server) checkLike(r *http.Request, like *models.PostLike) (err error) {
+// 	like.PostID, err = s.cookiesStore.GetIDByCookie(r)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if like.VoteState != 1 {
+
+// 	}
+// 	return nil
+// }

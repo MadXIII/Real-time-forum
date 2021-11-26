@@ -28,7 +28,7 @@ type PostLike struct {
 
 type Comment struct {
 	ID        int    `json:"id"`
-	PostID    int    `json:"post_id"`
+	PostID    int    `json:"cpost_id"`
 	Username  string `json:"username"`
 	Content   string `json:"content"`
 	Timestamp string `json:"timestamp"`
