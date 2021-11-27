@@ -14,5 +14,7 @@ type Repository interface {
 	InsertComment(*models.Comment) error
 	GetCommentsByPostID(string) ([]models.Comment, error)
 	InsertLike(*models.PostLike) error
+	GetVoteState(int, int) (bool, error)
+	UpdateVoteState(*models.PostLike) error
 	Close()
 }

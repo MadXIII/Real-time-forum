@@ -81,23 +81,30 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, Unmarshal(newPost): %w", err))
 		return
 	}
+	//create on func for this
+	if data.Comment.PostID != 0 {
+		if err = checkComment(data.Comment.Content); err != nil {
+			logger(w, http.StatusBadRequest, err)
+			return
+		}
 
-	if err = checkComment(data.Comment.Content); err != nil {
-		logger(w, http.StatusBadRequest, err)
-		return
+		//Set date format
+		data.Comment.Timestamp = time.Now().Format("2.Jan.2006, 15:04")
+
+		data.Comment.Username, err = s.getUsernameByCookie(r)
+		if err != nil {
+			logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, getUsernameByCookie: %w", err))
+			return
+		}
+
+		if err := s.store.InsertComment(&data.Comment); err != nil {
+			logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, InsertComment: %w", err))
+			return
+		}
 	}
 
-	//Set date format
-	data.Comment.Timestamp = time.Now().Format("2.Jan.2006, 15:04")
-
-	data.Comment.Username, err = s.getUsernameByCookie(r)
-	if err != nil {
-		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, getUsernameByCookie: %w", err))
-		return
-	}
-
-	if err := s.store.InsertComment(&data.Comment); err != nil {
-		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, InsertComment: %w", err))
+	if err = s.checkLike(r, &data.PostLike); err != nil {
+		logger(w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -125,13 +132,27 @@ func checkComment(comment string) error {
 	return nil
 }
 
-// func (s *Server) checkLike(r *http.Request, like *models.PostLike) (err error) {
-// 	like.PostID, err = s.cookiesStore.GetIDByCookie(r)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if like.VoteState != 1 {
+func (s *Server) checkLike(r *http.Request, like *models.PostLike) (err error) {
+	like.UserID, err = s.cookiesStore.GetIDByCookie(r)
+	if err != nil {
+		return err
+	}
 
-// 	}
-// 	return nil
-// }
+	if like.VoteState == true {
+		like.VoteState = false
+	} else {
+		like.VoteState = true
+	}
+
+	if err = s.store.UpdateVoteState(like); err != nil {
+		fmt.Println("UpdateVoteState")
+		if err = s.store.InsertLike(like); err != nil {
+			fmt.Println("InsertLike")
+			return err
+		}
+		return err
+	}
+
+	fmt.Println("updated")
+	return nil
+}

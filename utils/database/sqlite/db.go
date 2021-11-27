@@ -104,7 +104,7 @@ func (s *Store) Init(dbname string) (err error) {
 		username VARCHAR(100) NOT NULL,
 		content TEXT NOT NULL,
 		timestamp TEXT NOT NULL,
-		FOREIGN KEY(post_id) REFERENCES post(id)
+		FOREIGN KEY(post_id) REFERENCES post(id),
 		FOREIGN KEY (username) REFERENCES user(nickname)
 		);`)
 	if err != nil {

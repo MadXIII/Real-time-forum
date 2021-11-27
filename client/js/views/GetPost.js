@@ -54,12 +54,11 @@ export default class extends AbstractView {
         likeBtnID.onclick = async () => {
             let obj = {
                 post_id: parseInt(urlID),
-                vote_state: 1,
             }
             let response = await fetch('http://localhost:8080/api/post', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json;charset=utf-8'
+                    'Content-Type': 'applicatiPostDataUsernamen/json;charset=utf-8'
                 },
                 body: JSON.stringify(obj)
             })

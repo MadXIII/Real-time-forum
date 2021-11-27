@@ -13,7 +13,7 @@ type User struct {
 }
 
 type Post struct {
-	ID        int    `json:"id"`
+	ID        int    `json:"id,omitempty"`
 	Username  string `json:"username"`
 	Title     string `json:"title"`
 	Content   string `json:"content"`
@@ -21,9 +21,9 @@ type Post struct {
 }
 
 type PostLike struct {
-	UserID    int `json:"user_id"`
-	PostID    int `json:"post_id"`
-	VoteState int `json:"vote_state"`
+	UserID    int  `json:"user_id"`
+	PostID    int  `json:"post_id"`
+	VoteState bool `json:"vote_state"`
 }
 
 type Comment struct {
