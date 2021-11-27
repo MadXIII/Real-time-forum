@@ -1,20 +1,20 @@
-import AbstractView from "./AbstractView.js"
+import AbstractView from "./AbstractView.js";
 
 export default class extends AbstractView {
-    constructor() {
-        super()
-        this.setTitle("FORUM")
+  constructor() {
+    super();
+    this.setTitle("Forum");
+  }
 
-    }
-    
-    init() {
-    }
+  init() {}
 
-    async getHtml() {
-        let tags = `
-            <h1>Home</h1>
-            <p>Welcome to the Main Page</p>
+  async getHtml() {
+    return (
+      super.header() +
+      `
+          <h1>Home</h1>
+          <p>Welcome to the Main Page</p>
         `
-        return super.isAuth() + tags
-    }
+    );
+  }
 }
