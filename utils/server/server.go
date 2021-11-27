@@ -32,7 +32,7 @@ func (s *Server) Conf() {
 	s.router.Handle("/js/", http.StripPrefix("/js", http.FileServer(http.Dir("../client/js"))))
 	s.router.HandleFunc("/", s.Index)
 
-	s.router.HandleFunc("/api/", s.MainPage)
+	s.router.HandleFunc("/api/posts", s.GetPosts)
 	s.router.HandleFunc("/api/signin", s.SignIn)
 	s.router.HandleFunc("/api/signup", s.SignUp)
 	s.router.HandleFunc("/api/newpost", s.middleWare(s.CreatePost))

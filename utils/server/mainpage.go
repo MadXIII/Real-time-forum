@@ -7,13 +7,13 @@ import (
 )
 
 //MainPage ...
-func (s *Server) MainPage(w http.ResponseWriter, r *http.Request) {
+func (s *Server) GetPosts(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		temp := Parser()
-		if err := temp.Execute(w, nil); err != nil {
-			logger(w, http.StatusInternalServerError, fmt.Errorf("MainPage, Execute: %w", err))
-			return
-		}
+		// temp := Parser()
+		// if err := temp.Execute(w, nil); err != nil {
+		// 	logger(w, http.StatusInternalServerError, fmt.Errorf("MainPage, Execute: %w", err))
+		// 	return
+		// }
 
 		posts, err := s.store.GetAllPosts()
 		if err != nil {
