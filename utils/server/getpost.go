@@ -103,10 +103,12 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err = s.checkLike(r, &data.PostLike); err != nil {
+	if err = s.likeThumbler(r, &data.PostLike); err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return
 	}
+
+	fmt.Println(data.PostLike)
 
 	success(w, "Comment is created")
 }
@@ -132,27 +134,24 @@ func checkComment(comment string) error {
 	return nil
 }
 
-func (s *Server) checkLike(r *http.Request, like *models.PostLike) (err error) {
-	like.UserID, err = s.cookiesStore.GetIDByCookie(r)
+func (s *Server) likeThumbler(req *http.Request, like *models.PostLike) (err error) { // ERROR :=
+	like.UserID, err = s.cookiesStore.GetIDByCookie(req)
+	like.VoteState, err = s.store.GetVoteState(like.PostID, like.UserID)
 	if err != nil {
-		return err
-	}
-
-	if like.VoteState == true {
-		like.VoteState = false
-	} else {
 		like.VoteState = true
-	}
-
-	if err = s.store.UpdateVoteState(like); err != nil {
-		fmt.Println("UpdateVoteState")
 		if err = s.store.InsertLike(like); err != nil {
-			fmt.Println("InsertLike")
 			return err
 		}
-		return err
+		return nil
 	}
+	if like.VoteState == true {
+		like.VoteState = false
+		s.store.UpdateVoteState(like)
 
-	fmt.Println("updated")
+	} else {
+		like.VoteState = true
+		s.store.UpdateVoteState(like)
+
+	}
 	return nil
 }

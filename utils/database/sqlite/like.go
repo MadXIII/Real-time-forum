@@ -44,24 +44,11 @@ func (s *Store) GetVoteState(pid, uid int) (bool, error) {
 	return vote, nil
 }
 
-func (s *Store) UpdateVoteState(like *models.PostLike) error {
-	_, err := s.db.Exec(`
+func (s *Store) UpdateVoteState(like *models.PostLike) {
+	s.db.Exec(`
 	UPDATE postlike SET like = ? 
 	WHERE post_id = ? AND user_id = ?
 	`, like.VoteState, like.PostID, like.UserID)
-
-	if err != nil {
-		return err
-	}
-
-	state, err := s.GetVoteState(like.PostID, like.UserID)
-	if err != nil {
-		return err
-	}
-
-	like.VoteState = state
-
-	return nil
 }
 
 //client click => server check, get like state => false => true => insert true LIKE

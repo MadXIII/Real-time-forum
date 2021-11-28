@@ -58,7 +58,7 @@ export default class extends AbstractView {
             let response = await fetch('http://localhost:8080/api/post', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'applicatiPostDataUsernamen/json;charset=utf-8'
+                    'Content-Type': 'application/json;charset=utf-8'
                 },
                 body: JSON.stringify(obj)
             })
