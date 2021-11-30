@@ -16,5 +16,6 @@ type Repository interface {
 	InsertLike(*models.PostLike) error
 	GetVoteState(int, int) (bool, error)
 	UpdateVoteState(*models.PostLike)
+	ChangeLikeDislikeDiff(int, bool)
 	Close()
 }

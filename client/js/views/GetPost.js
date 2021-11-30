@@ -19,6 +19,7 @@ export default class extends AbstractView {
             PostDataTitle.innerHTML = `Title: ${res.Post.title}`;
             PostDataContent.innerHTML = `Content: ${res.Post.content}`;
             PostDataTime.innerHTML = `Time: ${res.Post.timestamp}`;
+            PostLikeDisDiff.innerHTML = `${res.Post.difflikes}`;
             if (res.Comments != null) {
                 comment1Username.innerHTML = `CommentUsername: ${res.Comments[0].username}`;
                 comment1Timestamp.innerHTML = `CommentTimestamp: ${res.Comments[0].timestamp}`;
@@ -51,9 +52,11 @@ export default class extends AbstractView {
             }
         }
         
+        
         likeBtnID.onclick = async () => {
             let obj = {
                 post_id: parseInt(urlID),
+                voteType: "like",
             }
             let response = await fetch('http://localhost:8080/api/post', {
                 method: 'POST',
@@ -63,9 +66,26 @@ export default class extends AbstractView {
                 body: JSON.stringify(obj)
             })
             if (response.ok) {
-                console.log(true)
+                window.location.href = `/post?id=${urlID}`
             } else {
-                console.log(false)
+            }
+        }
+
+        dislikeBtnID.onclick = async () => {
+            let obj = {
+                post_id: parseInt(urlID),
+                voteType: "dislike",
+            }
+            let response = await fetch('http://localhost:8080/api/post', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify(obj)
+            })
+            if (response.ok) {
+                window.location.href = `/post?id=${urlID}`
+            } else {
             }
         }
 
@@ -79,8 +99,9 @@ export default class extends AbstractView {
         <div id="PostDataTitle"></div>
         <div id="PostDataContent"></div>
         <div id="PostDataTime"></div>
-        <button id="likeBtnID">Like</button>
-        <button id="dislikeBtnID">Dislike</button>
+        <button id="likeBtnID">&#128402</button>
+        <div id="PostLikeDisDiff">0</div>
+        <button id="dislikeBtnID">&#128403</button>
         <h3>Comments</h3>
         <p><input type="text" placeholder="Comment" id="newComment"/></p>
         <button id="creatCommentBtnID">Submit</button>

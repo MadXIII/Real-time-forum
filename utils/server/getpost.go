@@ -44,10 +44,11 @@ func (s *Server) handleGetPostPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println(post)
+
 	PostPageData := struct {
-		Post     models.Post       `json:"Post"`
-		Comments []models.Comment  `json:"Comments"`
-		Likes    []models.PostLike `json:"Like"`
+		Post     models.Post      `json:"Post"`
+		Comments []models.Comment `json:"Comments"`
 	}{
 		Post:     post,
 		Comments: comments,
@@ -64,7 +65,6 @@ func (s *Server) handleGetPostPage(w http.ResponseWriter, r *http.Request) {
 }
 
 //what about postID? Still foreign Key or just get from URL.path?
-
 func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -75,6 +75,7 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		models.Comment
 		models.PostLike
+		VoteType string `json:"voteType"`
 	}{}
 
 	if err = json.Unmarshal(bytes, &data); err != nil {
@@ -102,13 +103,20 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
-	if err = s.likeThumbler(r, &data.PostLike); err != nil {
-		logger(w, http.StatusInternalServerError, err)
-		return
+	if data.VoteType == "like" {
+		if err = s.likeThumbler(r, &data.PostLike); err != nil {
+			logger(w, http.StatusInternalServerError, err)
+			return
+		}
+		s.store.ChangeLikeDislikeDiff(data.PostLike.PostID, data.PostLike.VoteState)
 	}
-
-	fmt.Println(data.PostLike)
+	if data.VoteType == "dislike" {
+		if err = s.likeThumbler(r, &data.PostLike); err != nil {
+			logger(w, http.StatusInternalServerError, err)
+			return
+		}
+		s.store.ChangeLikeDislikeDiff(data.PostLike.PostID, data.PostLike.VoteState)
+	}
 
 	success(w, "Comment is created")
 }
@@ -136,6 +144,9 @@ func checkComment(comment string) error {
 
 func (s *Server) likeThumbler(req *http.Request, like *models.PostLike) (err error) { // ERROR :=
 	like.UserID, err = s.cookiesStore.GetIDByCookie(req)
+	if err != nil {
+		return err
+	}
 	like.VoteState, err = s.store.GetVoteState(like.PostID, like.UserID)
 	if err != nil {
 		like.VoteState = true

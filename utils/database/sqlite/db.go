@@ -67,6 +67,7 @@ func (s *Store) Init(dbname string) (err error) {
 		title VARCHAR(50) NOT NULL,
 		content TEXT NOT NULL,
 		timestamp TEXT NOT NULL,
+		diffLikes integer NOT NULL,
 		FOREIGN KEY (username) REFERENCES user(nickname)
 	);`)
 	if err != nil {
