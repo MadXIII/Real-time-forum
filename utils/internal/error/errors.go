@@ -48,6 +48,8 @@ func CheckErr(err error) bool {
 		return true
 	case ErrLenComment:
 		return true
+	case ErrUnsignVote:
+		return true
 	default:
 		return false
 	}
@@ -76,4 +78,5 @@ var (
 	ErrDelCookie      = errors.New("Can't delete cookie")
 	ErrEmptyComment   = errors.New("Comment is empty ")
 	ErrLenComment     = errors.New("Comment is too Long")
+	ErrUnsignVote     = errors.New("Need to login befor vote")
 )

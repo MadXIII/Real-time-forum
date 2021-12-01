@@ -75,7 +75,6 @@ func (s *Store) GetAllPosts() ([]models.Post, error) {
 }
 
 func (s *Store) ChangeLikeDislikeDiff(pid int, up bool) {
-
 	if up {
 		s.db.Exec(`
 			UPDATE post SET diffLikes = diffLikes + 1

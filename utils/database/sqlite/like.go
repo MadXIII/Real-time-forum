@@ -9,8 +9,8 @@ func (s *Store) InsertLike(like *models.PostLike) error {
 
 	createRow, err := s.db.Prepare(`
 		INSERT INTO postlike
-		(user_id, post_id, like)
-		VALUES (?, ?, ?)
+		(user_id, post_id, like, type)
+		VALUES (?, ?, ?, ?)
 	`)
 
 	defer createRow.Close()
@@ -23,6 +23,7 @@ func (s *Store) InsertLike(like *models.PostLike) error {
 		like.UserID,
 		like.PostID,
 		like.VoteState,
+		like.VoteType,
 	)
 	if err != nil {
 		return err
@@ -31,26 +32,26 @@ func (s *Store) InsertLike(like *models.PostLike) error {
 	return nil
 }
 
-func (s *Store) GetVoteState(pid, uid int) (bool, error) {
+func (s *Store) GetVoteState(like *models.PostLike) (bool, error) {
 	var vote bool
 
 	if err := s.db.QueryRow(`
 		SELECT like FROM postlike
 		WHERE post_id = ? AND user_id = ?
-	`, pid, uid).Scan(&vote); err != nil {
+	`, like.PostID, like.UserID).Scan(&vote); err != nil {
 		return false, err
 	}
 
 	return vote, nil
 }
 
-func (s *Store) UpdateVoteState(like *models.PostLike) {
-	s.db.Exec(`
-	UPDATE postlike SET like = ? 
+func (s *Store) UpdateVoteState(like *models.PostLike) error {
+	_, err := s.db.Exec(`
+	UPDATE postlike SET like = ?, type = ?  
 	WHERE post_id = ? AND user_id = ?
-	`, like.VoteState, like.PostID, like.UserID)
+	`, like.VoteState, like.VoteType, like.PostID, like.UserID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
-
-//client click => server check, get like state => false => true => insert true LIKE
-//client click => server check, get like state => true => false => update false UNLIKE
-//client click => server check, get like state => false => true => update true LIKE

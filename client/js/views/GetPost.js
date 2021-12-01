@@ -51,12 +51,12 @@ export default class extends AbstractView {
                 alert(result)
             }
         }
-        
-        
+
+
         likeBtnID.onclick = async () => {
             let obj = {
                 post_id: parseInt(urlID),
-                voteType: "like",
+                vote_type: "like",
             }
             let response = await fetch('http://localhost:8080/api/post', {
                 method: 'POST',
@@ -68,13 +68,14 @@ export default class extends AbstractView {
             if (response.ok) {
                 window.location.href = `/post?id=${urlID}`
             } else {
+                window.location.href = `/signin`
             }
         }
 
         dislikeBtnID.onclick = async () => {
             let obj = {
                 post_id: parseInt(urlID),
-                voteType: "dislike",
+                vote_type: "dislike",
             }
             let response = await fetch('http://localhost:8080/api/post', {
                 method: 'POST',
@@ -86,6 +87,7 @@ export default class extends AbstractView {
             if (response.ok) {
                 window.location.href = `/post?id=${urlID}`
             } else {
+                window.location.href = `/singin`
             }
         }
 

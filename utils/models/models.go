@@ -6,10 +6,10 @@ type User struct {
 	Email     string `json:"email"`
 	Password  string `json:"password"`
 	Confirm   string `json:"confirm"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Gender    string `json:"gender"`
-	Age       string `json:"age"`
+	FirstName string `json:"first_name,omitempty"`
+	LastName  string `json:"last_name,omitempty"`
+	Gender    string `json:"gender,omitempty"`
+	Age       string `json:"age,omitempty"`
 }
 
 type Post struct {
@@ -22,17 +22,18 @@ type Post struct {
 }
 
 type PostLike struct {
-	UserID    int  `json:"user_id"`
-	PostID    int  `json:"post_id"`
-	VoteState bool `json:"vote_state"`
+	UserID    int    `json:"user_id,omitempty"`
+	PostID    int    `json:"post_id,omitempty"`
+	VoteState bool   `json:"vote_state,omitempty"`
+	VoteType  string `json:"vote_type,omitempty"`
 }
 
 type Comment struct {
-	ID        int    `json:"id"`
-	PostID    int    `json:"cpost_id"`
-	Username  string `json:"username"`
-	Content   string `json:"content"`
-	Timestamp string `json:"timestamp"`
+	ID        int    `json:"id,omitempty"`
+	PostID    int    `json:"cpost_id,omitempty"`
+	Username  string `json:"username,omitempty"`
+	Content   string `json:"content,omitempty"`
+	Timestamp string `json:"timestamp,omitempty"`
 }
 
 type CommentLike struct {
