@@ -5,7 +5,7 @@ import (
 )
 
 func (s *Store) InsertLike(like *models.PostLike) error {
-	like.VoteState = true // got liked
+	// like.VoteState = true // got liked
 
 	createRow, err := s.db.Prepare(`
 		INSERT INTO postlike

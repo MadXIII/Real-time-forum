@@ -19,7 +19,8 @@ export default class extends AbstractView {
             PostDataTitle.innerHTML = `Title: ${res.Post.title}`;
             PostDataContent.innerHTML = `Content: ${res.Post.content}`;
             PostDataTime.innerHTML = `Time: ${res.Post.timestamp}`;
-            PostLikeDisDiff.innerHTML = `${res.Post.difflikes}`;
+            PostLikeCount.innerHTML = `${res.Post.likes}`;
+            PostDislikeCount.innerHTML = `${res.Post.dislikes}`;
             if (res.Comments != null) {
                 comment1Username.innerHTML = `CommentUsername: ${res.Comments[0].username}`;
                 comment1Timestamp.innerHTML = `CommentTimestamp: ${res.Comments[0].timestamp}`;
@@ -47,8 +48,9 @@ export default class extends AbstractView {
                 alert(result)
                 window.location.href = `/post?id=${urlID}`
             } else {
-                let result = await response.json()
-                alert(result)
+                let res = await response.json()
+                alert(res)
+                window.location.href = `/signin`
             }
         }
 
@@ -68,6 +70,8 @@ export default class extends AbstractView {
             if (response.ok) {
                 window.location.href = `/post?id=${urlID}`
             } else {
+                let res = await response.json()
+                alert(res)
                 window.location.href = `/signin`
             }
         }
@@ -87,10 +91,11 @@ export default class extends AbstractView {
             if (response.ok) {
                 window.location.href = `/post?id=${urlID}`
             } else {
+                let res = await response.json()
+                alert(res)
                 window.location.href = `/singin`
             }
         }
-
     }
 
     async getHtml() {
@@ -102,8 +107,9 @@ export default class extends AbstractView {
         <div id="PostDataContent"></div>
         <div id="PostDataTime"></div>
         <button id="likeBtnID">&#128402</button>
-        <div id="PostLikeDisDiff">0</div>
+        <div id="PostLikeCount">0</div>
         <button id="dislikeBtnID">&#128403</button>
+        <div id="PostDislikeCount">0</div>
         <h3>Comments</h3>
         <p><input type="text" placeholder="Comment" id="newComment"/></p>
         <button id="creatCommentBtnID">Submit</button>

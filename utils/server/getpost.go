@@ -54,6 +54,8 @@ func (s *Server) handleGetPostPage(w http.ResponseWriter, r *http.Request) {
 		Comments: comments,
 	}
 
+	fmt.Println(PostPageData)
+
 	bytes, err := json.Marshal(PostPageData)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handleGetPostPage, Marshal(PostData): %w", err))
@@ -81,7 +83,7 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, Unmarshal(newPost): %w", err))
 		return
 	}
-	//create on func for this
+	//create func for this
 	if data.Comment.PostID != 0 {
 		if err = checkComment(data.Comment.Content); err != nil {
 			logger(w, http.StatusBadRequest, err)
@@ -93,7 +95,7 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 
 		data.Comment.Username, err = s.getUsernameByCookie(r)
 		if err != nil {
-			logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, getUsernameByCookie: %w", err))
+			logger(w, http.StatusInternalServerError, newErr.ErrUnsignComment)
 			return
 		}
 
@@ -102,26 +104,12 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	if data.VoteType != "" {
+	if data.PostLike.VoteType != "" {
 		if err = s.checkVote(r, &data.PostLike); err != nil {
 			logger(w, http.StatusInternalServerError, err)
+			return
 		}
 	}
-	// if data.VoteType == "like" {
-	// 	if err = s.likeThumbler(r, &data.PostLike); err != nil {
-	// 		logger(w, http.StatusInternalServerError, err)
-	// 		return
-	// 	}
-	// 	s.store.ChangeLikeDislikeDiff(data.PostLike.PostID, data.PostLike.VoteState)
-	// }
-	// if data.VoteType == "dislike" {
-	// 	if err = s.likeThumbler(r, &data.PostLike); err != nil {
-	// 		logger(w, http.StatusInternalServerError, err)
-	// 		return
-	// 	}
-	// 	s.store.ChangeLikeDislikeDiff(data.PostLike.PostID, data.PostLike.VoteState)
-	// }
-
 	success(w, "Comment is created")
 }
 
@@ -156,40 +144,29 @@ func (s *Server) checkVote(req *http.Request, like *models.PostLike) (err error)
 		return newErr.ErrUnsignVote
 	}
 
-	if err = s.firstVote(like); err != nil {
-		return err
-	}
-	if like.VoteType == "like" {
-		if err = s.voteThumbler(like); err != nil {
-			return err
-		}
-		s.store.ChangeLikeDislikeDiff(like.PostID, like.VoteState)
-	}
-	if like.VoteType == "dislike" {
-		if err = s.voteThumbler(like); err != nil {
-			return err
-		}
-		s.store.ChangeLikeDislikeDiff(like.PostID, like.VoteState)
-	}
-	return nil
-}
-
-func (s *Server) firstVote(like *models.PostLike) error {
-	_, err := s.store.GetVoteState(like)
+	like.VoteState, err = s.store.GetVoteState(like)
 	if err != nil {
 		if err = s.store.InsertLike(like); err != nil {
 			return err
 		}
 	}
 
+	if like.VoteType == "like" {
+		if err = s.voteThumbler(like); err != nil {
+			return err
+		}
+		s.store.UpdateLikes(like)
+	}
+	if like.VoteType == "dislike" {
+		if err = s.voteThumbler(like); err != nil {
+			return err
+		}
+		s.store.UpdateDislikes(like)
+	}
 	return nil
 }
 
 func (s *Server) voteThumbler(like *models.PostLike) (err error) { // ERROR :=
-	like.VoteState, err = s.store.GetVoteState(like)
-	if err != nil {
-		return err
-	}
 	if like.VoteState == true {
 		like.VoteState = false
 		if err = s.store.UpdateVoteState(like); err != nil {

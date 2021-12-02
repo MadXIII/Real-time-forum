@@ -9,8 +9,8 @@ import (
 func (s *Store) InsertPost(newPost *models.Post) (int, error) {
 	createRow, err := s.db.Prepare(`
 		INSERT INTO post 
-		(username, title, content, timestamp, diffLikes)
-		VALUES (?, ?, ?, ?, ?)
+		(username, title, content, timestamp, like_count, dis_count)
+		VALUES (?, ?, ?, ?, ?, ?)
 	`)
 	if err != nil {
 		return 0, fmt.Errorf("InsertPost, Prepare: %w", err)
@@ -21,7 +21,8 @@ func (s *Store) InsertPost(newPost *models.Post) (int, error) {
 		newPost.Title,
 		newPost.Content,
 		newPost.Timestamp,
-		newPost.LikeDis,
+		newPost.LikeCount,
+		newPost.DisCount,
 	)
 	if err != nil {
 		return 0, fmt.Errorf("InsertPost, Exec: %w", err)
@@ -42,7 +43,7 @@ func (s *Store) GetPostByID(id string) (models.Post, error) {
 
 	err := s.db.QueryRow(`
 		SELECT * FROM post WHERE id = ?
-	`, id).Scan(&post.ID, &post.Username, &post.Title, &post.Content, &post.Timestamp, &post.LikeDis)
+	`, id).Scan(&post.ID, &post.Username, &post.Title, &post.Content, &post.Timestamp, &post.LikeCount, &post.DisCount)
 	if err != nil {
 		return post, fmt.Errorf("GetPostByID, Scan: %w", err)
 	}
@@ -65,7 +66,7 @@ func (s *Store) GetAllPosts() ([]models.Post, error) {
 
 	for rows.Next() {
 		var post models.Post
-		if err := rows.Scan(&post.ID, &post.Username, &post.Title, &post.Content, &post.Timestamp, &post.LikeDis); err != nil {
+		if err := rows.Scan(&post.ID, &post.Username, &post.Title, &post.Content, &post.Timestamp, &post.LikeCount, &post.DisCount); err != nil {
 			return nil, fmt.Errorf("GetAllPosts, Scan: %w", err)
 		}
 		posts = append(posts, post)
@@ -74,16 +75,32 @@ func (s *Store) GetAllPosts() ([]models.Post, error) {
 	return posts, nil
 }
 
-func (s *Store) ChangeLikeDislikeDiff(pid int, up bool) {
-	if up {
+func (s *Store) UpdateLikes(like *models.PostLike) {
+	if like.VoteState {
 		s.db.Exec(`
-			UPDATE post SET diffLikes = diffLikes + 1
+			UPDATE post SET like_count = like_count + 1
 			WHERE id = ?
-		`, pid)
-	} else {
+		`, like.PostID)
+	}
+	if !like.VoteState {
 		s.db.Exec(`
-			UPDATE post SET diffLikes = diffLikes - 1
-			WHERE id = ?
-		`, pid)
+		UPDATE post SET like_count = like_count - 1
+		WHERE id = ?
+		`, like.PostID)
+	}
+}
+
+func (s *Store) UpdateDislikes(like *models.PostLike) {
+	if like.VoteState {
+		s.db.Exec(`
+		UPDATE post SET dis_count = dis_count + 1
+		WHERE id = ?
+	`, like.PostID)
+	}
+	if !like.VoteState {
+		s.db.Exec(`
+		UPDATE post SET dis_count = dis_count - 1
+		WHERE id = ?
+	`, like.PostID)
 	}
 }

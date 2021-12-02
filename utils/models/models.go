@@ -18,7 +18,8 @@ type Post struct {
 	Title     string `json:"title"`
 	Content   string `json:"content"`
 	Timestamp string `json:"timestamp"`
-	LikeDis   int    `json:"difflikes"`
+	LikeCount int    `json:"likes,omitempty"`
+	DisCount  int    `json:"dislikes,omitempty"`
 }
 
 type PostLike struct {
