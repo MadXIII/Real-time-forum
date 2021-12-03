@@ -39,13 +39,10 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = checkNewPostDatas(newPost); err != nil {
+	if err = checkNewPostDatas(&newPost); err != nil {
 		logger(w, http.StatusBadRequest, err)
 		return
 	}
-
-	//Set date format
-	newPost.Timestamp = time.Now().Format("2.Jan.2006, 15:04")
 
 	newPost.Username, err = s.getUsernameByCookie(r)
 	if err != nil {
@@ -68,7 +65,7 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		Notify: "Post is Created",
 	}
 
-	bytes, err = json.Marshal(resp)
+	bytes, err = json.Marshal(&resp)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return
@@ -77,13 +74,15 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
-func checkNewPostDatas(post models.Post) error {
+func checkNewPostDatas(post *models.Post) error {
 	if len(post.Title) == 0 || len(post.Title) > 32 {
 		return newErr.ErrPostTitle
 	}
 	if len(post.Content) == 0 {
 		return newErr.ErrPostContent
 	}
+	//Set date format
+	post.Timestamp = time.Now().Format("2.Jan.2006, 15:04")
 	return nil
 }
 

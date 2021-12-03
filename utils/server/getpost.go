@@ -52,7 +52,7 @@ func (s *Server) handleGetPostPage(w http.ResponseWriter, r *http.Request) {
 		Comments: comments,
 	}
 
-	bytes, err := json.Marshal(PostPageData)
+	bytes, err := json.Marshal(&PostPageData)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handleGetPostPage, Marshal(PostData): %w", err))
 		return
