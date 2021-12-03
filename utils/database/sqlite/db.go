@@ -68,7 +68,6 @@ func (s *Store) Init(dbname string) (err error) {
 		content TEXT NOT NULL,
 		timestamp TEXT NOT NULL,
 		like_count integer NOT NULL,
-		dis_count integer NOT NULL,
 		FOREIGN KEY (username) REFERENCES user(nickname)
 	);`)
 	if err != nil {
@@ -86,7 +85,6 @@ func (s *Store) Init(dbname string) (err error) {
 		user_id integer NOT NULL,
 		post_id integer NOT NULL,
 		like integer NOT NULL,
-		type VARCHAR(50) NOT NULL,
 		FOREIGN KEY(user_id) REFERENCES user(id),
 		FOREIGN KEY(post_id) REFERENCES post(id)
 	);`)

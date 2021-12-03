@@ -18,15 +18,13 @@ type Post struct {
 	Title     string `json:"title"`
 	Content   string `json:"content"`
 	Timestamp string `json:"timestamp"`
-	LikeCount int    `json:"likes,omitempty"`
-	DisCount  int    `json:"dislikes,omitempty"`
+	LikeCount int    `json:"likes"`
 }
 
 type PostLike struct {
-	UserID    int    `json:"user_id,omitempty"`
-	PostID    int    `json:"post_id,omitempty"`
-	VoteState bool   `json:"vote_state,omitempty"`
-	VoteType  string `json:"vote_type,omitempty"`
+	UserID    int  `json:"user_id,omitempty"`
+	PostID    int  `json:"post_id,omitempty"`
+	VoteState bool `json:"vote_state,omitempty"`
 }
 
 type Comment struct {

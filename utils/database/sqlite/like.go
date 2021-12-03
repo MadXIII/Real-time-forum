@@ -9,8 +9,8 @@ func (s *Store) InsertLike(like *models.PostLike) error {
 
 	createRow, err := s.db.Prepare(`
 		INSERT INTO postlike
-		(user_id, post_id, like, type)
-		VALUES (?, ?, ?, ?)
+		(user_id, post_id, like)
+		VALUES (?, ?, ?)
 	`)
 
 	defer createRow.Close()
@@ -23,7 +23,6 @@ func (s *Store) InsertLike(like *models.PostLike) error {
 		like.UserID,
 		like.PostID,
 		like.VoteState,
-		like.VoteType,
 	)
 	if err != nil {
 		return err
@@ -47,9 +46,9 @@ func (s *Store) GetVoteState(like *models.PostLike) (bool, error) {
 
 func (s *Store) UpdateVoteState(like *models.PostLike) error {
 	_, err := s.db.Exec(`
-	UPDATE postlike SET like = ?, type = ?  
+	UPDATE postlike SET like = ?
 	WHERE post_id = ? AND user_id = ?
-	`, like.VoteState, like.VoteType, like.PostID, like.UserID)
+	`, like.VoteState, like.PostID, like.UserID)
 	if err != nil {
 		return err
 	}

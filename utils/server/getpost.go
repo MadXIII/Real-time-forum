@@ -44,8 +44,6 @@ func (s *Server) handleGetPostPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// fmt.Println(post)
-
 	PostPageData := struct {
 		Post     models.Post      `json:"Post"`
 		Comments []models.Comment `json:"Comments"`
@@ -53,8 +51,6 @@ func (s *Server) handleGetPostPage(w http.ResponseWriter, r *http.Request) {
 		Post:     post,
 		Comments: comments,
 	}
-
-	fmt.Println(PostPageData)
 
 	bytes, err := json.Marshal(PostPageData)
 	if err != nil {
@@ -85,27 +81,15 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 	}
 	//create func for this
 	if data.Comment.PostID != 0 {
-		if err = checkComment(data.Comment.Content); err != nil {
-			logger(w, http.StatusBadRequest, err)
-			return
-		}
-
-		//Set date format
-		data.Comment.Timestamp = time.Now().Format("2.Jan.2006, 15:04")
-
-		data.Comment.Username, err = s.getUsernameByCookie(r)
+		status, err := s.checkInsertComment(r, &data.Comment)
 		if err != nil {
-			logger(w, http.StatusInternalServerError, newErr.ErrUnsignComment)
-			return
-		}
-
-		if err := s.store.InsertComment(&data.Comment); err != nil {
-			logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, InsertComment: %w", err))
+			logger(w, status, err)
 			return
 		}
 	}
-	if data.PostLike.VoteType != "" {
-		if err = s.checkVote(r, &data.PostLike); err != nil {
+
+	if data.PostLike.PostID != 0 {
+		if err = s.checkInsertUpdVote(r, &data.PostLike); err != nil {
 			logger(w, http.StatusInternalServerError, err)
 			return
 		}
@@ -124,23 +108,32 @@ func checkAndGetPostID(r *http.Request) (string, error) {
 	return value, nil
 }
 
-func checkComment(comment string) error {
-	if len(comment) < 1 {
-		return newErr.ErrEmptyComment
+func (s *Server) checkInsertComment(req *http.Request, comment *models.Comment) (status int, err error) {
+	comment.Username, err = s.getUsernameByCookie(req)
+	if err != nil {
+		return http.StatusInternalServerError, newErr.ErrUnsignComment
 	}
-	if len(comment) > 256 {
-		return newErr.ErrLenComment
+
+	if len(comment.Content) < 1 {
+		return http.StatusBadRequest, newErr.ErrEmptyComment
 	}
-	return nil
+	if len(comment.Content) > 256 {
+		return http.StatusBadRequest, newErr.ErrLenComment
+	}
+
+	//set date to comment
+	comment.Timestamp = time.Now().Format("2.Jan.2006, 15:04")
+
+	if err = s.store.InsertComment(comment); err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	return 0, err
 }
 
-func (s *Server) checkVote(req *http.Request, like *models.PostLike) (err error) {
+func (s *Server) checkInsertUpdVote(req *http.Request, like *models.PostLike) (err error) {
 	like.UserID, err = s.cookiesStore.GetIDByCookie(req)
-	if err != nil {
-		return err
-	}
-
-	if like.UserID < 1 {
+	if err != nil || like.UserID < 1 {
 		return newErr.ErrUnsignVote
 	}
 
@@ -151,22 +144,16 @@ func (s *Server) checkVote(req *http.Request, like *models.PostLike) (err error)
 		}
 	}
 
-	if like.VoteType == "like" {
-		if err = s.voteThumbler(like); err != nil {
-			return err
-		}
-		s.store.UpdateLikes(like)
+	if err = s.voteThumbler(like); err != nil {
+		return err
 	}
-	if like.VoteType == "dislike" {
-		if err = s.voteThumbler(like); err != nil {
-			return err
-		}
-		s.store.UpdateDislikes(like)
-	}
+
+	s.store.UpdateLikes(like)
+
 	return nil
 }
 
-func (s *Server) voteThumbler(like *models.PostLike) (err error) { // ERROR :=
+func (s *Server) voteThumbler(like *models.PostLike) (err error) {
 	if like.VoteState == true {
 		like.VoteState = false
 		if err = s.store.UpdateVoteState(like); err != nil {

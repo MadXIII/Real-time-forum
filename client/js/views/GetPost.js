@@ -20,7 +20,6 @@ export default class extends AbstractView {
             PostDataContent.innerHTML = `Content: ${res.Post.content}`;
             PostDataTime.innerHTML = `Time: ${res.Post.timestamp}`;
             PostLikeCount.innerHTML = `${res.Post.likes}`;
-            PostDislikeCount.innerHTML = `${res.Post.dislikes}`;
             if (res.Comments != null) {
                 comment1Username.innerHTML = `CommentUsername: ${res.Comments[0].username}`;
                 comment1Timestamp.innerHTML = `CommentTimestamp: ${res.Comments[0].timestamp}`;
@@ -75,27 +74,6 @@ export default class extends AbstractView {
                 window.location.href = `/signin`
             }
         }
-
-        dislikeBtnID.onclick = async () => {
-            let obj = {
-                post_id: parseInt(urlID),
-                vote_type: "dislike",
-            }
-            let response = await fetch('http://localhost:8080/api/post', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8'
-                },
-                body: JSON.stringify(obj)
-            })
-            if (response.ok) {
-                window.location.href = `/post?id=${urlID}`
-            } else {
-                let res = await response.json()
-                alert(res)
-                window.location.href = `/singin`
-            }
-        }
     }
 
     async getHtml() {
@@ -108,8 +86,6 @@ export default class extends AbstractView {
         <div id="PostDataTime"></div>
         <button id="likeBtnID">&#128402</button>
         <div id="PostLikeCount">0</div>
-        <button id="dislikeBtnID">&#128403</button>
-        <div id="PostDislikeCount">0</div>
         <h3>Comments</h3>
         <p><input type="text" placeholder="Comment" id="newComment"/></p>
         <button id="creatCommentBtnID">Submit</button>

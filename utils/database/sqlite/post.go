@@ -9,8 +9,8 @@ import (
 func (s *Store) InsertPost(newPost *models.Post) (int, error) {
 	createRow, err := s.db.Prepare(`
 		INSERT INTO post 
-		(username, title, content, timestamp, like_count, dis_count)
-		VALUES (?, ?, ?, ?, ?, ?)
+		(username, title, content, timestamp, like_count)
+		VALUES (?, ?, ?, ?, ?)
 	`)
 	if err != nil {
 		return 0, fmt.Errorf("InsertPost, Prepare: %w", err)
@@ -22,7 +22,6 @@ func (s *Store) InsertPost(newPost *models.Post) (int, error) {
 		newPost.Content,
 		newPost.Timestamp,
 		newPost.LikeCount,
-		newPost.DisCount,
 	)
 	if err != nil {
 		return 0, fmt.Errorf("InsertPost, Exec: %w", err)
@@ -43,7 +42,7 @@ func (s *Store) GetPostByID(id string) (models.Post, error) {
 
 	err := s.db.QueryRow(`
 		SELECT * FROM post WHERE id = ?
-	`, id).Scan(&post.ID, &post.Username, &post.Title, &post.Content, &post.Timestamp, &post.LikeCount, &post.DisCount)
+	`, id).Scan(&post.ID, &post.Username, &post.Title, &post.Content, &post.Timestamp, &post.LikeCount)
 	if err != nil {
 		return post, fmt.Errorf("GetPostByID, Scan: %w", err)
 	}
@@ -66,7 +65,7 @@ func (s *Store) GetAllPosts() ([]models.Post, error) {
 
 	for rows.Next() {
 		var post models.Post
-		if err := rows.Scan(&post.ID, &post.Username, &post.Title, &post.Content, &post.Timestamp, &post.LikeCount, &post.DisCount); err != nil {
+		if err := rows.Scan(&post.ID, &post.Username, &post.Title, &post.Content, &post.Timestamp, &post.LikeCount); err != nil {
 			return nil, fmt.Errorf("GetAllPosts, Scan: %w", err)
 		}
 		posts = append(posts, post)
@@ -76,6 +75,7 @@ func (s *Store) GetAllPosts() ([]models.Post, error) {
 }
 
 func (s *Store) UpdateLikes(like *models.PostLike) {
+	fmt.Println(like)
 	if like.VoteState {
 		s.db.Exec(`
 			UPDATE post SET like_count = like_count + 1
@@ -87,20 +87,5 @@ func (s *Store) UpdateLikes(like *models.PostLike) {
 		UPDATE post SET like_count = like_count - 1
 		WHERE id = ?
 		`, like.PostID)
-	}
-}
-
-func (s *Store) UpdateDislikes(like *models.PostLike) {
-	if like.VoteState {
-		s.db.Exec(`
-		UPDATE post SET dis_count = dis_count + 1
-		WHERE id = ?
-	`, like.PostID)
-	}
-	if !like.VoteState {
-		s.db.Exec(`
-		UPDATE post SET dis_count = dis_count - 1
-		WHERE id = ?
-	`, like.PostID)
 	}
 }
