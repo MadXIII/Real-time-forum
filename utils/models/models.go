@@ -12,13 +12,19 @@ type User struct {
 	Age       string `json:"age,omitempty"`
 }
 
+type Categories struct {
+	ID   int    `json:"id"`
+	Name string `json:"category_name"`
+}
+
 type Post struct {
-	ID        int    `json:"id"`
-	Username  string `json:"username"`
-	Title     string `json:"title"`
-	Content   string `json:"content"`
-	Timestamp string `json:"timestamp"`
-	LikeCount int    `json:"likes"`
+	ID         int    `json:"id"`
+	CategoryID int    `json:"category_id"`
+	Username   string `json:"username"`
+	Title      string `json:"title"`
+	Content    string `json:"content"`
+	Timestamp  string `json:"timestamp"`
+	LikeCount  int    `json:"likes"`
 }
 
 type PostLike struct {

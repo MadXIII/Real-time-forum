@@ -61,13 +61,34 @@ func (s *Store) Init(dbname string) (err error) {
 
 	defer signerTable.Close()
 
+	categoryTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS category (
+		id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+		name VARCHAR(50) NOT NULL UNIQUE
+	);`)
+	if err != nil {
+		return fmt.Errorf("InitDB, categoryTable.Prepare: %w", err)
+	}
+
+	_, err = categoryTable.Exec()
+	if err != nil {
+		return fmt.Errorf("InitDB, categoryTabel.Exec: %w", err)
+	}
+
+	categories := []string{"UFC", "Anime", "Other"}
+
+	if err = s.InsertCategories(categories); err != nil {
+		return fmt.Errorf("InitDB, InsertCategories: %w", err)
+	}
+
 	postTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS post (
 		id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+		category_id VARCHAR(50) NOT NULL,
 		username VARCHAR(100) NOT NULL,
 		title VARCHAR(50) NOT NULL,
 		content TEXT NOT NULL,
 		timestamp TEXT NOT NULL,
 		like_count integer NOT NULL,
+		FOREIGN KEY (category_id) REFERENCES category(id),
 		FOREIGN KEY (username) REFERENCES user(nickname)
 	);`)
 	if err != nil {
