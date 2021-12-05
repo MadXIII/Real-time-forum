@@ -1,6 +1,9 @@
 package sqlite
 
-import "fmt"
+import (
+	"fmt"
+	"forum/utils/models"
+)
 
 func (s *Store) InsertCategories(categories []string) error {
 	for _, category := range categories {
@@ -22,4 +25,28 @@ func (s *Store) InsertCategories(categories []string) error {
 	}
 
 	return nil
+}
+
+func (s *Store) GetCategories() ([]models.Categories, error) {
+	var categories []models.Categories
+
+	rows, err := s.db.Query(`
+		SELECT * FROM category
+	`)
+
+	defer rows.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var category models.Categories
+	for rows.Next() {
+		if err = rows.Scan(&category.ID, &category.Name); err != nil {
+			return nil, err
+		}
+		categories = append(categories, category)
+	}
+
+	return categories, nil
 }

@@ -12,11 +12,32 @@ import (
 
 //CreatePost - /newpost's handler
 func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		s.handleCreatePostPage(w, r)
+		return
+	}
+
 	if r.Method == http.MethodPost {
 		s.handleCreatePost(w, r)
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
+	return
+}
+
+func (s *Server) handleCreatePostPage(w http.ResponseWriter, r *http.Request) {
+	categories, err := s.store.GetCategories()
+	if err != nil {
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePostPage, GetCategories: %w", err))
+		return
+	}
+	fmt.Println(categories)
+	bytes, err := json.Marshal(&categories)
+	if err != nil {
+		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePostPage, Marshal: %w", err))
+	}
+
+	w.Write(bytes)
 	return
 }
 

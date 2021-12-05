@@ -52,8 +52,8 @@ func (s *Store) GetCommentsByPostID(pid string) ([]models.Comment, error) {
 		return nil, fmt.Errorf("GetCommentsByPostID, Query: %w", err)
 	}
 
+	var comment models.Comment
 	for rows.Next() {
-		var comment models.Comment
 		if err := rows.Scan(&comment.ID, &comment.PostID, &comment.Username, &comment.Content, &comment.Timestamp); err != nil {
 			return nil, fmt.Errorf("GetCommentsByPostID, Scan: %w", err)
 		}

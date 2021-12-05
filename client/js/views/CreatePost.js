@@ -7,6 +7,16 @@ export default class extends AbstractView {
     }
 
     init() {
+        let response =  fetch('http://localhost:8080/api/newpost')
+
+        if (response.ok) {
+            console.log(true)
+            let res = response.json()
+            console.log(res.id)
+        } else {
+            console.log(false)
+        }
+
         let submitId = document.getElementById('creatPostBtnID')
         submitId.onclick = async () => {
             let newPost = {
@@ -36,6 +46,7 @@ export default class extends AbstractView {
             <div>Create Post</div>
             <p><input type="text" placeholder="Title" id="titleID"/></p>
             <p><input type="text" placeholder="Your Post" id="contentID"/></p>
+            <select id="cateogriesID"></select>
             <button id="creatPostBtnID">Submit</button>
             `
     }

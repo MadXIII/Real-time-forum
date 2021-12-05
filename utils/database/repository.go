@@ -18,5 +18,6 @@ type Repository interface {
 	UpdateVoteState(*models.PostLike) error
 	UpdateLikes(*models.PostLike)
 	InsertCategories([]string) error
+	GetCategories() ([]models.Categories, error)
 	Close()
 }
