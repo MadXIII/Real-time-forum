@@ -6,14 +6,49 @@ export default class extends AbstractView {
         this.setTitle("FORUM")
 
     }
-    
-    init() {
+
+    async init() {
+        let response = await fetch('http://localhost:8080/api/')
+
+        if (response.ok) {
+            let result = await response.json()
+            result.Categories.forEach(element => {
+                cateogriesID.innerHTML += `<option value="${element.id}">${element.category_name}</option>`
+            })
+            result.Posts.forEach(element => {
+                postsID.innerHTML += `<p><div>Title:${element.title}</div><div>Content:${element.content}</div><div>Username:${element.username}</div><div>time:${element.timestamp}</div></p>`
+            })
+        } else {
+            console.log(false)
+        }
+
+        submitID.onclick = async () => {
+            let category = {
+                id: parseInt(cateogriesID.value)
+            }
+            let response = await fetch('http://localhost:8080/api/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify(category)
+            })
+
+            if (response.ok) {
+                console.log(true)
+            } else {
+                console.log(false)
+            }
+        }
     }
 
     async getHtml() {
         let tags = `
             <h1>Home</h1>
+            <select id="cateogriesID"></select>
+            <button id="submitID">Submit</button>
             <p>Welcome to the Main Page</p>
+            <div id="postsID"></div>
         `
         return super.isAuth() + tags
     }

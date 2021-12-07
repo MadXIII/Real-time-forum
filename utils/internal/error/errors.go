@@ -52,6 +52,8 @@ func CheckErr(err error) bool {
 		return true
 	case ErrUnsignVote:
 		return true
+	case ErrWrongCategory:
+		return true
 	default:
 		return false
 	}
@@ -82,4 +84,5 @@ var (
 	ErrLenComment     = errors.New("Comment is too Long")
 	ErrUnsignComment  = errors.New("Need to login before to comment")
 	ErrUnsignVote     = errors.New("Need to login before to vote")
+	ErrWrongCategory  = errors.New("Wrong Category")
 )

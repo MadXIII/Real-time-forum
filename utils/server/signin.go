@@ -4,17 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	newErr "forum/utils/internal/error"
+	"forum/utils/models"
 	"io/ioutil"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
 )
-
-//Sign - struct to store Signer datas
-type Sign struct {
-	Login    string `json:"login"`
-	Password string `json:"password"`
-}
 
 //SignIn - Sigin page
 func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +29,7 @@ func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var signer Sign
+	var signer models.Sign
 	if err = json.Unmarshal(bytes, &signer); err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handleSignIn, Unmarshal %w", err))
 		return
@@ -63,7 +58,7 @@ func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 //checkLoginDatas - is empty or too long login datas
-func checkLoginDatas(user *Sign) error {
+func checkLoginDatas(user *models.Sign) error {
 	if len(user.Login) == 0 || len(user.Login) > 32 {
 		return newErr.ErrLoginData
 	}

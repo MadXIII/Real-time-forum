@@ -31,7 +31,7 @@ func (s *Server) handleCreatePostPage(w http.ResponseWriter, r *http.Request) {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePostPage, GetCategories: %w", err))
 		return
 	}
-	fmt.Println(categories)
+
 	bytes, err := json.Marshal(&categories)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePostPage, Marshal: %w", err))
@@ -54,13 +54,12 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var newPost models.Post
-
 	if err = json.Unmarshal(bytes, &newPost); err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePost, Unmarshal(newPost): %w", err))
 		return
 	}
 
-	if err = checkNewPostDatas(&newPost); err != nil {
+	if err = s.checkNewPostDatas(&newPost); err != nil {
 		logger(w, http.StatusBadRequest, err)
 		return
 	}
@@ -95,10 +94,15 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
-func checkNewPostDatas(post *models.Post) error {
+func (s *Server) checkNewPostDatas(post *models.Post) error {
+	if err := s.store.CheckCategoryID(post.CategoryID); err != nil {
+		return err
+	}
+
 	if len(post.Title) == 0 || len(post.Title) > 32 {
 		return newErr.ErrPostTitle
 	}
+
 	if len(post.Content) == 0 {
 		return newErr.ErrPostContent
 	}

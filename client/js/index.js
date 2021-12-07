@@ -10,7 +10,6 @@ const navigateTo = url => {
     router()
 }
 
-//it works)))
 let middleware = (handler) => {
     if (document.cookie.indexOf('session') != -1) {
         return handler

@@ -19,5 +19,6 @@ type Repository interface {
 	UpdateLikes(*models.PostLike)
 	InsertCategories([]string) error
 	GetCategories() ([]models.Categories, error)
+	CheckCategoryID(int) error
 	Close()
 }

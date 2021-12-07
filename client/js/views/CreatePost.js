@@ -7,21 +7,17 @@ export default class extends AbstractView {
     }
 
     init() {
-        let response =  fetch('http://localhost:8080/api/newpost')
+        fetch('http://localhost:8080/api/newpost')
+            .then(response => response.json())
+            .then(res => res.forEach(element => {
+                cateogriesID.innerHTML += `<option value="${element.id}">${element.category_name}</option>`
+            }))
 
-        if (response.ok) {
-            console.log(true)
-            let res = response.json()
-            console.log(res.id)
-        } else {
-            console.log(false)
-        }
-
-        let submitId = document.getElementById('creatPostBtnID')
-        submitId.onclick = async () => {
+        creatPostBtnID.onclick = async () => {
             let newPost = {
                 title: titleID.value,
                 content: contentID.value,
+                category_id: parseInt(cateogriesID.value),
             }
             let response = await fetch('http://localhost:8080/api/newpost', {
                 method: 'POST',
