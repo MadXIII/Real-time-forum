@@ -1,6 +1,7 @@
 package sqlite
 
 import (
+	"database/sql"
 	"fmt"
 	"forum/utils/models"
 )
@@ -52,12 +53,19 @@ func (s *Store) GetPostByID(id string) (models.Post, error) {
 }
 
 //GetAllPosts - Get all posts to show in main page
-func (s *Store) GetAllPosts() ([]models.Post, error) {
-	var posts []models.Post
+func (s *Store) GetAllPostsByCategoryID(catID int) (posts []models.Post, err error) {
+	var rows *sql.Rows
 
-	rows, err := s.db.Query(`
+	if catID < 1 {
+		rows, err = s.db.Query(`
 		SELECT * FROM post ORDER BY id DESC
 	`)
+	} else {
+		rows, err = s.db.Query(`
+		SELECT * FROM post WHERE category_id = ? ORDER BY id DESC
+		`, catID)
+	}
+
 	defer rows.Close()
 
 	if err != nil {

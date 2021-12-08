@@ -14,7 +14,7 @@ type User struct {
 
 type Categories struct {
 	ID   int    `json:"id"`
-	Name string `json:"category_name"`
+	Name string `json:"category_name,omitempty"`
 }
 
 type Post struct {

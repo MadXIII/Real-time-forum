@@ -9,7 +9,7 @@ type Repository interface {
 	GetUserByLogin(string) (models.User, error)
 	InsertPost(*models.Post) (int, error)
 	GetPostByID(string) (models.Post, error)
-	GetAllPosts() ([]models.Post, error)
+	GetAllPostsByCategoryID(int) ([]models.Post, error)
 	GetUsernameByID(int) (string, error)
 	InsertComment(*models.Comment) error
 	GetCommentsByPostID(string) ([]models.Comment, error)

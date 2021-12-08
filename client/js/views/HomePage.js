@@ -35,9 +35,14 @@ export default class extends AbstractView {
             })
 
             if (response.ok) {
-                console.log(true)
+                let result = await response.json()
+                postsID.innerHTML = ""
+                result.forEach(element => {
+                    postsID.innerHTML += `<p><div>Title:${element.title}</div><div>Content:${element.content}</div><div>Username:${element.username}</div><div>time:${element.timestamp}</div></p>`
+                })
             } else {
-                console.log(false)
+                let result = await response.json()
+                alert(result)
             }
         }
     }

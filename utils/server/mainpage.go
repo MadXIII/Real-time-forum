@@ -23,13 +23,13 @@ func (s *Server) MainPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleMainPageGet(w http.ResponseWriter, r *http.Request) {
-	gotCategories, err := s.store.GetCategories()
+	getCategories, err := s.store.GetCategories()
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	gotPosts, err := s.store.GetAllPosts()
+	getPosts, err := s.store.GetAllPostsByCategoryID(0)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("MainPage, GetAllPosts: %w", err))
 		return
@@ -39,8 +39,8 @@ func (s *Server) handleMainPageGet(w http.ResponseWriter, r *http.Request) {
 		Categories []models.Categories
 		Posts      []models.Post
 	}{
-		Categories: gotCategories,
-		Posts:      gotPosts,
+		Categories: getCategories,
+		Posts:      getPosts,
 	}
 
 	bytes, err := json.Marshal(response)
@@ -66,6 +66,17 @@ func (s *Server) handleMaingPagePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(categoryID.ID)
+	posts, err := s.store.GetAllPostsByCategoryID(categoryID.ID)
+	if err != nil {
+		logger(w, http.StatusInternalServerError, err)
+		return
+	}
 
+	bytes, err = json.Marshal(posts)
+	if err != nil {
+		logger(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	w.Write(bytes)
 }

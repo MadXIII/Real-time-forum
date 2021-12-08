@@ -74,7 +74,7 @@ func (s *Store) Init(dbname string) (err error) {
 		return fmt.Errorf("InitDB, categoryTabel.Exec: %w", err)
 	}
 
-	categories := []string{"UFC", "Anime", "Other"}
+	categories := []string{"All", "UFC", "Anime", "Other"}
 
 	if err = s.InsertCategories(categories); err != nil {
 		return fmt.Errorf("InitDB, InsertCategories: %w", err)

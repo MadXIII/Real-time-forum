@@ -38,7 +38,6 @@ func (s *Server) Conf() {
 	s.router.HandleFunc("/api/newpost", s.middleWare(s.CreatePost))
 	s.router.HandleFunc("/api/post", s.GetPost)
 	s.router.HandleFunc("/api/logout", s.middleWare(s.LogOut))
-
 }
 
 //ListenAndServe - Listener with Configurations to ServMUX
