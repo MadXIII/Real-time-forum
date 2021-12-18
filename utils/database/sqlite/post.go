@@ -53,17 +53,17 @@ func (s *Store) GetPostByID(id string) (models.Post, error) {
 }
 
 //GetAllPosts - Get all posts to show in main page
-func (s *Store) GetAllPostsByCategoryID(catID int) (posts []models.Post, err error) {
+func (s *Store) GetAllPostsByCategoryID(categoryID int) (posts []models.Post, err error) {
 	var rows *sql.Rows
 
-	if catID < 1 {
+	if categoryID < 2 {
 		rows, err = s.db.Query(`
 		SELECT * FROM post ORDER BY id DESC
 	`)
 	} else {
 		rows, err = s.db.Query(`
 		SELECT * FROM post WHERE category_id = ? ORDER BY id DESC
-		`, catID)
+		`, categoryID)
 	}
 
 	defer rows.Close()

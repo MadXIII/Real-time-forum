@@ -10,17 +10,19 @@ import (
 
 //MainPage ...
 func (s *Server) MainPage(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
+	if r.Method == http.MethodGet {
 		s.handleMainPageGet(w, r)
 		return
 	}
-	if r.Method == "POST" {
+	if r.Method == http.MethodPost {
 		s.handleMaingPagePost(w, r)
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
 	return
 }
+
+var globCategoryID = 0
 
 func (s *Server) handleMainPageGet(w http.ResponseWriter, r *http.Request) {
 	getCategories, err := s.store.GetCategories()
@@ -29,7 +31,7 @@ func (s *Server) handleMainPageGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	getPosts, err := s.store.GetAllPostsByCategoryID(0)
+	getPosts, err := s.store.GetAllPostsByCategoryID(globCategoryID)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("MainPage, GetAllPosts: %w", err))
 		return
@@ -66,7 +68,9 @@ func (s *Server) handleMaingPagePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts, err := s.store.GetAllPostsByCategoryID(categoryID.ID)
+	globCategoryID = categoryID.ID
+
+	posts, err := s.store.GetAllPostsByCategoryID(globCategoryID)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, err)
 		return

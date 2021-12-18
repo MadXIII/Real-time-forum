@@ -22,3 +22,12 @@ type Repository interface {
 	CheckCategoryID(int) error
 	Close()
 }
+
+type User interface {
+}
+
+type Post interface {
+}
+
+type Comment interface {
+}

@@ -34,7 +34,6 @@ func New() *Store {
 
 //DeleteCookie - delete cookie if find from map
 func (s *Store) DeleteCookie(ck *http.Cookie) error {
-	//need to refactor without range
 	for key, val := range s.cookies {
 		if val.Value == ck.Value {
 			delete(s.cookies, key)
