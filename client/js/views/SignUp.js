@@ -18,7 +18,7 @@ export default class extends AbstractView {
                 gender: genderID.value,
                 age: ageID.value,
             }
-            let response = await fetch('http://localhost:8080/api/signup', {
+            let response = await fetch('http://localhost:8282/api/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'

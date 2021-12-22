@@ -21,7 +21,7 @@ func main() {
 	server := server.Init(&store, sessionService)
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8282"
 	}
 
 	server.ListenAndServe(":" + port)

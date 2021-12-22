@@ -25,6 +25,7 @@ func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+//handleCreatePostPage - if CreatPost GET method
 func (s *Server) handleCreatePostPage(w http.ResponseWriter, r *http.Request) {
 	categories, err := s.store.GetCategories()
 	if err != nil {
@@ -94,6 +95,7 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
+//checkNewPostDatas - check Post Datas before Insert it into db
 func (s *Server) checkNewPostDatas(post *models.Post) error {
 	if err := s.store.CheckCategoryID(post.CategoryID); err != nil {
 		return err
@@ -111,6 +113,7 @@ func (s *Server) checkNewPostDatas(post *models.Post) error {
 	return nil
 }
 
+//getUsernameByCookie - get Username from db, by GetIDByCookie
 func (s *Server) getUsernameByCookie(req *http.Request) (string, error) {
 	id, err := s.cookiesStore.GetIDByCookie(req)
 	if err != nil {

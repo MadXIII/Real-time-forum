@@ -52,7 +52,7 @@ func (s *Store) GetPostByID(id string) (models.Post, error) {
 	return post, nil
 }
 
-//GetAllPosts - Get all posts to show in main page
+//GetAllPostsByCategoryID - Get all posts by CategoryID to show in main page
 func (s *Store) GetAllPostsByCategoryID(categoryID int) (posts []models.Post, err error) {
 	var rows *sql.Rows
 
@@ -83,17 +83,25 @@ func (s *Store) GetAllPostsByCategoryID(categoryID int) (posts []models.Post, er
 	return posts, nil
 }
 
-func (s *Store) UpdateLikes(like *models.PostLike) {
+//UpdateVotes - udate LikeCount in Posts data
+func (s *Store) UpdateVotes(like *models.PostLike) error {
 	if like.VoteState {
-		s.db.Exec(`
+		_, err := s.db.Exec(`
 			UPDATE post SET like_count = like_count + 1
 			WHERE id = ?
 		`, like.PostID)
+		if err != nil {
+			return fmt.Errorf("UpdateVotes, incrementLike: %w", err)
+		}
 	}
 	if !like.VoteState {
-		s.db.Exec(`
+		_, err := s.db.Exec(`
 		UPDATE post SET like_count = like_count - 1
 		WHERE id = ?
 		`, like.PostID)
+		if err != nil {
+			return fmt.Errorf("UpdateVotes, decrementLike: %w", err)
+		}
 	}
+	return nil
 }

@@ -7,7 +7,7 @@ export default class extends AbstractView {
     }
 
     init() {
-        fetch('http://localhost:8080/api/newpost')
+        fetch('http://localhost:8282/api/newpost')
             .then(response => response.json())
             .then(res => res.forEach(element => {
                 cateogriesID.innerHTML += `<option value="${element.id}">${element.category_name}</option>`
@@ -19,7 +19,7 @@ export default class extends AbstractView {
                 content: contentID.value,
                 category_id: parseInt(cateogriesID.value),
             }
-            let response = await fetch('http://localhost:8080/api/newpost', {
+            let response = await fetch('http://localhost:8282/api/newpost', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
@@ -29,7 +29,7 @@ export default class extends AbstractView {
             if (response.ok) {
                 let result = await response.json()
                 alert(result.notify)
-                window.location.replace(`http://localhost:8080/post?id=${result.id}`)
+                window.location.replace(`http://localhost:8282/post?id=${result.id}`)
             } else {
                 let result = await response.json()
                 alert(result)

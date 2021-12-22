@@ -70,19 +70,19 @@ func TestIsCorrectDatasToSignUp(t *testing.T) {
 			wantError:  newErr.ErrEmptyNickname,
 		},
 		"Wait error if email is not valid": {
-			inputDatas: models.User{1, "nickname", "a@a.a", "password", "confirm", "firstname", "lastname", "gender", 7},
+			inputDatas: models.User{1, "nickname", "a@a.a", "password", "confirm", "firstname", "lastname", "gender", "7"},
 			wantError:  newErr.ErrInvalidEmail,
 		},
 		"Wait error if confirm not same as password": {
-			inputDatas: models.User{1, "nickname", "mail@mail.ru", "password", "confirm", "firstname", "lastname", "gender", 7},
+			inputDatas: models.User{1, "nickname", "mail@mail.ru", "password", "confirm", "firstname", "lastname", "gender", "7"},
 			wantError:  newErr.ErrDiffSecondPass,
 		},
 		"Wait error if password is not valid": {
-			inputDatas: models.User{1, "nickname", "mail@mail.ru", "password", "password", "firstname", "lastname", "gender", 7},
+			inputDatas: models.User{1, "nickname", "mail@mail.ru", "password", "password", "firstname", "lastname", "gender", "7"},
 			wantError:  newErr.ErrInvalidPass,
 		},
 		"Success": {
-			inputDatas: models.User{1, "nickname", "mail@mail.ru", "123456Aa", "123456Aa", "firstname", "lastname", "gender", 7},
+			inputDatas: models.User{1, "nickname", "mail@mail.ru", "123456Aa", "123456Aa", "firstname", "lastname", "gender", "7"},
 			wantError:  nil,
 		},
 	}
@@ -98,21 +98,21 @@ func TestIsCorrectDatasToSignUp(t *testing.T) {
 func TestIsValidEmail(t *testing.T) {
 	tests := map[string]struct {
 		inputEmail string
-		wantResult bool
+		wantErr    bool
 	}{
 		"Wait false if email was incorrect": {
 			inputEmail: "a@a.a",
-			wantResult: false,
+			wantErr:    false,
 		},
 		"Success": {
 			inputEmail: "test@test.tt",
-			wantResult: true,
+			wantErr:    true,
 		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			if result := isValidEmail(test.inputEmail); result != test.wantResult {
-				t.Errorf("Wait for %v, but got %v", test.wantResult, result)
+			if err := isValidEmail(test.inputEmail); err != nil {
+				t.Errorf("Wait for %v, but got %v", test.wantErr, err)
 			}
 		})
 	}
@@ -120,42 +120,42 @@ func TestIsValidEmail(t *testing.T) {
 
 func TestIsValidPass(t *testing.T) {
 	tests := map[string]struct {
-		inputPass  string
-		wantResult bool
+		inputPass string
+		wantErr   bool
 	}{
 		"Wait false if pass less than 8 chars": {
-			inputPass:  string([]byte{6: '0'}),
-			wantResult: false,
+			inputPass: string([]byte{6: '0'}),
+			wantErr:   false,
 		},
 		"Wait false if pass more than 32 chars": {
-			inputPass:  string([]byte{32: '0'}),
-			wantResult: false,
+			inputPass: string([]byte{32: '0'}),
+			wantErr:   false,
 		},
 		"Wait false pass only latin chars": {
-			inputPass:  "123456Aaф",
-			wantResult: false,
+			inputPass: "123456Aaф",
+			wantErr:   false,
 		},
 		"Wait false if pass has no Lower char": {
-			inputPass:  "123456AA",
-			wantResult: false,
+			inputPass: "123456AA",
+			wantErr:   false,
 		},
 		"Wait false if pass has no Upper char": {
-			inputPass:  "123456aa",
-			wantResult: false,
+			inputPass: "123456aa",
+			wantErr:   false,
 		},
 		"Wait false if pass has no Digit char": {
-			inputPass:  "AAAAaaaa",
-			wantResult: false,
+			inputPass: "AAAAaaaa",
+			wantErr:   false,
 		},
 		"Success": {
-			inputPass:  "123456Aa",
-			wantResult: true,
+			inputPass: "123456Aa",
+			wantErr:   true,
 		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			if result := isValidPass(test.inputPass); result != test.wantResult {
-				t.Errorf("Wait for %v, but got %v", test.wantResult, result)
+			if err := isValidPass(test.inputPass); err != nil {
+				t.Errorf("Wait for %v, but got %v", test.wantErr, err)
 			}
 		})
 	}
@@ -167,23 +167,23 @@ func TestCheckEmpty(t *testing.T) {
 		wantErr   error
 	}{
 		"Wait error with empty nickname": {
-			inputUser: models.User{1, "", "email", "password", "confirm", "firstname", "lastname", "gender", 7},
+			inputUser: models.User{1, "", "email", "password", "confirm", "firstname", "lastname", "gender", "7"},
 			wantErr:   newErr.ErrEmptyNickname,
 		},
 		"Wait error with empty email": {
-			inputUser: models.User{1, "nickname", "", "password", "confirm", "firstname", "lastname", "gender", 7},
+			inputUser: models.User{1, "nickname", "", "password", "confirm", "firstname", "lastname", "gender", "7"},
 			wantErr:   newErr.ErrEmptyEmail,
 		},
 		"Wait error with empty password": {
-			inputUser: models.User{1, "nickname", "email", "", "confirm", "firstname", "lastname", "gender", 7},
+			inputUser: models.User{1, "nickname", "email", "", "confirm", "firstname", "lastname", "gender", "7"},
 			wantErr:   newErr.ErrEmptyPassword,
 		},
 		"Wait error with empty cofirm": {
-			inputUser: models.User{1, "nickname", "email", "password", "", "firstname", "lastname", "gender", 7},
+			inputUser: models.User{1, "nickname", "email", "password", "", "firstname", "lastname", "gender", "7"},
 			wantErr:   newErr.ErrEmptyConfirm,
 		},
 		"Success": {
-			inputUser: models.User{1, "nickname", "email", "password", "confirm", "firstname", "lastname", "gender", 7},
+			inputUser: models.User{1, "nickname", "email", "password", "confirm", "firstname", "lastname", "gender", "7"},
 			wantErr:   nil,
 		},
 	}

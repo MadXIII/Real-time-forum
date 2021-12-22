@@ -12,6 +12,7 @@ import (
 	newErr "forum/utils/internal/error"
 )
 
+//GetPost - /post?id=... handler
 func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		s.handleGetPostPage(w, r)
@@ -25,6 +26,7 @@ func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+//handleGetPostPage - if GetPost GET method
 func (s *Server) handleGetPostPage(w http.ResponseWriter, r *http.Request) {
 	postid, err := checkAndGetPostID(r)
 	if err != nil {
@@ -62,7 +64,7 @@ func (s *Server) handleGetPostPage(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-//what about postID? Still foreign Key or just get from URL.path?
+//handlePost - if GetPost POST method
 func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -79,7 +81,7 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, Unmarshal(newPost): %w", err))
 		return
 	}
-	//create func for this
+
 	if data.Comment.PostID != 0 {
 		status, err := s.checkInsertComment(r, &data.Comment)
 		if err != nil {
@@ -97,6 +99,7 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 	success(w, "Comment is created")
 }
 
+//checkAndGetPostID - get PostID from request and check for digits
 func checkAndGetPostID(r *http.Request) (string, error) {
 	r.ParseForm()
 	value := r.FormValue("id")
@@ -108,6 +111,7 @@ func checkAndGetPostID(r *http.Request) (string, error) {
 	return value, nil
 }
 
+//checkInsertComment - get Username from request, check length of comment and Insert it into db if correct
 func (s *Server) checkInsertComment(req *http.Request, comment *models.Comment) (status int, err error) {
 	comment.Username, err = s.getUsernameByCookie(req)
 	if err != nil {
@@ -131,6 +135,7 @@ func (s *Server) checkInsertComment(req *http.Request, comment *models.Comment) 
 	return 0, err
 }
 
+//checkInsertUpdVote - get UserID from request, Insert it into db if it first request, else set vote state
 func (s *Server) checkInsertUpdVote(req *http.Request, like *models.PostLike) (err error) {
 	like.UserID, err = s.cookiesStore.GetIDByCookie(req)
 	if err != nil || like.UserID < 1 {
@@ -139,7 +144,7 @@ func (s *Server) checkInsertUpdVote(req *http.Request, like *models.PostLike) (e
 
 	like.VoteState, err = s.store.GetVoteState(like)
 	if err != nil {
-		if err = s.store.InsertLike(like); err != nil {
+		if err = s.store.InsertVote(like); err != nil {
 			return err
 		}
 	}
@@ -148,11 +153,14 @@ func (s *Server) checkInsertUpdVote(req *http.Request, like *models.PostLike) (e
 		return err
 	}
 
-	s.store.UpdateLikes(like)
+	if err = s.store.UpdateVotes(like); err != nil {
+		return err
+	}
 
 	return nil
 }
 
+//voteThumbler - thumbler for vote state
 func (s *Server) voteThumbler(like *models.PostLike) (err error) {
 	if like.VoteState == true {
 		like.VoteState = false

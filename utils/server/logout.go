@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-//LogOut ...
+//LogOut - logout user from session
 func (s *Server) LogOut(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		ck, err := r.Cookie("session")

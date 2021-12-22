@@ -12,7 +12,7 @@ export default class extends AbstractView {
                 login: loginID.value, 
                 password: passID.value,
             }
-            let response = await fetch('http://localhost:8080/api/signin', {
+            let response = await fetch('http://localhost:8282/api/signin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'

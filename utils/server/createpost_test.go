@@ -65,7 +65,7 @@ func TestCreatePost(t *testing.T) {
 	}
 }
 
-func TestCheckNewPostDatas(t *testing.T) {
+func (s *Server) TestCheckNewPostDatas(t *testing.T) {
 	tests := map[string]struct {
 		inputPost models.Post
 		wantError error
@@ -90,7 +90,7 @@ func TestCheckNewPostDatas(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			if err := checkNewPostDatas(test.inputPost); err != test.wantError {
+			if err := s.checkNewPostDatas(&test.inputPost); err != test.wantError {
 				t.Errorf("Wait for '%v', but got '%v'", test.wantError, err)
 			}
 		})

@@ -96,27 +96,27 @@ func generateBody(password, login string) []byte {
 
 func TestCheckLoginDatas(t *testing.T) {
 	tests := map[string]struct {
-		inputData *Sign
+		inputData *models.Sign
 		wantError error
 	}{
 		"Wait ErrLoginData if login field is empty": {
-			inputData: &Sign{Login: ""},
+			inputData: &models.Sign{Login: ""},
 			wantError: newErr.ErrLoginData,
 		},
 		"Wait ErrLoginData if login more than 32 chars": {
-			inputData: &Sign{Login: string([]byte{32: '0'})},
+			inputData: &models.Sign{Login: string([]byte{32: '0'})},
 			wantError: newErr.ErrLoginData,
 		},
 		"Wait ErrPassData if pass less than 8 chars": {
-			inputData: &Sign{Login: "Login", Password: string([]byte{6, '0'})},
+			inputData: &models.Sign{Login: "Login", Password: string([]byte{6, '0'})},
 			wantError: newErr.ErrPassData,
 		},
 		"Wait ErrPassData if pass more than 32 chars": {
-			inputData: &Sign{Login: "Login", Password: string([]byte{32: '0'})},
+			inputData: &models.Sign{Login: "Login", Password: string([]byte{32: '0'})},
 			wantError: newErr.ErrPassData,
 		},
 		"Success": {
-			inputData: &Sign{Login: "Login", Password: "Password"},
+			inputData: &models.Sign{Login: "Login", Password: "Password"},
 			wantError: nil,
 		},
 	}
