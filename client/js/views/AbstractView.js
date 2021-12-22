@@ -21,4 +21,7 @@ export default class {
         }
         return tags
     }
+
+    checkCookie() {
+    }
 }

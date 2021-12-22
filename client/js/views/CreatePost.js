@@ -6,13 +6,15 @@ export default class extends AbstractView {
         this.setTitle("New Post")
     }
 
-    init() {
-        fetch('http://localhost:8282/api/newpost')
-            .then(response => response.json())
-            .then(res => res.forEach(element => {
+    async init() {
+        let response = await fetch('http://localhost:8282/api/newpost')
+        if (response.ok) {
+            let res = await response.json()
+            res.forEach(element => {
                 cateogriesID.innerHTML += `<option value="${element.id}">${element.category_name}</option>`
-            }))
-
+            })
+        }
+     
         creatPostBtnID.onclick = async () => {
             let newPost = {
                 title: titleID.value,

@@ -17,9 +17,6 @@ import (
 
 func TestSignIn(t *testing.T) {
 	db := &testdb.TestDB{}
-
-	// db.InsertUser(models.User{Nickname: "testlogin", Password: string(byteses)})
-
 	mysrv := Init(db, &testsession.TestSession{})
 	mysrv.router.HandleFunc("/signin", mysrv.SignIn)
 	srv := httptest.NewServer(&mysrv.router)
@@ -33,17 +30,17 @@ func TestSignIn(t *testing.T) {
 		inputBody  []byte
 		wantStatus int
 	}{
-		// "Wait StatusOK GET": {
-		// 	method:     "GET",
-		// 	inputBody:  nil,
-		// 	wantStatus: http.StatusOK,
-		// },
-		"Wait StatusOK  POST": {
-			method:     "POST",
-			password:   "password",
-			login:      "login",
+		"Wait StatusOK GET": {
+			method:     "GET",
+			inputBody:  nil,
 			wantStatus: http.StatusOK,
 		},
+		// "Wait StatusOK  POST": {
+		// 	method:     "POST",
+		// 	password:   "password",
+		// 	login:      "login",
+		// 	wantStatus: http.StatusOK,
+		// },
 		// "Wait BadRequest empty fields": {
 		// 	method:     "POST",
 		// 	inputBody:  []byte(`{"login":"","password":""}`),
@@ -63,29 +60,31 @@ func TestSignIn(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			db.On("GetUserByLogin", test.login).Return(
-				&models.User{
-					Nickname: test.login,
-					Password: string(b),
-				},
-				nil,
-			)
+			if test.method == "GET" {
+				req, err := http.NewRequest(test.method, srv.URL+"/signin", nil)
+				assert.Nil(t, err)
+				resp, err := http.DefaultClient.Do(req)
+				assert.Nil(t, err)
+				assert.Equal(t, test.wantStatus, resp.StatusCode)
+				return
+			}
 
-			req, err := http.NewRequest(test.method, srv.URL+"/signin", bytes.NewBuffer(generateBody(test.password, test.login)))
-			assert.Nil(t, err)
-			// if err != nil {
-			// 	t.Errorf("Sign In request error: %v", err)
-			// }
-			resp, err := http.DefaultClient.Do(req)
-			assert.Nil(t, err)
+			if test.method == "POST" {
+				fmt.Println("Test")
+				db.On("GetUserByLogin", test.login).Return(
+					models.User{
+						Nickname: test.login,
+						Password: string(b),
+					},
+					nil,
+				)
+				req, err := http.NewRequest(test.method, srv.URL+"/signin", bytes.NewBuffer(generateBody(test.password, test.login)))
+				assert.Nil(t, err)
+				resp, err := http.DefaultClient.Do(req)
+				assert.Nil(t, err)
+				assert.Equal(t, test.wantStatus, resp.StatusCode)
+			}
 
-			// if err != nil {
-			// 	t.Errorf("Sign in response error: %v", err)
-			// }
-			assert.Equal(t, test.wantStatus, resp.StatusCode)
-			// if resp.StatusCode != test.wantStatus {
-			// 	t.Errorf("Wait status: %v, but got: %v", test.wantStatus, resp.StatusCode)
-			// }
 		})
 	}
 }
