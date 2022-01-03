@@ -7,6 +7,7 @@ import (
 	newErr "forum/utils/internal/error"
 	"forum/utils/models"
 	"forum/utils/sessions/testsession"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -29,27 +30,46 @@ func TestSignIn(t *testing.T) {
 		login      string
 		inputBody  []byte
 		wantStatus int
+		// wantResult string
+		wantError error
 	}{
-		"Wait StatusOK GET": {
-			method:     "GET",
-			inputBody:  nil,
-			wantStatus: http.StatusOK,
-		},
+
 		// "Wait StatusOK  POST": {
 		// 	method:     "POST",
 		// 	password:   "password",
 		// 	login:      "login",
 		// 	wantStatus: http.StatusOK,
 		// },
-		// "Wait BadRequest empty fields": {
+		// "GetUserByLogin error case": {
 		// 	method:     "POST",
-		// 	inputBody:  []byte(`{"login":"","password":""}`),
-		// 	wantStatus: http.StatusBadRequest,
+		// 	login:      "hunya",
+		// 	password:   "1232132dl;askd",
+		// 	wantStatus: http.StatusInternalServerError,
+		// 	wantError:  newErr.ErrWrongLogin,
 		// },
+		// "GetUserByLogin good case": {
+		// 	method:     "POST",
+		// 	login:      "user",
+		// 	password:   "123Password",
+		// 	wantStatus: http.StatusOK,
+		// },
+		"checkLoginDatas error case": {
+			method:     "POST",
+			inputBody:  []byte(`{"login":"","password":""}`),
+			wantStatus: http.StatusBadRequest,
+			wantError:  newErr.ErrLoginData,
+		},
 		// "Wait MethodNotAllowed": {
 		// 	method:     "ERROR",
 		// 	inputBody:  nil,
 		// 	wantStatus: http.StatusMethodNotAllowed,
+		// },
+		//{login:"user",password:"123Password"}
+		// "Unmarshall error": {
+		// 	method:     "POST",
+		// 	wantStatus: http.StatusBadRequest,
+		// 	wantError:  errors.New("invalid character 'l' looking for beginning of value"),
+		// 	inputBody:  []byte(`ogin:"user",password:"123Password"}`),
 		// },
 	}
 
@@ -60,27 +80,27 @@ func TestSignIn(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			if test.method == "GET" {
-				req, err := http.NewRequest(test.method, srv.URL+"/signin", nil)
-				assert.Nil(t, err)
-				resp, err := http.DefaultClient.Do(req)
-				assert.Nil(t, err)
-				assert.Equal(t, test.wantStatus, resp.StatusCode)
-				return
-			}
+			fmt.Println("Test", string(b))
+			db.On("GetUserByLogin", test.login).Return(
+				models.User{
+					Nickname: test.login,
+					Password: string(b),
+				},
+				test.wantError,
+			)
+			req, err := http.NewRequest(test.method, srv.URL+"/signin", bytes.NewBuffer(test.inputBody))
+			fmt.Println("NewRequest", req)
+			fmt.Println("inputBody", string(test.inputBody))
+			//req, err := http.NewRequest(test.method, srv.URL+"/signin", bytes.NewBuffer(generateBody(test.password, test.login)))
+			assert.Nil(t, err)
+			resp, err := http.DefaultClient.Do(req)
+			fmt.Println("Do", err)
+			log.Print(resp, "inside test", err, test.wantError)
 
-			if test.method == "POST" {
-				fmt.Println("Test")
-				db.On("GetUserByLogin", test.login).Return(
-					models.User{
-						Nickname: test.login,
-						Password: string(b),
-					},
-					nil,
-				)
-				req, err := http.NewRequest(test.method, srv.URL+"/signin", bytes.NewBuffer(generateBody(test.password, test.login)))
-				assert.Nil(t, err)
-				resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				assert.Equal(t, test.wantError, err.Error())
+				assert.Equal(t, test.wantStatus, resp.StatusCode)
+			} else {
 				assert.Nil(t, err)
 				assert.Equal(t, test.wantStatus, resp.StatusCode)
 			}
