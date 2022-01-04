@@ -56,7 +56,7 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 	var newPost models.Post
 	if err = json.Unmarshal(bytes, &newPost); err != nil {
-		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePost, Unmarshal(newPost): %w", err))
+		logger(w, http.StatusBadRequest, fmt.Errorf("handleCreatePost, Unmarshal(newPost): %w", err))
 		return
 	}
 

@@ -78,7 +78,7 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 	}{}
 
 	if err = json.Unmarshal(bytes, &data); err != nil {
-		logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, Unmarshal(newPost): %w", err))
+		logger(w, http.StatusBadRequest, fmt.Errorf("handlePost, Unmarshal(newPost): %w", err))
 		return
 	}
 

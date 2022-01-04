@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"forum/utils/database/testdb"
 	newErr "forum/utils/internal/error"
@@ -53,24 +54,24 @@ func TestSignIn(t *testing.T) {
 		// 	password:   "123Password",
 		// 	wantStatus: http.StatusOK,
 		// },
-		"checkLoginDatas error case": {
-			method:     "POST",
-			inputBody:  []byte(`{"login":"","password":""}`),
-			wantStatus: http.StatusBadRequest,
-			wantError:  newErr.ErrLoginData,
-		},
+		// "checkLoginDatas error case": {
+		// 	method:     "POST",
+		// 	inputBody:  []byte(`{"login":"","password":""}`),
+		// 	wantStatus: http.StatusBadRequest,
+		// 	wantError:  newErr.ErrLoginData,
+		// },
 		// "Wait MethodNotAllowed": {
 		// 	method:     "ERROR",
 		// 	inputBody:  nil,
 		// 	wantStatus: http.StatusMethodNotAllowed,
 		// },
 		//{login:"user",password:"123Password"}
-		// "Unmarshall error": {
-		// 	method:     "POST",
-		// 	wantStatus: http.StatusBadRequest,
-		// 	wantError:  errors.New("invalid character 'l' looking for beginning of value"),
-		// 	inputBody:  []byte(`ogin:"user",password:"123Password"}`),
-		// },
+		"Unmarshall error": {
+			method:     "POST",
+			wantStatus: http.StatusInternalServerError,
+			wantError:  errors.New("invalid character 'l' looking for beginning of value"),
+			inputBody:  []byte(`login:"user",password:"123Password"}`),
+		},
 	}
 
 	for name, test := range tests {
@@ -98,13 +99,15 @@ func TestSignIn(t *testing.T) {
 			log.Print(resp, "inside test", err, test.wantError)
 
 			if err != nil {
+				fmt.Println("if err != nil", err)
 				assert.Equal(t, test.wantError, err.Error())
 				assert.Equal(t, test.wantStatus, resp.StatusCode)
 			} else {
+				fmt.Println("else err", err)
 				assert.Nil(t, err)
 				assert.Equal(t, test.wantStatus, resp.StatusCode)
 			}
-
+			fmt.Println("End")
 		})
 	}
 }

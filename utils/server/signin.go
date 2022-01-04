@@ -31,7 +31,8 @@ func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 
 	var signer models.Sign
 	if err = json.Unmarshal(bytes, &signer); err != nil {
-		logger(w, http.StatusInternalServerError, fmt.Errorf("handleSignIn, Unmarshal %w", err))
+		fmt.Println("unmarshal error", err)
+		logger(w, http.StatusBadRequest, fmt.Errorf("handleSignIn, Unmarshal %w", err))
 		return
 	}
 

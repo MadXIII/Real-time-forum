@@ -67,7 +67,7 @@ func (s *Server) handleMaingPagePost(w http.ResponseWriter, r *http.Request) {
 	var categoryID models.Categories
 
 	if err = json.Unmarshal(bytes, &categoryID); err != nil {
-		logger(w, http.StatusInternalServerError, err)
+		logger(w, http.StatusBadRequest, err)
 		return
 	}
 
