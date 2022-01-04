@@ -43,6 +43,7 @@ func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 
 	//wrong error GetUserByLogin with newErr ========================================================
 	user, err := s.store.GetUserByLogin(signer.Login)
+	fmt.Println("Singin", user)
 	if err != nil {
 		logger(w, http.StatusBadRequest, newErr.ErrWrongLogin)
 		return

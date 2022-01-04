@@ -2,7 +2,6 @@ package server
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"forum/utils/database/testdb"
 	newErr "forum/utils/internal/error"
@@ -35,43 +34,44 @@ func TestSignIn(t *testing.T) {
 		wantError error
 	}{
 
-		// "Wait StatusOK  POST": {
+		// "Wait StatusOK!": {
 		// 	method:     "POST",
 		// 	password:   "password",
 		// 	login:      "login",
+		// 	inputBody:  []byte(`{"login":"login","password":"password"}`),
 		// 	wantStatus: http.StatusOK,
 		// },
-		// "GetUserByLogin error case": {
-		// 	method:     "POST",
-		// 	login:      "hunya",
-		// 	password:   "1232132dl;askd",
-		// 	wantStatus: http.StatusInternalServerError,
-		// 	wantError:  newErr.ErrWrongLogin,
-		// },
+		"GetUserByLogin error case": {
+			method:     "POST",
+			login:      "login",
+			password:   "password",
+			inputBody:  []byte(`{"login":"login","password":"password"}`),
+			wantStatus: http.StatusBadRequest,
+			wantError:  newErr.ErrWrongLogin,
+		},
 		// "GetUserByLogin good case": {
 		// 	method:     "POST",
 		// 	login:      "user",
 		// 	password:   "123Password",
 		// 	wantStatus: http.StatusOK,
 		// },
-		// "checkLoginDatas error case": {
+		// "checkLoginDatas error case!": {
 		// 	method:     "POST",
 		// 	inputBody:  []byte(`{"login":"","password":""}`),
 		// 	wantStatus: http.StatusBadRequest,
 		// 	wantError:  newErr.ErrLoginData,
 		// },
-		// "Wait MethodNotAllowed": {
+		// "Wait StatusMethodNotAllowed!": {
 		// 	method:     "ERROR",
 		// 	inputBody:  nil,
 		// 	wantStatus: http.StatusMethodNotAllowed,
 		// },
-		//{login:"user",password:"123Password"}
-		"Unmarshall error": {
-			method:     "POST",
-			wantStatus: http.StatusInternalServerError,
-			wantError:  errors.New("invalid character 'l' looking for beginning of value"),
-			inputBody:  []byte(`login:"user",password:"123Password"}`),
-		},
+		// "Unmarshall error case!": {
+		// 	method:     "POST",
+		// 	wantStatus: http.StatusBadRequest,
+		// 	wantError:  errors.New("invalid character 'l' looking for beginning of value"),
+		// 	inputBody:  []byte(`login:"user",password:"123Password"}`),
+		// },
 	}
 
 	for name, test := range tests {
@@ -110,10 +110,6 @@ func TestSignIn(t *testing.T) {
 			fmt.Println("End")
 		})
 	}
-}
-
-func generateBody(password, login string) []byte {
-	return []byte(fmt.Sprintf(`{"login":"%s","password":"%s"}`, login, password))
 }
 
 func TestCheckLoginDatas(t *testing.T) {
