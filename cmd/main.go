@@ -1,9 +1,9 @@
 package main
 
 import (
-	db "forum/utils/database/sqlite"
-	"forum/utils/server"
-	"forum/utils/sessions/session"
+	db "forum/internal/database/sqlite"
+	"forum/internal/server"
+	"forum/internal/sessions/session"
 	"log"
 	"os"
 )
