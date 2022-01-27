@@ -2,12 +2,11 @@ package server
 
 import (
 	"bytes"
-	"fmt"
-	"forum/utils/database/testdb"
-	newErr "forum/utils/internal/error"
-	"forum/utils/models"
-	"forum/utils/sessions/testsession"
-	"log"
+	"errors"
+	"forum/internal/database/testdb"
+	newErr "forum/internal/error"
+	"forum/internal/models"
+	"forum/internal/sessions/testsession"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -22,25 +21,21 @@ func TestSignIn(t *testing.T) {
 	mysrv.router.HandleFunc("/signin", mysrv.SignIn)
 	srv := httptest.NewServer(&mysrv.router)
 
-	// err := mysrv.DB
-
 	tests := map[string]struct {
 		method     string
 		password   string
 		login      string
 		inputBody  []byte
 		wantStatus int
-		// wantResult string
-		wantError error
+		wantError  error
 	}{
-
-		// "Wait StatusOK!": {
-		// 	method:     "POST",
-		// 	password:   "password",
-		// 	login:      "login",
-		// 	inputBody:  []byte(`{"login":"login","password":"password"}`),
-		// 	wantStatus: http.StatusOK,
-		// },
+		"Wait StatusOK": {
+			method:     "POST",
+			login:      "Name",
+			password:   "123456Aa",
+			inputBody:  []byte(`{"login":"Name","password":"123456Aa"}`),
+			wantStatus: http.StatusOK,
+		},
 		"GetUserByLogin error case": {
 			method:     "POST",
 			login:      "login",
@@ -49,29 +44,23 @@ func TestSignIn(t *testing.T) {
 			wantStatus: http.StatusBadRequest,
 			wantError:  newErr.ErrWrongLogin,
 		},
-		// "GetUserByLogin good case": {
-		// 	method:     "POST",
-		// 	login:      "user",
-		// 	password:   "123Password",
-		// 	wantStatus: http.StatusOK,
-		// },
-		// "checkLoginDatas error case!": {
-		// 	method:     "POST",
-		// 	inputBody:  []byte(`{"login":"","password":""}`),
-		// 	wantStatus: http.StatusBadRequest,
-		// 	wantError:  newErr.ErrLoginData,
-		// },
-		// "Wait StatusMethodNotAllowed!": {
-		// 	method:     "ERROR",
-		// 	inputBody:  nil,
-		// 	wantStatus: http.StatusMethodNotAllowed,
-		// },
-		// "Unmarshall error case!": {
-		// 	method:     "POST",
-		// 	wantStatus: http.StatusBadRequest,
-		// 	wantError:  errors.New("invalid character 'l' looking for beginning of value"),
-		// 	inputBody:  []byte(`login:"user",password:"123Password"}`),
-		// },
+		"checkLoginDatas error case": {
+			method:     "POST",
+			inputBody:  []byte(`{"login":"","password":""}`),
+			wantStatus: http.StatusBadRequest,
+			wantError:  newErr.ErrLoginData,
+		},
+		"Wait StatusMethodNotAllowed": {
+			method:     "ERROR",
+			inputBody:  nil,
+			wantStatus: http.StatusMethodNotAllowed,
+		},
+		"Unmarshall error case": {
+			method:     "POST",
+			wantStatus: http.StatusBadRequest,
+			wantError:  errors.New("invalid character 'l' looking for beginning of value"),
+			inputBody:  []byte(`login:"user",password:"123Password"}`),
+		},
 	}
 
 	for name, test := range tests {
@@ -81,7 +70,6 @@ func TestSignIn(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			fmt.Println("Test", string(b))
 			db.On("GetUserByLogin", test.login).Return(
 				models.User{
 					Nickname: test.login,
@@ -90,24 +78,16 @@ func TestSignIn(t *testing.T) {
 				test.wantError,
 			)
 			req, err := http.NewRequest(test.method, srv.URL+"/signin", bytes.NewBuffer(test.inputBody))
-			fmt.Println("NewRequest", req)
-			fmt.Println("inputBody", string(test.inputBody))
-			//req, err := http.NewRequest(test.method, srv.URL+"/signin", bytes.NewBuffer(generateBody(test.password, test.login)))
 			assert.Nil(t, err)
 			resp, err := http.DefaultClient.Do(req)
-			fmt.Println("Do", err)
-			log.Print(resp, "inside test", err, test.wantError)
 
 			if err != nil {
-				fmt.Println("if err != nil", err)
 				assert.Equal(t, test.wantError, err.Error())
 				assert.Equal(t, test.wantStatus, resp.StatusCode)
 			} else {
-				fmt.Println("else err", err)
 				assert.Nil(t, err)
 				assert.Equal(t, test.wantStatus, resp.StatusCode)
 			}
-			fmt.Println("End")
 		})
 	}
 }

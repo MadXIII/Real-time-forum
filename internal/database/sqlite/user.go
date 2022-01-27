@@ -2,7 +2,7 @@ package sqlite
 
 import (
 	"fmt"
-	"forum/utils/models"
+	"forum/internal/models"
 )
 
 //InsertUser - Insert NewUser in db

@@ -3,9 +3,9 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"forum/utils/database"
-	newErr "forum/utils/internal/error"
-	session "forum/utils/sessions"
+	"forum/internal/database"
+	newErr "forum/internal/error"
+	session "forum/internal/sessions"
 	"log"
 	"net/http"
 	"text/template"

@@ -2,10 +2,10 @@ package server
 
 import (
 	"bytes"
-	"forum/utils/database/testdb"
-	newErr "forum/utils/internal/error"
-	"forum/utils/models"
-	"forum/utils/sessions/testsession"
+	"forum/internal/database/testdb"
+	newErr "forum/internal/error"
+	"forum/internal/models"
+	"forum/internal/sessions/testsession"
 	"net/http"
 	"net/http/httptest"
 	"testing"

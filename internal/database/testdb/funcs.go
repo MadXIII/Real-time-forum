@@ -1,7 +1,7 @@
 package testdb
 
 import (
-	"forum/utils/models"
+	"forum/internal/models"
 
 	"github.com/stretchr/testify/mock"
 )

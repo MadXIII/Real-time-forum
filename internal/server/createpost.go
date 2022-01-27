@@ -3,8 +3,8 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	newErr "forum/utils/internal/error"
-	"forum/utils/models"
+	newErr "forum/internal/error"
+	"forum/internal/models"
 	"io/ioutil"
 	"net/http"
 	"time"

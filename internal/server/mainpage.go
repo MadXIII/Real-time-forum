@@ -3,7 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"forum/utils/models"
+	"forum/internal/models"
 	"io/ioutil"
 	"net/http"
 )

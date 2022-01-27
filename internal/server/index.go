@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	newErr "forum/utils/internal/error"
+	newErr "forum/internal/error"
 	"net/http"
 )
 

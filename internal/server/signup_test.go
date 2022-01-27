@@ -2,10 +2,10 @@ package server
 
 import (
 	"bytes"
-	"forum/utils/database/testdb"
-	newErr "forum/utils/internal/error"
-	"forum/utils/models"
-	"forum/utils/sessions/testsession"
+	"forum/internal/database/testdb"
+	newErr "forum/internal/error"
+	"forum/internal/models"
+	"forum/internal/sessions/testsession"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -81,6 +81,10 @@ func TestIsCorrectDatasToSignUp(t *testing.T) {
 			inputDatas: models.User{1, "nickname", "mail@mail.ru", "password", "password", "firstname", "lastname", "gender", "7"},
 			wantError:  newErr.ErrInvalidPass,
 		},
+		"Wait error if age is not valid": {
+			inputDatas: models.User{1, "nickname", "mail@mail.ru", "123456Aa", "123456Aa", "firstname", "lastname", "gender", "seven"},
+			wantError:  newErr.ErrInvalidAge,
+		},
 		"Success": {
 			inputDatas: models.User{1, "nickname", "mail@mail.ru", "123456Aa", "123456Aa", "firstname", "lastname", "gender", "7"},
 			wantError:  nil,
@@ -98,20 +102,20 @@ func TestIsCorrectDatasToSignUp(t *testing.T) {
 func TestIsValidEmail(t *testing.T) {
 	tests := map[string]struct {
 		inputEmail string
-		wantErr    bool
+		wantErr    error
 	}{
 		"Wait false if email was incorrect": {
 			inputEmail: "a@a.a",
-			wantErr:    false,
+			wantErr:    newErr.ErrInvalidEmail,
 		},
 		"Success": {
 			inputEmail: "test@test.tt",
-			wantErr:    true,
+			wantErr:    nil,
 		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			if err := isValidEmail(test.inputEmail); err != nil {
+			if err := isValidEmail(test.inputEmail); err != test.wantErr {
 				t.Errorf("Wait for %v, but got %v", test.wantErr, err)
 			}
 		})
@@ -121,40 +125,76 @@ func TestIsValidEmail(t *testing.T) {
 func TestIsValidPass(t *testing.T) {
 	tests := map[string]struct {
 		inputPass string
-		wantErr   bool
+		wantErr   error
 	}{
-		"Wait false if pass less than 8 chars": {
+		"Wait error if pass less than 8 chars": {
 			inputPass: string([]byte{6: '0'}),
-			wantErr:   false,
+			wantErr:   newErr.ErrInvalidPass,
 		},
-		"Wait false if pass more than 32 chars": {
+		"Wait error if pass more than 32 chars": {
 			inputPass: string([]byte{32: '0'}),
-			wantErr:   false,
+			wantErr:   newErr.ErrInvalidPass,
 		},
-		"Wait false pass only latin chars": {
+		"Wait error pass only latin chars": {
 			inputPass: "123456Aaф",
-			wantErr:   false,
+			wantErr:   newErr.ErrInvalidPass,
 		},
-		"Wait false if pass has no Lower char": {
+		"Wait error if pass has no Lower char": {
 			inputPass: "123456AA",
-			wantErr:   false,
+			wantErr:   newErr.ErrInvalidPass,
 		},
-		"Wait false if pass has no Upper char": {
+		"Wait error if pass has no Upper char": {
 			inputPass: "123456aa",
-			wantErr:   false,
+			wantErr:   newErr.ErrInvalidPass,
 		},
-		"Wait false if pass has no Digit char": {
+		"Wait error if pass has no Digit char": {
 			inputPass: "AAAAaaaa",
-			wantErr:   false,
+			wantErr:   newErr.ErrInvalidPass,
 		},
 		"Success": {
 			inputPass: "123456Aa",
-			wantErr:   true,
+			wantErr:   nil,
 		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			if err := isValidPass(test.inputPass); err != nil {
+			if err := isValidPass(test.inputPass); err != test.wantErr {
+				t.Errorf("Wait for %v, but got %v", test.wantErr, err)
+			}
+		})
+	}
+}
+
+func TestIsValidAge(t *testing.T) {
+	tests := map[string]struct {
+		inputAge string
+		wantErr  error
+	}{
+		"Wait error if age not number": {
+			inputAge: "age",
+			wantErr:  newErr.ErrInvalidAge,
+		},
+		"Wait error if user too young": {
+			inputAge: "5",
+			wantErr:  newErr.ErrInvalidAge,
+		},
+		"Wait error if user too old": {
+			inputAge: "101",
+			wantErr:  newErr.ErrInvalidAge,
+		},
+		"Success with age": {
+			inputAge: "22",
+			wantErr:  nil,
+		},
+		"Success with empty field": {
+			inputAge: "",
+			wantErr:  nil,
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			if err := isValidAge(test.inputAge); err != test.wantErr {
 				t.Errorf("Wait for %v, but got %v", test.wantErr, err)
 			}
 		})

@@ -3,8 +3,8 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	newErr "forum/utils/internal/error"
-	"forum/utils/models"
+	newErr "forum/internal/error"
+	"forum/internal/models"
 	"io/ioutil"
 	"net/http"
 
@@ -31,7 +31,6 @@ func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 
 	var signer models.Sign
 	if err = json.Unmarshal(bytes, &signer); err != nil {
-		fmt.Println("unmarshal error", err)
 		logger(w, http.StatusBadRequest, fmt.Errorf("handleSignIn, Unmarshal %w", err))
 		return
 	}
@@ -43,7 +42,6 @@ func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 
 	//wrong error GetUserByLogin with newErr ========================================================
 	user, err := s.store.GetUserByLogin(signer.Login)
-	fmt.Println("Singin", user)
 	if err != nil {
 		logger(w, http.StatusBadRequest, newErr.ErrWrongLogin)
 		return

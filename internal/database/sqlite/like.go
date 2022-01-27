@@ -2,7 +2,7 @@ package sqlite
 
 import (
 	"fmt"
-	"forum/utils/models"
+	"forum/internal/models"
 )
 
 //InsertVote - Insert Vote in db by user in Post

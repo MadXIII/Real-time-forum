@@ -2,8 +2,8 @@ package sqlite
 
 import (
 	"fmt"
-	newErr "forum/utils/internal/error"
-	"forum/utils/models"
+	newErr "forum/internal/error"
+	"forum/internal/models"
 )
 
 //InsertCategories - insert Categories in db, while we Init db

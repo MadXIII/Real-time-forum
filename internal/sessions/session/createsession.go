@@ -2,7 +2,7 @@ package session
 
 import (
 	"fmt"
-	newErr "forum/utils/internal/error"
+	newErr "forum/internal/error"
 	"net/http"
 
 	uuid "github.com/satori/go.uuid"
@@ -60,13 +60,10 @@ func (s *Store) GetIDByCookie(req *http.Request) (int, error) {
 		return 0, fmt.Errorf("GetIDByCookie, r.Cookie(session): %w", err)
 	}
 
-	//foundID - create special to not return useless error in the end of func
-	var foundID int
-
 	for id, ck := range s.cookies {
 		if ck.Value == userCk.Value {
-			foundID = id
+			return id, nil
 		}
 	}
-	return foundID, nil
+	return 0, newErr.ErrNoCookie
 }

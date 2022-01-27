@@ -3,7 +3,7 @@ package sqlite
 import (
 	"database/sql"
 	"fmt"
-	"forum/utils/models"
+	"forum/internal/models"
 )
 
 //InsertPost - insert newpost in db

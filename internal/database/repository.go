@@ -1,6 +1,6 @@
 package database
 
-import "forum/utils/models"
+import "forum/internal/models"
 
 //Repository - interface to work with DB
 type Repository interface {
