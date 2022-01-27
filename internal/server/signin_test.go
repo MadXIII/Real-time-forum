@@ -23,23 +23,20 @@ func TestSignIn(t *testing.T) {
 
 	tests := map[string]struct {
 		method     string
-		password   string
-		login      string
+		signer     models.Sign
 		inputBody  []byte
 		wantStatus int
 		wantError  error
 	}{
 		"Wait StatusOK": {
 			method:     "POST",
-			login:      "Name",
-			password:   "123456Aa",
+			signer:     models.Sign{Login: "Name", Password: "123456Aa"},
 			inputBody:  []byte(`{"login":"Name","password":"123456Aa"}`),
 			wantStatus: http.StatusOK,
 		},
 		"GetUserByLogin error case": {
 			method:     "POST",
-			login:      "login",
-			password:   "password",
+			signer:     models.Sign{Login: "login", Password: "password"},
 			inputBody:  []byte(`{"login":"login","password":"password"}`),
 			wantStatus: http.StatusBadRequest,
 			wantError:  newErr.ErrWrongLogin,
@@ -65,14 +62,14 @@ func TestSignIn(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			b, err := bcrypt.GenerateFromPassword([]byte(test.password), bcrypt.MinCost)
+			b, err := bcrypt.GenerateFromPassword([]byte(test.signer.Password), bcrypt.MinCost)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			db.On("GetUserByLogin", test.login).Return(
+			db.On("GetUserByLogin", test.signer.Login).Return(
 				models.User{
-					Nickname: test.login,
+					Nickname: test.signer.Login,
 					Password: string(b),
 				},
 				test.wantError,

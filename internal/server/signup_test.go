@@ -12,39 +12,29 @@ import (
 )
 
 func TestSignUp(t *testing.T) {
-	mysrv := Init(&testdb.TestDB{}, &testsession.TestSession{})
+	db := &testdb.TestDB{}
+	mysrv := Init(db, &testsession.TestSession{})
 	mysrv.router.HandleFunc("/signup", mysrv.SignUp)
 	srv := httptest.NewServer(&mysrv.router)
 
 	tests := map[string]struct {
 		method     string
+		user       models.User
 		inputBody  []byte
 		wantStatus int
+		wantError  error
 	}{
-		"Wait StatusOK GET": {
-			method:     "GET",
-			inputBody:  nil,
+		"Wait StatusOK": {
+			method:     "POST",
+			user:       models.User{Nickname: "Nick", Email: "test@test.tt", Password: "123456Aa", Confirm: "123456Aa"},
+			inputBody:  []byte(`{"nickname":"Nick","email":"test@test.tt","password":"123456Aa","confirm":"123456Aa"}`),
 			wantStatus: http.StatusOK,
-		},
-		"Wait MethodNotAllowed": {
-			method:     "ERROR",
-			inputBody:  nil,
-			wantStatus: http.StatusMethodNotAllowed,
-		},
-		"Wait InternalServerError nil body": {
-			method:     "POST",
-			inputBody:  nil,
-			wantStatus: http.StatusInternalServerError,
-		},
-		"Wait BadRequest empty fields": {
-			method:     "POST",
-			inputBody:  []byte(`{}`),
-			wantStatus: http.StatusBadRequest,
 		},
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
+			db.On("insertUserDB", test.user).Return()
 			req, err := http.NewRequest(test.method, srv.URL+"/signup", bytes.NewBuffer(test.inputBody))
 			if err != nil {
 				t.Errorf("Sign Up request err: %v", err)
