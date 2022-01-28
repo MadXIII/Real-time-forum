@@ -9,58 +9,74 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCreatePost(t *testing.T) {
-	mysrv := Init(&testdb.TestDB{}, &testsession.TestSession{})
+	db := &testdb.TestDB{}
+	session := &testsession.TestSession{}
+	mysrv := Init(db, session)
 	mysrv.router.HandleFunc("/newpost", mysrv.CreatePost)
 	srv := httptest.NewServer(&mysrv.router)
 
 	tests := map[string]struct {
 		method     string
+		post       models.Post
 		inputBody  []byte
 		wantStatus int
+		wantError  error
 	}{
-		"Succes GET": {
-			method:     "GET",
-			inputBody:  nil,
-			wantStatus: http.StatusOK,
-		},
+		// "Succes GET": {
+		// 	method:     "GET",
+		// 	inputBody:  nil,
+		// 	wantStatus: http.StatusOK,
+		// },
 		"Succes POST": {
 			method:     "POST",
-			inputBody:  []byte(`{"title":"1","content":"1"}`),
+			post:       models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Title", Content: "Content"},
+			inputBody:  []byte(`{"id":1,"category_id":1,"username":"User","title":"Title","content":"Content"}`),
 			wantStatus: http.StatusOK,
 		},
-		"Wait BadRequest with nil request body": {
-			method:     "POST",
-			inputBody:  nil,
-			wantStatus: http.StatusBadRequest,
-		},
-		"Wait BadRequest with empty request body": {
-			method:     "POST",
-			inputBody:  []byte(`{"title":"","content":""}`),
-			wantStatus: http.StatusBadRequest,
-		},
-		"Wait MethodNotAllowed": {
-			method:     "ERROR",
-			inputBody:  nil,
-			wantStatus: http.StatusMethodNotAllowed,
-		},
+		// "Wait BadRequest with nil request body": {
+		// 	method:     "POST",
+		// 	inputBody:  nil,
+		// 	wantStatus: http.StatusBadRequest,
+		// },
+		// "Wait BadRequest with empty request body": {
+		// 	method:     "POST",
+		// 	inputBody:  []byte(`{"title":"","content":""}`),
+		// 	wantStatus: http.StatusBadRequest,
+		// },
+		// "Wait MethodNotAllowed": {
+		// 	method:     "ERROR",
+		// 	inputBody:  nil,
+		// 	wantStatus: http.StatusMethodNotAllowed,
+		// },
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
+			db.On("InsertPost", test.post).Return(test.post.ID, test.wantError)
+
+			db.On("CheckCategoryID", test.post.CategoryID).Return(test.wantError)
+
+			session.On("GetIDByCookie")
+
+			db.On("GetUsernameByID", test.post.ID).Return(test.post.Username, test.wantError)
+
 			req, err := http.NewRequest(test.method, srv.URL+"/newpost", bytes.NewBuffer(test.inputBody))
-			if err != nil {
-				t.Fatal("Problem with TEST")
-			}
+			assert.Nil(t, err)
 			resp, err := http.DefaultClient.Do(req)
+
 			if err != nil {
-				t.Fatal("ERROR TRYING RUN TEST: ")
+				assert.Equal(t, test.wantError, err.Error())
+				assert.Equal(t, test.wantStatus, resp.StatusCode)
+			} else {
+				assert.Nil(t, err)
+				assert.Equal(t, test.wantError, err.Error())
 			}
-			if resp.StatusCode != test.wantStatus {
-				t.Errorf("Want status: %v, but got: %v", test.wantStatus, resp.StatusCode)
-			}
+
 		})
 	}
 }

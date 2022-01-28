@@ -1,19 +1,28 @@
 package testsession
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/stretchr/testify/mock"
+)
 
 type TestSession struct {
+	mock.Mock
 }
 
-func (s *TestSession) CreateSession(int) *http.Cookie {
-	return &http.Cookie{}
+func (s *TestSession) CreateSession(uid int) *http.Cookie {
+	args := s.Called(uid)
+	return args.Get(0).(*http.Cookie)
 }
-func (s *TestSession) DeleteCookie(*http.Cookie) error {
-	return nil
+func (s *TestSession) DeleteCookie(ck *http.Cookie) error {
+	args := s.Called(ck)
+	return args.Error(0)
 }
-func (s *TestSession) CheckCookie(string) error {
-	return nil
+func (s *TestSession) CheckCookie(hash string) error {
+	args := s.Called(hash)
+	return args.Error(0)
 }
-func (s *TestSession) GetIDByCookie(*http.Request) (int, error) {
-	return 0, nil
+func (s *TestSession) GetIDByCookie(req *http.Request) (int, error) {
+	args := s.Called(req)
+	return args.Get(0).(int), args.Error(1)
 }

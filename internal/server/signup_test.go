@@ -9,6 +9,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func TestSignUp(t *testing.T) {
@@ -26,25 +29,32 @@ func TestSignUp(t *testing.T) {
 	}{
 		"Wait StatusOK": {
 			method:     "POST",
-			user:       models.User{Nickname: "Nick", Email: "test@test.tt", Password: "123456Aa", Confirm: "123456Aa"},
-			inputBody:  []byte(`{"nickname":"Nick","email":"test@test.tt","password":"123456Aa","confirm":"123456Aa"}`),
+			user:       models.User{ID: 1, Nickname: "Nick", Email: "test@test.tt", Password: "123456Aa", Confirm: "123456Aa"},
+			inputBody:  []byte(`{"id":1,"nickname":"Nick","email":"test@test.tt","password":"123456Aa","confirm":"123456Aa"}`),
 			wantStatus: http.StatusOK,
 		},
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			db.On("insertUserDB", test.user).Return()
+			b, err := bcrypt.GenerateFromPassword([]byte(test.user.Password), bcrypt.MinCost)
+			if err != nil {
+				t.Fatal(err)
+			}
+			test.user.Password = string(b)
+
+			db.On("InsertUser", &test.user).Return(test.wantError)
+
 			req, err := http.NewRequest(test.method, srv.URL+"/signup", bytes.NewBuffer(test.inputBody))
-			if err != nil {
-				t.Errorf("Sign Up request err: %v", err)
-			}
+			assert.Nil(t, err)
 			resp, err := http.DefaultClient.Do(req)
+
 			if err != nil {
-				t.Errorf("Sign Up request err: %v", err)
-			}
-			if resp.StatusCode != test.wantStatus {
-				t.Errorf("Wait status: %v, but got: %v", test.wantStatus, resp.StatusCode)
+				assert.Equal(t, test.wantError, err.Error())
+				assert.Equal(t, test.wantStatus, resp.StatusCode)
+			} else {
+				assert.Nil(t, err)
+				assert.Equal(t, test.wantStatus, resp.StatusCode)
 			}
 		})
 	}
