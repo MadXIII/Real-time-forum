@@ -23,6 +23,7 @@ func TestCreatePost(t *testing.T) {
 	tests := map[string]struct {
 		method     string
 		post       models.Post
+		sessionID  int
 		inputBody  []byte
 		wantStatus int
 		wantError  error
@@ -32,7 +33,7 @@ func TestCreatePost(t *testing.T) {
 		// 	inputBody:  nil,
 		// 	wantStatus: http.StatusOK,
 		// },
-		"Succes POST": {
+		"Success POST": {
 			method:     "POST",
 			post:       models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Title", Content: "Content"},
 			inputBody:  []byte(`{"id":1,"category_id":1,"username":"User","title":"Title","content":"Content"}`),
@@ -61,13 +62,13 @@ func TestCreatePost(t *testing.T) {
 
 			db.On("CheckCategoryID", test.post.CategoryID).Return(test.wantError)
 
-			session.On("GetIDByCookie")
-
-			db.On("GetUsernameByID", test.post.ID).Return(test.post.Username, test.wantError)
-
 			req, err := http.NewRequest(test.method, srv.URL+"/newpost", bytes.NewBuffer(test.inputBody))
 			assert.Nil(t, err)
+
+			session.On("GetIDByCookie", req).Return(test.sessionID, test.wantError)
+			db.On("GetUsernameByID", test.sessionID).Return(test.post.Username, test.wantError)
 			resp, err := http.DefaultClient.Do(req)
+			assert.Nil(t, err)
 
 			if err != nil {
 				assert.Equal(t, test.wantError, err.Error())
