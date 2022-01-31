@@ -14,13 +14,7 @@ func CheckErr(err error) bool {
 		return true
 	case ErrEmptyConfirm:
 		return true
-	case ErrEmptyFirstname:
-		return true
-	case ErrEmptyLastname:
-		return true
-	case ErrEmptyGender:
-		return true
-	case ErrEmptyAge:
+	case ErrInvalidAge:
 		return true
 	case ErrInvalidEmail:
 		return true
@@ -50,6 +44,16 @@ func CheckErr(err error) bool {
 		return true
 	case ErrDelCookie:
 		return true
+	case ErrEmptyComment:
+		return true
+	case ErrLenComment:
+		return true
+	case ErrUnsignComment:
+		return true
+	case ErrUnsignVote:
+		return true
+	case ErrWrongCategory:
+		return true
 	default:
 		return false
 	}
@@ -61,10 +65,7 @@ var (
 	ErrEmptyEmail     = errors.New("Email is empty")
 	ErrEmptyPassword  = errors.New("Password is empty")
 	ErrEmptyConfirm   = errors.New("Confirm is empty")
-	ErrEmptyFirstname = errors.New("Firstname is empty")
-	ErrEmptyLastname  = errors.New("Lastname is empty")
-	ErrEmptyGender    = errors.New("Gender is empty")
-	ErrEmptyAge       = errors.New("Age is empty")
+	ErrInvalidAge     = errors.New("Age must be digtis, between 6-100")
 	ErrInvalidEmail   = errors.New("Invalid Email")
 	ErrInvalidPass    = errors.New("Invalid Pass")
 	ErrDiffSecondPass = errors.New("Different second password")
@@ -79,4 +80,9 @@ var (
 	ErrNickname       = errors.New("Nickname is already in use")
 	ErrEmail          = errors.New("Email is already in use")
 	ErrDelCookie      = errors.New("Can't delete cookie")
+	ErrEmptyComment   = errors.New("Comment is empty ")
+	ErrLenComment     = errors.New("Comment is too Long")
+	ErrUnsignComment  = errors.New("Need to login before to comment")
+	ErrUnsignVote     = errors.New("Need to login before to vote")
+	ErrWrongCategory  = errors.New("Wrong Category")
 )

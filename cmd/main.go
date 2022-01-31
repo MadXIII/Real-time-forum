@@ -1,9 +1,9 @@
 package main
 
 import (
-	db "forum/database/sqlite"
-	"forum/server"
-	"forum/sessions/session"
+	db "forum/internal/database/sqlite"
+	"forum/internal/server"
+	"forum/internal/sessions/session"
 	"log"
 	"os"
 )
@@ -21,8 +21,8 @@ func main() {
 	server := server.Init(&store, sessionService)
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8282"
 	}
-	log.Println("Server is listening:", port)
+
 	server.ListenAndServe(":" + port)
 }

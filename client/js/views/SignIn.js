@@ -7,13 +7,12 @@ export default class extends AbstractView {
     }
 
     init() {
-        let signInId = document.getElementById('signInBtnId')
-        signInId.onclick = async () => {
+        signInBtnId.onclick = async () => {
             let user = {
-                login: document.getElementById('login').value, 
-                password: document.getElementById('pass').value,
+                login: loginID.value, 
+                password: passID.value,
             }
-            let response = await fetch('http://localhost:8080/signin', {
+            let response = await fetch('http://localhost:8282/api/signin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
@@ -21,6 +20,8 @@ export default class extends AbstractView {
                 body: JSON.stringify(user)
             })
             if (response.ok) {
+                let result = await response.json()
+                alert(result)
                 window.location.href = "/"
             } else {
                 let result = await response.json()
@@ -32,8 +33,8 @@ export default class extends AbstractView {
     async getHtml() {
         return `
             <h1>SIGN IN</h1>
-            <p><input type="text" placeholder="Nickname or Email" id="login"</p>
-            <p><input type="password" placeholder="Password" id="pass"</p>
+            <p><input type="text" placeholder="Nickname or Email" id="loginID"</p>
+            <p><input type="password" placeholder="Password" id="passID"</p>
             <input type="button" onclick="location.href='/signup';" value="Sign Up"/>
             or
             <button id="signInBtnId" type="submit">Sign In</button>

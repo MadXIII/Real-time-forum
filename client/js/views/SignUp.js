@@ -7,19 +7,18 @@ export default class extends AbstractView {
     }
 
     init() {
-        let signUpId = document.getElementById('signUpBtnId')
-        signUpId.onclick = async () => {
+        signUpBtnId.onclick = async () => {
             let user = {
-                nickname: document.getElementById('nick').value,
-                email: document.getElementById('email').value,
-                password: document.getElementById('pass').value,
-                confirm: document.getElementById('confirm').value,
-                first_name: document.getElementById('firstname').value,
-                last_name: document.getElementById('lastname').value,
-                gender: document.getElementById('gender').value,
-                age: parseInt(document.getElementById('age').value),
+                nickname: nickID.value,
+                email: emailID.value,
+                password: passID.value,
+                confirm: confirmID.value,
+                first_name: firstnameID.value,
+                last_name: lastnameID.value,
+                gender: genderID.value,
+                age: ageID.value,
             }
-            let response = await fetch('http://localhost:8080/signup', {
+            let response = await fetch('http://localhost:8282/api/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
@@ -27,6 +26,8 @@ export default class extends AbstractView {
                 body: JSON.stringify(user)
             })
             if (response.ok) {
+                let result = await response.json()
+                alert(result)
                 window.location.href = "/"
             } else {
                 let result = await response.json()
@@ -38,14 +39,14 @@ export default class extends AbstractView {
     async getHtml() {
         return `
         <h1>SIGN UP</h1>
-        <p><input type="text" placeholder="Nickname" id="nick"></p>
-        <p><input type="text" placeholder="Email address" id="email"></p>
-        <p><input type="password" placeholder="Password" id="pass"></p>
-        <p><input type="password" placeholder="Confrim Password" id="confirm"></p>
-        <p><input type="text" placeholder="First name" id="firstname"></p>
-        <p><input type="text" placeholder="Last name" id="lastname"></p>
-        <p><input type="text" placeholder="Gender" id="gender"></p>
-        <p><input type="text" placeholder="Age" id="age"></p>
+        <p><input type="text" placeholder="Nickname" id="nickID"></p>
+        <p><input type="text" placeholder="Email address" id="emailID"></p>
+        <p><input type="password" placeholder="Password" id="passID"></p>
+        <p><input type="password" placeholder="Confrim Password" id="confirmID"></p>
+        <p><input type="text" placeholder="First name" id="firstnameID"></p>
+        <p><input type="text" placeholder="Last name" id="lastnameID"></p>
+        <p><input type="text" placeholder="Gender" id="genderID"></p>
+        <p><input type="text" placeholder="Age" id="ageID"></p>
         <input type="button" onclick="location.href='/signin';" value="Sign In"/>
         or
         <button id="signUpBtnId" type="submit">Sign Up</button>

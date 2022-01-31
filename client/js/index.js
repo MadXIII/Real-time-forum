@@ -10,13 +10,20 @@ const navigateTo = url => {
     router()
 }
 
-const router = async () => {
+let middleware = (handler) => {
+    if (document.cookie.indexOf('session') != -1) {
+        return handler
+    }
+    return Signin
+}
+
+export const router = async () => {
     const routes = [
         { path: "/", view: HomePage },
         { path: "/signup", view: Signup },
         { path: "/signin", view: Signin },
-        { path: "/logout", view: LogOut },
-        { path: "/newpost", view: CreatePost },
+        { path: "/logout", view: middleware(LogOut) },
+        { path: "/newpost", view: middleware(CreatePost) },
         { path: "/post", view: GetPost },
     ];
 
@@ -24,7 +31,6 @@ const router = async () => {
         return {
             route: route,
             isMatch: location.pathname === route.path,
-
         }
     })
     let match = potentialMatches.find(potentialMatche => potentialMatche.isMatch)
@@ -41,6 +47,8 @@ const router = async () => {
     document.querySelector("#app").innerHTML = await view.getHtml();
     view.init();
 }
+
+
 
 window.addEventListener("popstate", router)
 

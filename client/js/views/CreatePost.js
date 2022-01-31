@@ -6,14 +6,22 @@ export default class extends AbstractView {
         this.setTitle("New Post")
     }
 
-    init() {
-        let submitId = document.getElementById('creatPostBtnID')
-        submitId.onclick = async () => {
+    async init() {
+        let response = await fetch('http://localhost:8282/api/newpost')
+        if (response.ok) {
+            let res = await response.json()
+            res.forEach(element => {
+                cateogriesID.innerHTML += `<option value="${element.id}">${element.category_name}</option>`
+            })
+        }
+     
+        creatPostBtnID.onclick = async () => {
             let newPost = {
-                title: document.getElementById("title").value,
-                content: document.getElementById("content").value,
+                title: titleID.value,
+                content: contentID.value,
+                category_id: parseInt(cateogriesID.value),
             }
-            let response = await fetch('http://localhost:8080/newpost', {
+            let response = await fetch('http://localhost:8282/api/newpost', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
@@ -21,7 +29,9 @@ export default class extends AbstractView {
                 body: JSON.stringify(newPost)
             })
             if (response.ok) {
-                window.location.href = "/"
+                let result = await response.json()
+                alert(result.notify)
+                window.location.replace(`http://localhost:8282/post?id=${result.id}`)
             } else {
                 let result = await response.json()
                 alert(result)
@@ -29,12 +39,13 @@ export default class extends AbstractView {
         }
     }
     async getHtml() {
-        return (`
+        return `
             <a id="logout" href="/logout" data-link>Log Out</a>
             <div>Create Post</div>
-            <p><input type="text" placeholder="Title" id="title"/></p>
-            <p><input type="text" placeholder="Your Post" id="content"/></p>
+            <p><input type="text" placeholder="Title" id="titleID"/></p>
+            <p><input type="text" placeholder="Your Post" id="contentID"/></p>
+            <select id="cateogriesID"></select>
             <button id="creatPostBtnID">Submit</button>
-        `)
+            `
     }
 }
