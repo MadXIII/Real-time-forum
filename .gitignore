@@ -1,1 +1,4 @@
 *.db
+cmd/main
+cmd/cmd
+.vscode
