@@ -1,9 +1,11 @@
-To fast start coding in alem school settings:
+## Real-time-forum
 
-export GIT_SSL_NO_VERIFY=0
+## Launch
 
-git clone https://git.01.alem.school/madxiii/real-time-forum.git
+```
+$ make local-run
+```
 
-git config --global user.name "madxiii"
+Project is not finished yet. 
 
-git config --global user.email "madkaipek@gmail.com" 
+Thanks for your attention!
