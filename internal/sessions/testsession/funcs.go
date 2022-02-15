@@ -24,5 +24,5 @@ func (s *TestSession) CheckCookie(hash string) error {
 }
 func (s *TestSession) GetIDByCookie(req *http.Request) (int, error) {
 	args := s.Called(req)
-	return args.Get(0).(int), args.Error(1)
+	return args.Int(0), args.Error(1)
 }

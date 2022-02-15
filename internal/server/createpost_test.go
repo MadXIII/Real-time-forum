@@ -64,7 +64,16 @@ func TestCreatePost(t *testing.T) {
 
 			req, err := http.NewRequest(test.method, srv.URL+"/newpost", bytes.NewBuffer(test.inputBody))
 			assert.Nil(t, err)
-
+			var m map[string][]string = map[string][]string{"Accept-Encoding": []string{"gzip"},
+				"Content-Length": []string{"78"},
+				"User-Agent":     []string{"Go-http-client/1.1"}}
+			req.Header = m
+			// req.Header(
+			// 	"Accept-Encoding": []string{"gzip"},
+			// 	"Content-Length": []string{"78"},
+			// 	"User-Agent": []string{"Go-http-client/1.1"},
+			// )
+			// "Accept-Encoding":[]string{"gzip"
 			session.On("GetIDByCookie", req).Return(test.sessionID, test.wantError)
 			db.On("GetUsernameByID", test.sessionID).Return(test.post.Username, test.wantError)
 			resp, err := http.DefaultClient.Do(req)

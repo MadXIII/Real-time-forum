@@ -11,13 +11,15 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func TestSignIn(t *testing.T) {
 	db := &testdb.TestDB{}
-	mysrv := Init(db, &testsession.TestSession{})
+	session := &testsession.TestSession{}
+	mysrv := Init(db, session)
 	mysrv.router.HandleFunc("/signin", mysrv.SignIn)
 	srv := httptest.NewServer(&mysrv.router)
 
@@ -74,6 +76,12 @@ func TestSignIn(t *testing.T) {
 				},
 				test.wantError,
 			)
+			session.On("CreateSession", 0).Return(&http.Cookie{
+				Name:   "session",
+				Value:  uuid.NewV4().String(),
+				Path:   "/",
+				MaxAge: 86400,
+			})
 			req, err := http.NewRequest(test.method, srv.URL+"/signin", bytes.NewBuffer(test.inputBody))
 			assert.Nil(t, err)
 			resp, err := http.DefaultClient.Do(req)
