@@ -137,7 +137,11 @@ func (s *Server) checkInsertComment(req *http.Request, comment *models.Comment) 
 
 //checkInsertUpdVote - get UserID from request, Insert it into db if it first request, else set vote state
 func (s *Server) checkInsertUpdVote(req *http.Request, like *models.PostLike) (err error) {
-	like.UserID, err = s.cookiesStore.GetIDByCookie(req)
+	ck, err := req.Cookie("session")
+	if err != nil {
+		return fmt.Errorf("checkInsertUpdVote, r.Cookie(\"session\"): %w", err)
+	}
+	like.UserID, err = s.cookiesStore.GetIDByCookie(ck)
 	if err != nil || like.UserID < 1 {
 		return newErr.ErrUnsignVote
 	}

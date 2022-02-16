@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	"fmt"
 	"forum/internal/database/testdb"
 	newErr "forum/internal/error"
 	"forum/internal/models"
@@ -9,6 +10,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
+
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -35,7 +39,7 @@ func TestCreatePost(t *testing.T) {
 		// },
 		"Success POST": {
 			method:     "POST",
-			post:       models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Title", Content: "Content"},
+			post:       models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Title", Content: "Content", Timestamp: time.Now().Format("2.Jan.2006, 15:04")},
 			inputBody:  []byte(`{"id":1,"category_id":1,"username":"User","title":"Title","content":"Content"}`),
 			wantStatus: http.StatusOK,
 		},
@@ -58,25 +62,24 @@ func TestCreatePost(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			db.On("InsertPost", test.post).Return(test.post.ID, test.wantError)
-
+			db.On("InsertPost", &test.post).Return(test.post.ID, test.wantError)
 			db.On("CheckCategoryID", test.post.CategoryID).Return(test.wantError)
 
 			req, err := http.NewRequest(test.method, srv.URL+"/newpost", bytes.NewBuffer(test.inputBody))
 			assert.Nil(t, err)
-			var m map[string][]string = map[string][]string{"Accept-Encoding": []string{"gzip"},
-				"Content-Length": []string{"78"},
-				"User-Agent":     []string{"Go-http-client/1.1"}}
-			req.Header = m
-			// req.Header(
-			// 	"Accept-Encoding": []string{"gzip"},
-			// 	"Content-Length": []string{"78"},
-			// 	"User-Agent": []string{"Go-http-client/1.1"},
-			// )
-			// "Accept-Encoding":[]string{"gzip"
-			session.On("GetIDByCookie", req).Return(test.sessionID, test.wantError)
+
+			ck := &http.Cookie{
+				Name:  "session",
+				Value: uuid.NewV4().String(),
+			}
+			req.AddCookie(ck)
+
+			session.On("GetIDByCookie", ck).Return(test.sessionID, test.wantError)
+
 			db.On("GetUsernameByID", test.sessionID).Return(test.post.Username, test.wantError)
+
 			resp, err := http.DefaultClient.Do(req)
+
 			assert.Nil(t, err)
 
 			if err != nil {
@@ -84,9 +87,9 @@ func TestCreatePost(t *testing.T) {
 				assert.Equal(t, test.wantStatus, resp.StatusCode)
 			} else {
 				assert.Nil(t, err)
-				assert.Equal(t, test.wantError, err.Error())
+				fmt.Println(1111, err)
+				assert.Equal(t, test.wantError, resp.StatusCode)
 			}
-
 		})
 	}
 }

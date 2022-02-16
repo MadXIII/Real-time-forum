@@ -22,7 +22,7 @@ func (s *TestSession) CheckCookie(hash string) error {
 	args := s.Called(hash)
 	return args.Error(0)
 }
-func (s *TestSession) GetIDByCookie(req *http.Request) (int, error) {
-	args := s.Called(req)
+func (s *TestSession) GetIDByCookie(ck *http.Cookie) (int, error) {
+	args := s.Called(ck)
 	return args.Int(0), args.Error(1)
 }

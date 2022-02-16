@@ -32,7 +32,7 @@ func New() *Store {
 	return s
 }
 
-//DeleteCookie - delete cookie if find from map
+//DeleteCoo`kie - delete cookie if find from map
 func (s *Store) DeleteCookie(ck *http.Cookie) error {
 	for key, val := range s.cookies {
 		if val.Value == ck.Value {
@@ -54,14 +54,10 @@ func (s *Store) CheckCookie(cookieHash string) error {
 }
 
 //GetIDByCookie - search userid in cookies by request.Cookie
-func (s *Store) GetIDByCookie(req *http.Request) (int, error) {
-	userCk, err := req.Cookie("session")
-	if err != nil {
-		return 0, fmt.Errorf("GetIDByCookie, r.Cookie(session): %w", err)
-	}
-
+func (s *Store) GetIDByCookie(inpCookie *http.Cookie) (int, error) {
+	fmt.Printf("type %T\n", inpCookie)
 	for id, ck := range s.cookies {
-		if ck.Value == userCk.Value {
+		if ck.Value == inpCookie.Value {
 			return id, nil
 		}
 	}

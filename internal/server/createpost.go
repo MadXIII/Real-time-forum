@@ -111,11 +111,16 @@ func (s *Server) checkNewPostDatas(post *models.Post) error {
 	//Set date format
 	post.Timestamp = time.Now().Format("2.Jan.2006, 15:04")
 	return nil
+
 }
 
 //getUsernameByCookie - get Username from db, by GetIDByCookie
 func (s *Server) getUsernameByCookie(req *http.Request) (string, error) {
-	id, err := s.cookiesStore.GetIDByCookie(req)
+	ck, err := req.Cookie("session")
+	if err != nil {
+		return "", fmt.Errorf("getUsernameByCookie, r.Cookie(\"session\"): %w", err)
+	}
+	id, err := s.cookiesStore.GetIDByCookie(ck)
 	if err != nil {
 		return "", err
 	}

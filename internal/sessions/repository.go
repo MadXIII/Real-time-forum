@@ -7,5 +7,5 @@ type Repository interface {
 	CreateSession(int) *http.Cookie
 	DeleteCookie(*http.Cookie) error
 	CheckCookie(string) error
-	GetIDByCookie(*http.Request) (int, error)
+	GetIDByCookie(*http.Cookie) (int, error)
 }
