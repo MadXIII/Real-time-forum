@@ -55,7 +55,7 @@ func (s *Store) GetCategories() ([]models.Categories, error) {
 
 //CheckCategoryID - check request Categories for correct ID
 func (s *Store) CheckCategoryID(categoryID int) error {
-	if categoryID < 1 {
+	if categoryID < 1 || categoryID > 4 {
 		return newErr.ErrWrongCategory
 	}
 	var id int

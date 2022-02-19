@@ -2,7 +2,6 @@ package server
 
 import (
 	"bytes"
-	"fmt"
 	"forum/internal/database/testdb"
 	newErr "forum/internal/error"
 	"forum/internal/models"
@@ -12,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	uuid "github.com/satori/go.uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -25,70 +24,82 @@ func TestCreatePost(t *testing.T) {
 	srv := httptest.NewServer(&mysrv.router)
 
 	tests := map[string]struct {
-		method     string
-		post       models.Post
-		sessionID  int
-		inputBody  []byte
-		wantStatus int
-		wantError  error
+		method         string
+		inputPost      models.Post
+		inputCategorys interface{}
+		sessionID      int
+		inputBody      []byte
+		wantStatus     int
+		wantError      error
 	}{
-		// "Succes GET": {
-		// 	method:     "GET",
-		// 	inputBody:  nil,
-		// 	wantStatus: http.StatusOK,
+		"Success GET": {
+			method:         http.MethodGet,
+			inputCategorys: []models.Categories{{ID: 1, Name: "ALL"}, {ID: 2, Name: "UFC"}},
+			wantStatus:     http.StatusOK,
+		},
+		// "Wait InternalError with wr": {
+		// 	method:         http.MethodGet,
+		// 	inputCategorys: func() {},
+		// 	wantStatus:     http.StatusInternalServerError,
 		// },
 		"Success POST": {
-			method:     "POST",
-			post:       models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Title", Content: "Content", Timestamp: time.Now().Format("2.Jan.2006, 15:04")},
-			inputBody:  []byte(`{"id":1,"category_id":1,"username":"User","title":"Title","content":"Content"}`),
+			method:     http.MethodPost,
+			inputPost:  models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Success", Content: "Content", Timestamp: time.Now().Format("2.Jan.2006, 15:04")},
+			inputBody:  []byte(`{"id":1,"category_id":1,"username":"User","title":"Success","content":"Content"}`),
 			wantStatus: http.StatusOK,
 		},
-		// "Wait BadRequest with nil request body": {
-		// 	method:     "POST",
-		// 	inputBody:  nil,
-		// 	wantStatus: http.StatusBadRequest,
-		// },
-		// "Wait BadRequest with empty request body": {
-		// 	method:     "POST",
-		// 	inputBody:  []byte(`{"title":"","content":""}`),
-		// 	wantStatus: http.StatusBadRequest,
-		// },
-		// "Wait MethodNotAllowed": {
-		// 	method:     "ERROR",
-		// 	inputBody:  nil,
-		// 	wantStatus: http.StatusMethodNotAllowed,
-		// },
+		"Wait BadRequest with nil request body": {
+			method:     http.MethodPost,
+			inputPost:  models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Nil Body", Content: "Content", Timestamp: time.Now().Format("2.Jan.2006, 15:04")},
+			inputBody:  nil,
+			wantStatus: http.StatusBadRequest,
+		},
+		"Wait ErrWrongCategory with wrong categoryID": {
+			method:     http.MethodPost,
+			inputPost:  models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Nil Body", Content: "Content", Timestamp: time.Now().Format("2.Jan.2006, 15:04")},
+			inputBody:  []byte(`{"id":1,"category_id":1,"username":"User","title":"Success","content":"Content"}`),
+			wantError:  newErr.ErrWrongCategory,
+			wantStatus: http.StatusBadRequest,
+		},
+		"Wait MethodNotAllowed": {
+			method:     http.MethodDelete,
+			inputPost:  models.Post{Username: "User"},
+			inputBody:  nil,
+			wantStatus: http.StatusMethodNotAllowed,
+		},
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			db.On("InsertPost", &test.post).Return(test.post.ID, test.wantError)
-			db.On("CheckCategoryID", test.post.CategoryID).Return(test.wantError)
+			switch test.method {
+			case http.MethodPost:
+				db.On("InsertPost", &test.inputPost).Return(test.inputPost.ID, test.wantError)
+				db.On("GetUsernameByID", test.sessionID).Return(test.inputPost.Username, test.wantError)
+				db.On("CheckCategoryID", test.inputPost.ID).Return(test.wantError)
+				session.On("GetIDByCookie", mock.Anything).Return(test.sessionID, test.wantError)
 
-			req, err := http.NewRequest(test.method, srv.URL+"/newpost", bytes.NewBuffer(test.inputBody))
-			assert.Nil(t, err)
-
-			ck := &http.Cookie{
-				Name:  "session",
-				Value: uuid.NewV4().String(),
-			}
-			req.AddCookie(ck)
-
-			session.On("GetIDByCookie", ck).Return(test.sessionID, test.wantError)
-
-			db.On("GetUsernameByID", test.sessionID).Return(test.post.Username, test.wantError)
-
-			resp, err := http.DefaultClient.Do(req)
-
-			assert.Nil(t, err)
-
-			if err != nil {
-				assert.Equal(t, test.wantError, err.Error())
-				assert.Equal(t, test.wantStatus, resp.StatusCode)
-			} else {
+				req, err := http.NewRequest(test.method, srv.URL+"/newpost", bytes.NewBuffer(test.inputBody))
 				assert.Nil(t, err)
-				fmt.Println(1111, err)
-				assert.Equal(t, test.wantError, resp.StatusCode)
+
+				req.AddCookie(&http.Cookie{
+					Name: "session",
+				})
+
+				resp, err := http.DefaultClient.Do(req)
+				assert.Nil(t, err)
+
+				assert.Equal(t, test.wantStatus, resp.StatusCode)
+			case http.MethodGet:
+				db.On("GetCategories").Return(test.inputCategorys, test.wantError)
+
+				req, err := http.NewRequest(test.method, srv.URL+"/newpost", bytes.NewBuffer(test.inputBody))
+				assert.Nil(t, err)
+				resp, err := http.DefaultClient.Do(req)
+				assert.Nil(t, err)
+
+				// assert.Equal(t, test.wantError, err.Error())
+				assert.Equal(t, test.wantStatus, resp.StatusCode)
+			default:
 			}
 		})
 	}

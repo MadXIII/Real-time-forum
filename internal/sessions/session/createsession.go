@@ -1,7 +1,6 @@
 package session
 
 import (
-	"fmt"
 	newErr "forum/internal/error"
 	"net/http"
 
@@ -55,7 +54,6 @@ func (s *Store) CheckCookie(cookieHash string) error {
 
 //GetIDByCookie - search userid in cookies by request.Cookie
 func (s *Store) GetIDByCookie(inpCookie *http.Cookie) (int, error) {
-	fmt.Printf("type %T\n", inpCookie)
 	for id, ck := range s.cookies {
 		if ck.Value == inpCookie.Value {
 			return id, nil

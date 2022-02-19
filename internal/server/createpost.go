@@ -32,7 +32,6 @@ func (s *Server) handleCreatePostPage(w http.ResponseWriter, r *http.Request) {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePostPage, GetCategories: %w", err))
 		return
 	}
-
 	bytes, err := json.Marshal(&categories)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePostPage, Marshal: %w", err))
@@ -120,14 +119,16 @@ func (s *Server) getUsernameByCookie(req *http.Request) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("getUsernameByCookie, r.Cookie(\"session\"): %w", err)
 	}
+
 	id, err := s.cookiesStore.GetIDByCookie(ck)
 	if err != nil {
 		return "", err
 	}
+
 	username, err := s.store.GetUsernameByID(id)
 	if err != nil {
 		return "", err
 	}
 
-	return username, err
+	return username, nil
 }
