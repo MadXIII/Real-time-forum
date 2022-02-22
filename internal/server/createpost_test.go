@@ -2,105 +2,166 @@ package server
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
+	"forum/internal/database"
 	"forum/internal/database/testdb"
 	newErr "forum/internal/error"
 	"forum/internal/models"
+	s "forum/internal/sessions"
 	"forum/internal/sessions/testsession"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/mock"
-
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestCreatePost(t *testing.T) {
-	db := &testdb.TestDB{}
-	session := &testsession.TestSession{}
-	mysrv := Init(db, session)
-	mysrv.router.HandleFunc("/newpost", mysrv.CreatePost)
-	srv := httptest.NewServer(&mysrv.router)
-
-	tests := map[string]struct {
-		method         string
-		inputPost      models.Post
-		inputCategorys interface{}
+	type args struct {
+		post           models.Post
 		sessionID      int
-		inputBody      []byte
-		wantStatus     int
 		wantError      error
+		inputCategorys interface{}
+	}
+	tests := []struct {
+		name       string
+		args       args
+		method     string
+		inputBody  []byte
+		wantStatus int
+		callback   func(args) (database.Repository, s.Repository)
 	}{
-		"Success GET": {
-			method:         http.MethodGet,
-			inputCategorys: []models.Categories{{ID: 1, Name: "ALL"}, {ID: 2, Name: "UFC"}},
-			wantStatus:     http.StatusOK,
+		{
+			name: "Success GET",
+			args: args{
+				inputCategorys: []models.Categories{{ID: 1, Name: "All"}},
+			},
+			method:     http.MethodGet,
+			wantStatus: http.StatusOK,
+			callback: func(a args) (database.Repository, s.Repository) {
+				db := &testdb.TestDB{}
+				session := &testsession.TestSession{}
+				db.On("GetCategories").Return(a.inputCategorys, a.wantError)
+				return db, session
+			},
 		},
-		// "Wait InternalError with wr": {
-		// 	method:         http.MethodGet,
-		// 	inputCategorys: func() {},
-		// 	wantStatus:     http.StatusInternalServerError,
-		// },
-		"Success POST": {
+		{
+			name: "Success POST",
+			args: args{
+				post: models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Success", Content: "Content", Timestamp: time.Now().Format("2.Jan.2006, 15:04")},
+			},
 			method:     http.MethodPost,
-			inputPost:  models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Success", Content: "Content", Timestamp: time.Now().Format("2.Jan.2006, 15:04")},
 			inputBody:  []byte(`{"id":1,"category_id":1,"username":"User","title":"Success","content":"Content"}`),
 			wantStatus: http.StatusOK,
+			callback: func(a args) (database.Repository, s.Repository) {
+				db := &testdb.TestDB{}
+				session := &testsession.TestSession{}
+				db.On("InsertPost", &a.post).Return(a.post.ID, a.wantError).Once()
+				db.On("GetUsernameByID", a.sessionID).Return(a.post.Username, a.wantError).Once()
+				db.On("CheckCategoryID", a.post.CategoryID).Return(a.wantError).Once()
+				session.On("GetIDByCookie", mock.Anything).Return(a.sessionID, a.wantError).Once()
+				return db, session
+			},
 		},
-		"Wait BadRequest with nil request body": {
+		{
+			name: "Wait BadRequest with nil request body",
+			args: args{
+				post: models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Nil Body", Content: "Content", Timestamp: time.Now().Format("2.Jan.2006, 15:04")},
+			},
 			method:     http.MethodPost,
-			inputPost:  models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Nil Body", Content: "Content", Timestamp: time.Now().Format("2.Jan.2006, 15:04")},
 			inputBody:  nil,
 			wantStatus: http.StatusBadRequest,
+			callback: func(a args) (database.Repository, s.Repository) {
+				db := &testdb.TestDB{}
+				session := &testsession.TestSession{}
+				db.On("InsertPost", &a.post).Return(a.post.ID, a.wantError).Once()
+				db.On("GetUsernameByID", a.sessionID).Return(a.post.Username, a.wantError).Once()
+				db.On("CheckCategoryID", a.post.CategoryID).Return(a.wantError).Once()
+				session.On("GetIDByCookie", mock.Anything).Return(a.sessionID, a.wantError).Once()
+				return db, session
+			},
 		},
-		"Wait ErrWrongCategory with wrong categoryID": {
-			method:     http.MethodPost,
-			inputPost:  models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Nil Body", Content: "Content", Timestamp: time.Now().Format("2.Jan.2006, 15:04")},
-			inputBody:  []byte(`{"id":1,"category_id":1,"username":"User","title":"Success","content":"Content"}`),
-			wantError:  newErr.ErrWrongCategory,
-			wantStatus: http.StatusBadRequest,
-		},
-		"Wait MethodNotAllowed": {
+		{
+			name: "Wait MethodNotAllowed",
+			args: args{
+				post: models.Post{Username: "User"},
+			},
 			method:     http.MethodDelete,
-			inputPost:  models.Post{Username: "User"},
 			inputBody:  nil,
 			wantStatus: http.StatusMethodNotAllowed,
+			callback: func(a args) (database.Repository, s.Repository) {
+				db := &testdb.TestDB{}
+				session := &testsession.TestSession{}
+				db.On("InsertPost", &a.post).Return(a.post.ID, a.wantError).Once()
+				db.On("GetUsernameByID", a.sessionID).Return(a.post.Username, a.wantError).Once()
+				db.On("CheckCategoryID", a.post.CategoryID).Return(a.wantError).Once()
+				session.On("GetIDByCookie", mock.Anything).Return(a.sessionID, a.wantError).Once()
+				return db, session
+			},
+		},
+		{
+			name: "Wait ErrWrongCategory with wrong categoryID",
+			args: args{
+				post:      models.Post{ID: 1, CategoryID: -1, Username: "User", Title: "Nil Body", Content: "Content", Timestamp: time.Now().Format("2.Jan.2006, 15:04")},
+				wantError: newErr.ErrWrongCategory,
+			},
+			method:     http.MethodPost,
+			inputBody:  []byte(`{"id":1,"category_id":-1,"username":"User","title":"Success","content":"Content"}`),
+			wantStatus: http.StatusBadRequest,
+			callback: func(a args) (database.Repository, s.Repository) {
+				db := &testdb.TestDB{}
+				session := &testsession.TestSession{}
+				db.On("InsertPost", &a.post).Return(a.post.ID, a.wantError).Once()
+				db.On("GetUsernameByID", a.sessionID).Return(a.post.Username, a.wantError).Once()
+				db.On("CheckCategoryID", a.post.CategoryID).Return(a.wantError).Once()
+				session.On("GetIDByCookie", mock.Anything).Return(a.sessionID, a.wantError).Once()
+				return db, session
+			},
+		},
+		{
+			name: "Wait GetUsernameByID error",
+			args: args{
+				post:      models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Success", Content: "Content", Timestamp: time.Now().Format("2.Jan.2006, 15:04")},
+				sessionID: -1,
+				wantError: errors.New("handleCreatePost, getUsernameByCookie: GetUsernameByID, Scan: sql: no rows in result set"),
+			},
+			inputBody:  []byte(`{"id":1,"category_id":1,"username":"User","title":"Success","content":"Content"}`),
+			method:     http.MethodPost,
+			wantStatus: http.StatusInternalServerError,
+			callback: func(a args) (database.Repository, s.Repository) {
+				db := &testdb.TestDB{}
+				session := &testsession.TestSession{}
+				db.On("InsertPost", &a.post).Return(a.post.ID, a.wantError).Once()
+				db.On("GetUsernameByID", a.sessionID).Return(a.post.Username, a.wantError).Once()
+				db.On("CheckCategoryID", a.post.CategoryID).Return(a.wantError).Once()
+				session.On("GetIDByCookie", mock.Anything).Return(a.sessionID, a.wantError).Once()
+				return db, session
+			},
 		},
 	}
 
-	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
-			switch test.method {
-			case http.MethodPost:
-				db.On("InsertPost", &test.inputPost).Return(test.inputPost.ID, test.wantError)
-				db.On("GetUsernameByID", test.sessionID).Return(test.inputPost.Username, test.wantError)
-				db.On("CheckCategoryID", test.inputPost.ID).Return(test.wantError)
-				session.On("GetIDByCookie", mock.Anything).Return(test.sessionID, test.wantError)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			db, session := test.callback(test.args)
+			mysrv := Init(db, session)
+			mysrv.router.HandleFunc("/newpost", mysrv.CreatePost)
 
-				req, err := http.NewRequest(test.method, srv.URL+"/newpost", bytes.NewBuffer(test.inputBody))
-				assert.Nil(t, err)
+			req, err := http.NewRequest(test.method, "/newpost", bytes.NewBuffer(test.inputBody))
+			assert.Nil(t, err)
 
-				req.AddCookie(&http.Cookie{
-					Name: "session",
-				})
+			req.AddCookie(&http.Cookie{
+				Name: "session",
+			})
 
-				resp, err := http.DefaultClient.Do(req)
-				assert.Nil(t, err)
+			recorder := httptest.NewRecorder()
+			fmt.Println(recorder)
+			mysrv.CreatePost(recorder, req)
+			resp := recorder.Result()
 
-				assert.Equal(t, test.wantStatus, resp.StatusCode)
-			case http.MethodGet:
-				db.On("GetCategories").Return(test.inputCategorys, test.wantError)
-
-				req, err := http.NewRequest(test.method, srv.URL+"/newpost", bytes.NewBuffer(test.inputBody))
-				assert.Nil(t, err)
-				resp, err := http.DefaultClient.Do(req)
-				assert.Nil(t, err)
-
-				// assert.Equal(t, test.wantError, err.Error())
-				assert.Equal(t, test.wantStatus, resp.StatusCode)
-			default:
-			}
+			assert.Equal(t, test.wantStatus, resp.StatusCode)
 		})
 	}
 }
