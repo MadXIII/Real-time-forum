@@ -3,7 +3,6 @@ package server
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"forum/internal/database"
 	"forum/internal/database/testdb"
 	newErr "forum/internal/error"
@@ -49,6 +48,21 @@ func TestCreatePost(t *testing.T) {
 			},
 		},
 		{
+			name: "Wait GetCategories error",
+			args: args{
+				inputCategorys: []models.Categories{{ID: 1, Name: "All"}},
+				wantError:      errors.New("GetCategories, Scan: sql: expected 2 destination arguments in Scan, not 1"),
+			},
+			method:     http.MethodGet,
+			wantStatus: http.StatusInternalServerError,
+			callback: func(a args) (database.Repository, s.Repository) {
+				db := &testdb.TestDB{}
+				session := &testsession.TestSession{}
+				db.On("GetCategories").Return(a.inputCategorys, a.wantError)
+				return db, session
+			},
+		},
+		{
 			name: "Success POST",
 			args: args{
 				post: models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Success", Content: "Content", Timestamp: time.Now().Format("2.Jan.2006, 15:04")},
@@ -59,10 +73,10 @@ func TestCreatePost(t *testing.T) {
 			callback: func(a args) (database.Repository, s.Repository) {
 				db := &testdb.TestDB{}
 				session := &testsession.TestSession{}
-				db.On("InsertPost", &a.post).Return(a.post.ID, a.wantError).Once()
-				db.On("GetUsernameByID", a.sessionID).Return(a.post.Username, a.wantError).Once()
 				db.On("CheckCategoryID", a.post.CategoryID).Return(a.wantError).Once()
 				session.On("GetIDByCookie", mock.Anything).Return(a.sessionID, a.wantError).Once()
+				db.On("GetUsernameByID", a.sessionID).Return(a.post.Username, a.wantError).Once()
+				db.On("InsertPost", &a.post).Return(a.post.ID, a.wantError).Once()
 				return db, session
 			},
 		},
@@ -77,10 +91,6 @@ func TestCreatePost(t *testing.T) {
 			callback: func(a args) (database.Repository, s.Repository) {
 				db := &testdb.TestDB{}
 				session := &testsession.TestSession{}
-				db.On("InsertPost", &a.post).Return(a.post.ID, a.wantError).Once()
-				db.On("GetUsernameByID", a.sessionID).Return(a.post.Username, a.wantError).Once()
-				db.On("CheckCategoryID", a.post.CategoryID).Return(a.wantError).Once()
-				session.On("GetIDByCookie", mock.Anything).Return(a.sessionID, a.wantError).Once()
 				return db, session
 			},
 		},
@@ -95,10 +105,6 @@ func TestCreatePost(t *testing.T) {
 			callback: func(a args) (database.Repository, s.Repository) {
 				db := &testdb.TestDB{}
 				session := &testsession.TestSession{}
-				db.On("InsertPost", &a.post).Return(a.post.ID, a.wantError).Once()
-				db.On("GetUsernameByID", a.sessionID).Return(a.post.Username, a.wantError).Once()
-				db.On("CheckCategoryID", a.post.CategoryID).Return(a.wantError).Once()
-				session.On("GetIDByCookie", mock.Anything).Return(a.sessionID, a.wantError).Once()
 				return db, session
 			},
 		},
@@ -114,10 +120,7 @@ func TestCreatePost(t *testing.T) {
 			callback: func(a args) (database.Repository, s.Repository) {
 				db := &testdb.TestDB{}
 				session := &testsession.TestSession{}
-				db.On("InsertPost", &a.post).Return(a.post.ID, a.wantError).Once()
-				db.On("GetUsernameByID", a.sessionID).Return(a.post.Username, a.wantError).Once()
 				db.On("CheckCategoryID", a.post.CategoryID).Return(a.wantError).Once()
-				session.On("GetIDByCookie", mock.Anything).Return(a.sessionID, a.wantError).Once()
 				return db, session
 			},
 		},
@@ -134,10 +137,60 @@ func TestCreatePost(t *testing.T) {
 			callback: func(a args) (database.Repository, s.Repository) {
 				db := &testdb.TestDB{}
 				session := &testsession.TestSession{}
-				db.On("InsertPost", &a.post).Return(a.post.ID, a.wantError).Once()
+				db.On("CheckCategoryID", a.post.CategoryID).Return(nil).Once()
+				session.On("GetIDByCookie", mock.Anything).Return(a.sessionID, nil).Once()
 				db.On("GetUsernameByID", a.sessionID).Return(a.post.Username, a.wantError).Once()
-				db.On("CheckCategoryID", a.post.CategoryID).Return(a.wantError).Once()
-				session.On("GetIDByCookie", mock.Anything).Return(a.sessionID, a.wantError).Once()
+				return db, session
+			},
+		},
+		{
+			name: "Wait ErrPostTitle error",
+			args: args{
+				post:      models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "", Content: "Content", Timestamp: time.Now().Format("2.Jan.2006, 15:04")},
+				wantError: newErr.ErrPostTitle,
+			},
+			method:     http.MethodPost,
+			inputBody:  []byte(`{"id":1,"category_id":1,"username":"User","title":"","content":"Content"}`),
+			wantStatus: http.StatusBadRequest,
+			callback: func(a args) (database.Repository, s.Repository) {
+				db := &testdb.TestDB{}
+				session := &testsession.TestSession{}
+				db.On("CheckCategoryID", a.post.CategoryID).Return(nil).Once()
+				return db, session
+			},
+		},
+		{
+			name: "Wait ErrPostContent error",
+			args: args{
+				post:      models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Title", Content: "", Timestamp: time.Now().Format("2.Jan.2006, 15:04")},
+				wantError: newErr.ErrPostContent,
+			},
+			method:     http.MethodPost,
+			inputBody:  []byte(`{"id":1,"category_id":1,"username":"User","title":"Title","content":""}`),
+			wantStatus: http.StatusBadRequest,
+			callback: func(a args) (database.Repository, s.Repository) {
+				db := &testdb.TestDB{}
+				session := &testsession.TestSession{}
+				db.On("CheckCategoryID", a.post.CategoryID).Return(nil).Once()
+				return db, session
+			},
+		},
+		{
+			name: "Wait InsertPost error",
+			args: args{
+				post:      models.Post{ID: 1, CategoryID: 1, Username: "User", Title: "Success", Content: "Content", Timestamp: time.Now().Format("2.Jan.2006, 15:04")},
+				wantError: errors.New("handleCreatePost, InsertPost: InsertPost, Prepare: 5 values for 6 columns"),
+			},
+			method:     http.MethodPost,
+			inputBody:  []byte(`{"id":1,"category_id":1,"username":"User","title":"Success","content":"Content"}`),
+			wantStatus: http.StatusInternalServerError,
+			callback: func(a args) (database.Repository, s.Repository) {
+				db := &testdb.TestDB{}
+				session := &testsession.TestSession{}
+				db.On("CheckCategoryID", a.post.CategoryID).Return(nil).Once()
+				session.On("GetIDByCookie", mock.Anything).Return(a.sessionID, nil).Once()
+				db.On("GetUsernameByID", a.sessionID).Return(a.post.Username, nil).Once()
+				db.On("InsertPost", &a.post).Return(a.post.ID, a.wantError).Once()
 				return db, session
 			},
 		},
@@ -157,43 +210,10 @@ func TestCreatePost(t *testing.T) {
 			})
 
 			recorder := httptest.NewRecorder()
-			fmt.Println(recorder)
 			mysrv.CreatePost(recorder, req)
 			resp := recorder.Result()
 
 			assert.Equal(t, test.wantStatus, resp.StatusCode)
-		})
-	}
-}
-
-func (s *Server) TestCheckNewPostDatas(t *testing.T) {
-	tests := map[string]struct {
-		inputPost models.Post
-		wantError error
-	}{
-		"Wait error with empty title": {
-			inputPost: models.Post{Title: "", Content: "Content"},
-			wantError: newErr.ErrPostTitle,
-		},
-		"Wait error with overflow title": {
-			inputPost: models.Post{Title: string([]byte{32: '0'}), Content: "Content"},
-			wantError: newErr.ErrPostTitle,
-		},
-		"Wait error with empty content": {
-			inputPost: models.Post{Title: "Some Tittle", Content: ""},
-			wantError: newErr.ErrPostContent,
-		},
-		"Success": {
-			inputPost: models.Post{Title: "Title", Content: "Content"},
-			wantError: nil,
-		},
-	}
-
-	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
-			if err := s.checkNewPostDatas(&test.inputPost); err != test.wantError {
-				t.Errorf("Wait for '%v', but got '%v'", test.wantError, err)
-			}
 		})
 	}
 }
