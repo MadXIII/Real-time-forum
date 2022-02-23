@@ -32,8 +32,8 @@ func (s *Server) handleCreateAccount(w http.ResponseWriter, r *http.Request) {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreateAccount, ReadAll(r.Body): %w", err))
 		return
 	}
-	var newUser models.User
 
+	var newUser models.User
 	if err = json.Unmarshal(bytes, &newUser); err != nil {
 		logger(w, http.StatusBadRequest, fmt.Errorf("handleCreateAccount, Unmarshal: %w", err))
 		return

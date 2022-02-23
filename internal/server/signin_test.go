@@ -84,15 +84,11 @@ func TestSignIn(t *testing.T) {
 			})
 			req, err := http.NewRequest(test.method, srv.URL+"/signin", bytes.NewBuffer(test.inputBody))
 			assert.Nil(t, err)
-			resp, err := http.DefaultClient.Do(req)
 
-			if err != nil {
-				assert.Equal(t, test.wantError, err.Error())
-				assert.Equal(t, test.wantStatus, resp.StatusCode)
-			} else {
-				assert.Nil(t, err)
-				assert.Equal(t, test.wantStatus, resp.StatusCode)
-			}
+			resp, err := http.DefaultClient.Do(req)
+			assert.Nil(t, err)
+
+			assert.Equal(t, test.wantStatus, resp.StatusCode)
 		})
 	}
 }
