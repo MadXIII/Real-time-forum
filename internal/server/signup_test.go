@@ -2,9 +2,12 @@ package server
 
 import (
 	"bytes"
+	"errors"
+	"forum/internal/database"
 	"forum/internal/database/testdb"
 	newErr "forum/internal/error"
 	"forum/internal/models"
+	s "forum/internal/sessions"
 	"forum/internal/sessions/testsession"
 	"net/http"
 	"net/http/httptest"
@@ -16,37 +19,125 @@ import (
 )
 
 func TestSignUp(t *testing.T) {
-	db := &testdb.TestDB{}
-	session := &testsession.TestSession{}
-	mysrv := Init(db, session)
-	mysrv.router.HandleFunc("/signup", mysrv.SignUp)
-	srv := httptest.NewServer(&mysrv.router)
+	type args struct {
+		user      models.User
+		wantError error
+	}
 
-	tests := map[string]struct {
+	tests := []struct {
+		name       string
+		args       args
 		method     string
-		user       models.User
 		inputBody  []byte
 		wantStatus int
-		wantError  error
+		callback   func(args) (database.Repository, s.Repository)
 	}{
-		"Wait StatusOK": {
-			method:     "POST",
-			user:       models.User{ID: 1, Nickname: "Nick", Email: "test@test.tt", Password: "123456Aa", Confirm: "123456Aa"},
+		{
+			name: "Wait StatusOk",
+			args: args{
+				user: models.User{ID: 1, Nickname: "Nick", Email: "test@test.tt", Password: "123456Aa", Confirm: "123456Aa"},
+			},
+			method:     http.MethodPost,
 			inputBody:  []byte(`{"id":1,"nickname":"Nick","email":"test@test.tt","password":"123456Aa","confirm":"123456Aa"}`),
 			wantStatus: http.StatusOK,
+			callback: func(a args) (database.Repository, s.Repository) {
+				db := &testdb.TestDB{}
+				session := &testsession.TestSession{}
+				db.On("InsertUser", mock.Anything).Return(a.wantError)
+				session.On("CreateSession", a.user.ID).Return(&http.Cookie{Name: "session"})
+				return db, session
+			},
+		},
+		{
+			name:       "Wait StatusMethodNotAllowed status",
+			args:       args{},
+			method:     http.MethodPatch,
+			wantStatus: http.StatusMethodNotAllowed,
+			callback: func(a args) (database.Repository, s.Repository) {
+				db := &testdb.TestDB{}
+				session := &testsession.TestSession{}
+				return db, session
+			},
+		},
+		{
+			name: "Wait Unmarshal error",
+			args: args{
+				user: models.User{ID: 1, Nickname: "Nick", Email: "test@test.tt", Password: "123456Aa", Confirm: "123456Aa"},
+			},
+			method:     http.MethodPost,
+			inputBody:  []byte(`"id":1,"nickname":"Nick","email":"test@test.tt","password":"123456Aa","confirm":"123456Aa"}`),
+			wantStatus: http.StatusBadRequest,
+			callback: func(a args) (database.Repository, s.Repository) {
+				db := &testdb.TestDB{}
+				session := &testsession.TestSession{}
+				return db, session
+			},
+		},
+		{
+			name: "Wait isCorrectDatasToSignUp error",
+			args: args{
+				user: models.User{ID: 1, Nickname: "", Email: "test@test.tt", Password: "123456Aa", Confirm: "123456Aa"},
+			},
+			method:     http.MethodPost,
+			inputBody:  []byte(`{"id":1,"nickname":"","email":"test@test.tt","password":"123456Aa","confirm":"123456Aa"}`),
+			wantStatus: http.StatusBadRequest,
+			callback: func(a args) (database.Repository, s.Repository) {
+				db := &testdb.TestDB{}
+				session := &testsession.TestSession{}
+				db.On("InsertUser", mock.Anything).Return(a.wantError)
+				session.On("CreateSession", a.user.ID).Return(&http.Cookie{Name: "session"})
+				return db, session
+			},
+		},
+		{
+			name: "Wait ErrNickname error",
+			args: args{
+				user:      models.User{ID: 1, Nickname: "Nick", Email: "test@test.tt", Password: "123456Aa", Confirm: "123456Aa"},
+				wantError: errors.New("InsertUser, Exec: UNIQUE constraint failed: user.nickname"),
+			},
+			method:     http.MethodPost,
+			inputBody:  []byte(`{"id":1,"nickname":"Nick","email":"test@test.tt","password":"123456Aa","confirm":"123456Aa"}`),
+			wantStatus: http.StatusBadRequest,
+			callback: func(a args) (database.Repository, s.Repository) {
+				db := &testdb.TestDB{}
+				session := &testsession.TestSession{}
+				db.On("InsertUser", mock.Anything).Return(a.wantError)
+				return db, session
+			},
+		},
+		{
+			name: "Wait ErrEmail error",
+			args: args{
+				user:      models.User{ID: 1, Nickname: "Nick", Email: "test@test.tt", Password: "123456Aa", Confirm: "123456Aa"},
+				wantError: errors.New("InsertUser, Exec: UNIQUE constraint failed: user.email"),
+			},
+			method:     http.MethodPost,
+			inputBody:  []byte(`{"id":1,"nickname":"Nick","email":"test@test.tt","password":"123456Aa","confirm":"123456Aa"}`),
+			wantStatus: http.StatusBadRequest,
+			callback: func(a args) (database.Repository, s.Repository) {
+				db := &testdb.TestDB{}
+				session := &testsession.TestSession{}
+				db.On("InsertUser", mock.Anything).Return(a.wantError)
+				return db, session
+			},
 		},
 	}
 
-	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
-			db.On("InsertUser", mock.Anything).Return(test.wantError)
-			session.On("CreateSession", test.user.ID).Return(&http.Cookie{Name: "session"})
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			db, session := test.callback(test.args)
+			mysrv := Init(db, session)
 
-			req, err := http.NewRequest(test.method, srv.URL+"/signup", bytes.NewBuffer(test.inputBody))
-			assert.Nil(t, err)
-			resp, err := http.DefaultClient.Do(req)
+			mysrv.router.HandleFunc("/signup", mysrv.SignUp)
 
+			req, err := http.NewRequest(test.method, "/signup", bytes.NewBuffer(test.inputBody))
 			assert.Nil(t, err)
+
+			recorder := httptest.NewRecorder()
+			mysrv.SignUp(recorder, req)
+
+			resp := recorder.Result()
+
 			assert.Equal(t, test.wantStatus, resp.StatusCode)
 		})
 	}
