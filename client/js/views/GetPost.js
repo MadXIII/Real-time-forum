@@ -46,10 +46,17 @@ export default class extends AbstractView {
                 let result = await response.json()
                 alert(result)
                 window.location.href = `/post?id=${urlID}`
-            } else {
+                return
+            }
+            if (response.status === 401) {
                 let res = await response.json()
                 alert(res)
                 window.location.href = `/signin`
+                return
+            } else {
+                let res = await response.json()
+                alert(res)
+                return
             }
         }
 
@@ -68,10 +75,17 @@ export default class extends AbstractView {
             })
             if (response.ok) {
                 window.location.href = `/post?id=${urlID}`
-            } else {
+                return
+            }
+            if (response.status === 401) {
                 let res = await response.json()
                 alert(res)
                 window.location.href = `/signin`
+                return
+            } else {
+                let res = await response.json()
+                alert(res)
+                return
             }
         }
     }

@@ -91,8 +91,8 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if data.PostLike.PostID != 0 {
-		if err = s.checkInsertUpdVote(r, &data.PostLike); err != nil {
-			logger(w, http.StatusInternalServerError, err)
+		if status, err := s.checkInsertUpdVote(r, &data.PostLike); err != nil {
+			logger(w, status, err)
 			return
 		}
 	}
@@ -115,7 +115,7 @@ func checkAndGetPostID(r *http.Request) (string, error) {
 func (s *Server) checkInsertComment(req *http.Request, comment *models.Comment) (status int, err error) {
 	comment.Username, err = s.getUsernameByCookie(req)
 	if err != nil {
-		return http.StatusInternalServerError, newErr.ErrUnsignComment
+		return http.StatusUnauthorized, newErr.ErrUnsignComment
 	}
 
 	if len(comment.Content) < 1 {
@@ -136,32 +136,32 @@ func (s *Server) checkInsertComment(req *http.Request, comment *models.Comment) 
 }
 
 //checkInsertUpdVote - get UserID from request, Insert it into db if it first request, else set vote state
-func (s *Server) checkInsertUpdVote(req *http.Request, like *models.PostLike) (err error) {
+func (s *Server) checkInsertUpdVote(req *http.Request, like *models.PostLike) (status int, err error) {
 	ck, err := req.Cookie("session")
 	if err != nil {
-		return fmt.Errorf("checkInsertUpdVote, r.Cookie(\"session\"): %w", err)
+		return http.StatusUnauthorized, newErr.ErrUnsignVote
 	}
 	like.UserID, err = s.cookiesStore.GetIDByCookie(ck)
 	if err != nil || like.UserID < 1 {
-		return newErr.ErrUnsignVote
+		return http.StatusUnauthorized, newErr.ErrUnsignVote
 	}
 
 	like.VoteState, err = s.store.GetVoteState(like)
 	if err != nil {
 		if err = s.store.InsertVote(like); err != nil {
-			return err
+			return http.StatusInternalServerError, err
 		}
 	}
 
 	if err = s.voteThumbler(like); err != nil {
-		return err
+		return http.StatusInternalServerError, err
 	}
 
 	if err = s.store.UpdateVotes(like); err != nil {
-		return err
+		return http.StatusInternalServerError, err
 	}
 
-	return nil
+	return 0, nil
 }
 
 //voteThumbler - thumbler for vote state
