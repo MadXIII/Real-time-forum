@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-//CreatePost - /newpost's handler
+// CreatePost - /newpost's handler
 func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		s.handleCreatePostPage(w, r)
@@ -25,9 +25,9 @@ func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-//handleCreatePostPage - if CreatPost GET method
+// handleCreatePostPage - if CreatPost GET method
 func (s *Server) handleCreatePostPage(w http.ResponseWriter, r *http.Request) {
-	categories, err := s.store.GetCategories()
+	categories, err := s.sqlStore.GetCategories()
 	if err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePostPage, GetCategories: %w", err))
 		return
@@ -41,7 +41,7 @@ func (s *Server) handleCreatePostPage(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-//handleCreatePost - if CreatePost POST method
+// handleCreatePost - if CreatePost POST method
 func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -70,13 +70,13 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postID, err := s.store.InsertPost(&newPost)
+	postID, err := s.sqlStore.InsertPost(&newPost)
 	if err != nil {
 		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePost, InsertPost: %w", err))
 		return
 	}
 
-	//create object to Response about Success
+	// create object to Response about Success
 	resp := struct {
 		ID     int    `json:"id"`
 		Notify string `json:"notify"`
@@ -94,9 +94,9 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
-//checkNewPostDatas - check Post Datas before Insert it into db
+// checkNewPostDatas - check Post Datas before Insert it into db
 func (s *Server) checkNewPostDatas(post *models.Post) error {
-	if err := s.store.CheckCategoryID(post.CategoryID); err != nil {
+	if err := s.sqlStore.CheckCategoryID(post.CategoryID); err != nil {
 		return err
 	}
 
@@ -107,13 +107,12 @@ func (s *Server) checkNewPostDatas(post *models.Post) error {
 	if len(post.Content) == 0 {
 		return newErr.ErrPostContent
 	}
-	//Set date format
+	// Set date format
 	post.Timestamp = time.Now().Format("2.Jan.2006, 15:04")
 	return nil
-
 }
 
-//getUsernameByCookie - get Username from db, by GetIDByCookie
+// getUsernameByCookie - get Username from db, by GetIDByCookie
 func (s *Server) getUsernameByCookie(req *http.Request) (string, error) {
 	ck, err := req.Cookie("session")
 	if err != nil {
@@ -125,7 +124,7 @@ func (s *Server) getUsernameByCookie(req *http.Request) (string, error) {
 		return "", err
 	}
 
-	username, err := s.store.GetUsernameByID(id)
+	username, err := s.sqlStore.GetUsernameByID(id)
 	if err != nil {
 		return "", err
 	}

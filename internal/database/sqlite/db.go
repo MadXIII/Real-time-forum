@@ -8,13 +8,13 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-//Store - store hole of DB
+// Store - store hole of DB
 type Store struct {
 	db *sql.DB
 }
 
-//Init - Creat DB if not created
-func (s *Store) Init(dbname string) (err error) {
+// Init - Creat DB if not created
+func (s *Store) InitMainStore(dbname string) (err error) {
 	s.db, err = sql.Open("sqlite3", dbname)
 	if err != nil {
 		return fmt.Errorf("InitDB, sql.Open: %w", err)
@@ -22,26 +22,26 @@ func (s *Store) Init(dbname string) (err error) {
 
 	log.Println("DB Creating...")
 
-	userTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS user (
-		id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-		nickname VARCHAR(100) NOT NULL UNIQUE,
-		email VARCHAR(100) NOT NULL UNIQUE,
-		password BLOB NOT NULL,
-		first_name VARCHAR(100),
-		last_name VARCHAR(100),
-		gender VARCHAR(100),
-		age VARCHAR(50)
-	);`)
-	if err != nil {
-		return fmt.Errorf("InitDB, userTable.Prepare: %w", err)
-	}
+	// userTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS user (
+	// 	id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	// 	nickname VARCHAR(100) NOT NULL UNIQUE,
+	// 	email VARCHAR(100) NOT NULL UNIQUE,
+	// 	password BLOB NOT NULL,
+	// 	first_name VARCHAR(100),
+	// 	last_name VARCHAR(100),
+	// 	gender VARCHAR(100),
+	// 	age VARCHAR(50)
+	// );`)
+	// if err != nil {
+	// 	return fmt.Errorf("InitDB, userTable.Prepare: %w", err)
+	// }
 
-	_, err = userTable.Exec()
-	if err != nil {
-		return fmt.Errorf("InitDB, userTable.Exec: %w", err)
-	}
+	// _, err = userTable.Exec()
+	// if err != nil {
+	// 	return fmt.Errorf("InitDB, userTable.Exec: %w", err)
+	// }
 
-	defer userTable.Close()
+	// defer userTable.Close()
 
 	signerTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS signer (
 		id integer PRIMARY KEY AUTOINCREMENT NOT NULL,

@@ -1,10 +1,13 @@
 package database
 
-import "forum/internal/models"
+import (
+	"forum/internal/models"
+)
 
-//Repository - interface to work with DB
+// Repository - interface to work with DB
 type Repository interface {
-	Init(dbname string) error
+	// InitMongoStore(uri string) (*mongo.Store, error)
+	// InitMainStore(dbname string) error
 	User
 	Post
 	Comment

@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-//SignIn - Sigin page
+// SignIn - Sigin page
 func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		s.handleSignIn(w, r)
@@ -21,7 +21,7 @@ func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-//handleSignIn - if SignIn POST method
+// handleSignIn - if SignIn POST method
 func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -40,8 +40,8 @@ func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//wrong error GetUserByLogin with newErr ========================================================
-	user, err := s.store.GetUserByLogin(signer.Login)
+	// wrong error GetUserByLogin with newErr ========================================================
+	user, err := s.sqlStore.GetUserByLogin(signer.Login)
 	if err != nil {
 		logger(w, http.StatusBadRequest, newErr.ErrWrongLogin)
 		return
@@ -57,7 +57,7 @@ func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 	success(w, "Login is Done")
 }
 
-//checkLoginDatas - is empty or too long login datas
+// checkLoginDatas - is empty or too long login datas
 func checkLoginDatas(user *models.Sign) error {
 	if len(user.Login) == 0 || len(user.Login) > 32 {
 		return newErr.ErrLoginData
