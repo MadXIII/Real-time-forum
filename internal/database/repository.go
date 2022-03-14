@@ -1,14 +1,17 @@
 package database
 
 import (
+	"context"
 	"forum/internal/models"
+
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // Repository - interface to work with DB
 type Repository interface {
-	// InitMongoStore(uri string) (*mongo.Store, error)
-	// InitMainStore(dbname string) error
-	User
+	InitMongoStore(context.Context, string) (*mongo.Client, error)
+	InitMainStore(dbname string) error
+	// User
 	Post
 	Comment
 	Vote
@@ -17,9 +20,9 @@ type Repository interface {
 }
 
 type User interface {
-	InsertUser(*models.User) error
-	GetUserByLogin(string) (models.User, error)
-	GetUsernameByID(int) (string, error)
+	InsertUser(context.Context, *models.User) error
+	GetUserByLogin(context.Context, string) (models.User, error)
+	GetUsernameByID(context.Context, int) (string, error)
 }
 
 type Post interface {

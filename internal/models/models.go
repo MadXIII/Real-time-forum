@@ -1,7 +1,5 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
-
 // //sqlite3 User struct
 // type User struct {
 // 	ID        int    `json:"id"`
@@ -16,15 +14,15 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 // }
 
 type User struct {
-	ID        primitive.ObjectID `json:"id, omitempty" bson:"_id, omitempty`
-	Nickname  string             `json:"nickname, omitempty" bson:"nickname, omitempty`
-	Email     string             `json:"email, omitempty" bson:"email, omitempty`
-	Password  string             `json:"password, omitempty" bson:"password, omitempty`
-	Confirm   string             `json:"confirm, omitempty" bson:"confirm, omitempty`
-	FirstName string             `json:"first_name, omitempty" bson:"first_name, omitempty`
-	LastName  string             `json:"last_name, omitempty" bson:"last_name, omitempty`
-	Gender    string             `json:"gender, omitempty" bson:"gender, omitempty`
-	Age       string             `json:"age, omitempty" bson:"age, omitempty`
+	ID        string `json:"id, omitempty" bson:"_id, omitempty"`
+	Nickname  string `json:"nickname, omitempty" bson:"nickname, omitempty"`
+	Email     string `json:"email, omitempty" bson:"email, omitempty"`
+	Password  string `json:"password, omitempty" bson:"password, omitempty"`
+	Confirm   string `json:"confirm, omitempty" bson:"confirm, omitempty"`
+	FirstName string `json:"first_name, omitempty" bson:"first_name, omitempty"`
+	LastName  string `json:"last_name, omitempty" bson:"last_name, omitempty"`
+	Gender    string `json:"gender, omitempty" bson:"gender, omitempty"`
+	Age       string `json:"age, omitempty" bson:"age, omitempty"`
 }
 
 type Categories struct {

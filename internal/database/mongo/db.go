@@ -1,27 +1,31 @@
 package mongo
 
 import (
+	"context"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Store struct {
-	Client     *mongo.Client
 	Collection *mongo.Collection
 }
 
-func (s *Store) InitMongoStore(uri string) error {
-	var err error
-	s.Client, err = mongo.NewClient(options.Client().ApplyURI(uri))
+func (s *Store) InitMongoStore(ctx context.Context, uri string) (*mongo.Client, error) {
+	client, err := mongo.NewClient(options.Client().ApplyURI(uri))
 	if err != nil {
-		return err
+		return client, err
 	}
 
-	s.Collection = s.Client.Database("forum").Collection("user")
+	if err = client.Connect(ctx); err != nil {
+		return client, err
+	}
 
-	return nil
-}
+	if err = client.Ping(ctx, nil); err != nil {
+		return client, err
+	}
 
-func (s *Store) CheckCategoryID(categoryID int) error {
-	return nil
+	s.Collection = client.Database("forum").Collection("user")
+
+	return client, nil
 }
