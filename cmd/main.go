@@ -17,8 +17,6 @@ func main() {
 
 	defer store.Close()
 
-	hub := server.NewHub()
-
 	sessionService := session.New()
 	server := server.Init(&store, sessionService)
 	port := os.Getenv("PORT")

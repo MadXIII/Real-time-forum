@@ -16,6 +16,7 @@ type Server struct {
 	store        database.Repository
 	router       http.ServeMux
 	cookiesStore session.Repository
+	hub          *Hub
 }
 
 // Init - Generator of Server struct
@@ -24,6 +25,7 @@ func Init(store database.Repository, cookiesStore session.Repository) *Server {
 		store:        store,
 		router:       *http.NewServeMux(),
 		cookiesStore: cookiesStore,
+		hub:          NewHub(),
 	}
 }
 
@@ -38,7 +40,9 @@ func (s *Server) Conf() {
 	s.router.HandleFunc("/api/newpost", s.middleWare(s.CreatePost))
 	s.router.HandleFunc("/api/post", s.GetPost)
 	s.router.HandleFunc("/api/logout", s.middleWare(s.LogOut))
-	s.router.HandleFunc("/api/chat", nil)
+	s.router.HandleFunc("/api/chat", func(w http.ResponseWriter, r *http.Request) {
+		WSChat(s.hub, w, r)
+	})
 }
 
 // ListenAndServe - Listener with Configurations to ServMUX
