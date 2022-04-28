@@ -31,6 +31,7 @@ func Init(store database.Repository, cookiesStore session.Repository) *Server {
 
 // Conf - Hanlders to routes
 func (s *Server) Conf() {
+	go s.hub.messageListener()
 	s.router.Handle("/js/", http.StripPrefix("/js", http.FileServer(http.Dir("../client/js"))))
 	s.router.HandleFunc("/", s.Index)
 
@@ -43,6 +44,30 @@ func (s *Server) Conf() {
 	s.router.HandleFunc("/api/chat", func(w http.ResponseWriter, r *http.Request) {
 		WSChat(s.hub, w, r)
 	})
+}
+
+func (h *Hub) messageListener() {
+	for {
+		select {
+		case client := <-h.Registr:
+			h.Clients[client] = true
+		case client := <-h.Unregister:
+			if ok := h.Clients[client]; ok {
+				delete(h.Clients, client)
+				close(client.send)
+			}
+		case message := <-h.Broadcast:
+			for client := range h.Clients {
+				select {
+				case client.send <- message:
+				default:
+					close(client.send)
+					delete(h.Clients, client)
+				}
+			}
+
+		}
+	}
 }
 
 // ListenAndServe - Listener with Configurations to ServMUX

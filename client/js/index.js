@@ -4,6 +4,7 @@ import Signin from "./views/SignIn.js"
 import LogOut from "./views/LogOut.js"
 import CreatePost from "./views/CreatePost.js"
 import GetPost from "./views/GetPost.js"
+import Chat from "./views/Chat.js"
 
 const navigateTo = url => {
     history.pushState(null, null, url)
