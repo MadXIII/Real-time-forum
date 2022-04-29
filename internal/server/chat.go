@@ -2,7 +2,6 @@ package server
 
 import (
 	"bytes"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -38,8 +37,6 @@ var upgrader = websocket.Upgrader{
 }
 
 func WSChat(h *Hub, w http.ResponseWriter, r *http.Request) {
-	fmt.Println("W", w)
-	fmt.Println("R", r)
 	conn, err := upgrader.Upgrade(w, r, nil)
 	log.Println(conn)
 	if err != nil {

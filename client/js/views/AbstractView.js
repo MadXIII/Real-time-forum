@@ -12,6 +12,7 @@ export default class {
             tags = `
             <a id="logout" href="/logout" data-link>Log Out</a>
             <p><a href="/newpost" data-link>Create Post</a></p>
+            <a id="chat" href="/chat" data-link>Chat</a>
             `
         } else {
             tags = `

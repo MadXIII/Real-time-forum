@@ -26,6 +26,7 @@ export const router = async () => {
         { path: "/logout", view: middleware(LogOut) },
         { path: "/newpost", view: middleware(CreatePost) },
         { path: "/post", view: GetPost },
+        { path: "/chat", view: Chat },
     ];
 
     const potentialMatches = routes.map(route => {
@@ -46,6 +47,7 @@ export const router = async () => {
     const view = new match.route.view()
 
     document.querySelector("#app").innerHTML = await view.getHtml();
+    console.log("Erika")
     view.init();
 }
 
