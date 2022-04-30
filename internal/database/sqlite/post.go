@@ -6,7 +6,7 @@ import (
 	"forum/internal/models"
 )
 
-//InsertPost - insert newpost in db
+// InsertPost - insert newpost in db
 func (s *Store) InsertPost(newPost *models.Post) (int, error) {
 	createRow, err := s.db.Prepare(`
 		INSERT INTO post 
@@ -38,7 +38,7 @@ func (s *Store) InsertPost(newPost *models.Post) (int, error) {
 	return newPost.ID, nil
 }
 
-//GetPostByID - Get post by postID from db
+// GetPostByID - Get post by postID from db
 func (s *Store) GetPostByID(id string) (models.Post, error) {
 	var post models.Post
 
@@ -52,7 +52,7 @@ func (s *Store) GetPostByID(id string) (models.Post, error) {
 	return post, nil
 }
 
-//GetAllPostsByCategoryID - Get all posts by CategoryID to show in main page
+// GetAllPostsByCategoryID - Get all posts by CategoryID to show in main page
 func (s *Store) GetAllPostsByCategoryID(categoryID int) (posts []models.Post, err error) {
 	var rows *sql.Rows
 
@@ -83,7 +83,7 @@ func (s *Store) GetAllPostsByCategoryID(categoryID int) (posts []models.Post, er
 	return posts, nil
 }
 
-//UpdateVotes - udate LikeCount in Posts data
+// UpdateVotes - udate LikeCount in Posts data
 func (s *Store) UpdateVotes(like *models.PostLike) error {
 	if like.VoteState {
 		_, err := s.db.Exec(`

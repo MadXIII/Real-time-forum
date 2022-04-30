@@ -2,7 +2,7 @@ package session
 
 import "net/http"
 
-//Repository - interface to work with cookies
+// Repository - interface to work with cookies
 type Repository interface {
 	CreateSession(int) *http.Cookie
 	DeleteCookie(*http.Cookie) error

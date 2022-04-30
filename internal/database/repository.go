@@ -2,7 +2,7 @@ package database
 
 import "forum/internal/models"
 
-//Repository - interface to work with DB
+// Repository - interface to work with DB
 type Repository interface {
 	Init(dbname string) error
 	User
@@ -17,6 +17,7 @@ type User interface {
 	InsertUser(*models.User) error
 	GetUserByLogin(string) (models.User, error)
 	GetUsernameByID(int) (string, error)
+	GetAllUsernames() ([]string, error)
 }
 
 type Post interface {

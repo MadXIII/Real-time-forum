@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-//CreatePost - /newpost's handler
+// CreatePost - /newpost's handler
 func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		s.handleCreatePostPage(w, r)
@@ -22,10 +22,9 @@ func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
-	return
 }
 
-//handleCreatePostPage - if CreatPost GET method
+// handleCreatePostPage - if CreatPost GET method
 func (s *Server) handleCreatePostPage(w http.ResponseWriter, r *http.Request) {
 	categories, err := s.store.GetCategories()
 	if err != nil {
@@ -38,10 +37,9 @@ func (s *Server) handleCreatePostPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(bytes)
-	return
 }
 
-//handleCreatePost - if CreatePost POST method
+// handleCreatePost - if CreatePost POST method
 func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -76,7 +74,7 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//create object to Response about Success
+	// create object to Response about Success
 	resp := struct {
 		ID     int    `json:"id"`
 		Notify string `json:"notify"`
@@ -94,7 +92,7 @@ func (s *Server) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
-//checkNewPostDatas - check Post Datas before Insert it into db
+// checkNewPostDatas - check Post Datas before Insert it into db
 func (s *Server) checkNewPostDatas(post *models.Post) error {
 	if err := s.store.CheckCategoryID(post.CategoryID); err != nil {
 		return err
@@ -107,13 +105,12 @@ func (s *Server) checkNewPostDatas(post *models.Post) error {
 	if len(post.Content) == 0 {
 		return newErr.ErrPostContent
 	}
-	//Set date format
+	// Set date format
 	post.Timestamp = time.Now().Format("2.Jan.2006, 15:04")
 	return nil
-
 }
 
-//getUsernameByCookie - get Username from db, by GetIDByCookie
+// getUsernameByCookie - get Username from db, by GetIDByCookie
 func (s *Server) getUsernameByCookie(req *http.Request) (string, error) {
 	ck, err := req.Cookie("session")
 	if err != nil {

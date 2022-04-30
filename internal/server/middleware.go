@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-//middleWare - redirect if client not in session to SigninPage
+// middleWare - redirect if client not in session to SigninPage
 func (s *Server) middleWare(handler func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ck, err := r.Cookie("session")
@@ -17,6 +17,5 @@ func (s *Server) middleWare(handler func(http.ResponseWriter, *http.Request)) ht
 			return
 		}
 		handler(w, r)
-		return
 	}
 }

@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -12,7 +13,7 @@ import (
 type Hub struct {
 	Clients    map[*Client]bool
 	Broadcast  chan []byte
-	Registr    chan *Client
+	Register   chan *Client
 	Unregister chan *Client
 }
 
@@ -26,7 +27,7 @@ func NewHub() *Hub {
 	return &Hub{
 		Clients:    make(map[*Client]bool),
 		Broadcast:  make(chan []byte),
-		Registr:    make(chan *Client),
+		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
 	}
 }
@@ -36,17 +37,34 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func WSChat(h *Hub, w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	log.Println(conn)
-	if err != nil {
-		log.Println(err)
+func (s *Server) WSChat(h *Hub, w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		usernames, err := s.store.GetAllUsernames()
+		if err != nil {
+			logger(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		fmt.Println(usernames)
+		// get ListUsers
+		// get OnlineUsers
+		owner, err := s.getUsernameByCookie(r)
+		if err != nil {
+			logger(w, http.StatusUnauthorized, err)
+			return
+		}
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			logger(w, http.StatusInternalServerError, fmt.Errorf("WSChat, Upgrade: %v", err))
+			return
+		}
+		client := &Client{hub: h, conn: conn, send: make(chan []byte, 256)}
+		client.hub.Register <- client
+		go client.WriteClient()
+		go client.ReadClient()
 		return
 	}
-	client := &Client{hub: h, conn: conn, send: make(chan []byte, 256)}
-	client.hub.Registr <- client
-	go client.WriteClient()
-	go client.ReadClient()
+	w.WriteHeader(http.StatusMethodNotAllowed)
 }
 
 func (c *Client) WriteClient() {
@@ -70,7 +88,12 @@ func (c *Client) WriteClient() {
 				return
 			}
 
-			w.Write(message)
+			i, err := w.Write(message)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			log.Println(i)
 
 			for i := 0; i < len(c.send); i++ {
 				w.Write([]byte{'\n'})

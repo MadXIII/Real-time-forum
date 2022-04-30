@@ -15,17 +15,16 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-//SignUp page GET, POST
+// SignUp page GET, POST
 func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		s.handleCreateAccount(w, r)
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
-	return
 }
 
-//handleCreateAccount - if SignUp POST method
+// handleCreateAccount - if SignUp POST method
 func (s *Server) handleCreateAccount(w http.ResponseWriter, r *http.Request) {
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -61,7 +60,7 @@ func (s *Server) handleCreateAccount(w http.ResponseWriter, r *http.Request) {
 	success(w, "User successfully created")
 }
 
-//insertUserDB - Insert User in DB if no error
+// insertUserDB - Insert User in DB if no error
 func (s *Server) insertUserDB(user *models.User) error {
 	if err := s.store.InsertUser(user); err != nil {
 		if strings.Contains(err.Error(), "nickname") {
@@ -75,7 +74,7 @@ func (s *Server) insertUserDB(user *models.User) error {
 	return nil
 }
 
-//isCorrcetDataToSignUp ...
+// isCorrcetDataToSignUp ...
 func isCorrectDatasToSignUp(user models.User) error {
 	if err := checkEmpty(user); err != nil {
 		return err
@@ -95,7 +94,7 @@ func isCorrectDatasToSignUp(user models.User) error {
 	return nil
 }
 
-//checkin email for validity
+// checkin email for validity
 func isValidEmail(email string) error {
 	regex := regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9-_.]+[^\^!#\$%&'\@()*+\/=\?\^\n_{\|}~-]@[a-z]{2,}\.[a-zA-Z]{2,6}$`)
 	if !regex.MatchString(email) {
@@ -104,7 +103,7 @@ func isValidEmail(email string) error {
 	return nil
 }
 
-//checking pass for validity
+// checking pass for validity
 func isValidPass(pass string) error {
 	if len(pass) < 8 || len(pass) > 32 {
 		return newErr.ErrInvalidPass
@@ -132,7 +131,7 @@ func isValidPass(pass string) error {
 	return newErr.ErrInvalidPass
 }
 
-//isValidAge - is input age is valid?
+// isValidAge - is input age is valid?
 func isValidAge(age string) error {
 	if age == "" {
 		return nil
@@ -147,7 +146,7 @@ func isValidAge(age string) error {
 	return nil
 }
 
-//checking for empty fields in signup page
+// checking for empty fields in signup page
 func checkEmpty(newUser models.User) error {
 	if newUser.Nickname == "" {
 		return newErr.ErrEmptyNickname

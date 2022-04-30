@@ -42,14 +42,14 @@ func (s *Server) Conf() {
 	s.router.HandleFunc("/api/post", s.GetPost)
 	s.router.HandleFunc("/api/logout", s.middleWare(s.LogOut))
 	s.router.HandleFunc("/api/chat", func(w http.ResponseWriter, r *http.Request) {
-		WSChat(s.hub, w, r)
+		s.WSChat(s.hub, w, r)
 	})
 }
 
 func (h *Hub) messageListener() {
 	for {
 		select {
-		case client := <-h.Registr:
+		case client := <-h.Register:
 			h.Clients[client] = true
 		case client := <-h.Unregister:
 			if ok := h.Clients[client]; ok {
@@ -65,7 +65,6 @@ func (h *Hub) messageListener() {
 					delete(h.Clients, client)
 				}
 			}
-
 		}
 	}
 }

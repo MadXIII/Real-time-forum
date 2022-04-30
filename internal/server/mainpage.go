@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-//MainPage - main page for backend route "/"
+// MainPage - main page for backend route "/"
 func (s *Server) MainPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		s.handleMainPageGet(w, r)
@@ -19,13 +19,12 @@ func (s *Server) MainPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
-	return
 }
 
-//global id for Categories
+// global id for Categories
 var globCategoryID = 0
 
-//handleMainPageGet - if MainPaige GET method
+// handleMainPageGet - if MainPaige GET method
 func (s *Server) handleMainPageGet(w http.ResponseWriter, r *http.Request) {
 	getCategories, err := s.store.GetCategories()
 	if err != nil {
@@ -56,7 +55,7 @@ func (s *Server) handleMainPageGet(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
-//handleMaingPagePost - if MainPaige POST method
+// handleMaingPagePost - if MainPaige POST method
 func (s *Server) handleMaingPagePost(w http.ResponseWriter, r *http.Request) {
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
