@@ -9,16 +9,18 @@ import (
 )
 
 func main() {
-	store := db.Store{}
-	err := store.Init("forum.db")
+	db := db.Store{}
+	err := db.NewDB("forum.db")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	defer store.Close()
+	defer db.Close()
 
-	sessionService := session.New()
-	server := server.Init(&store, sessionService)
+	usersList, err := db.GetAllUsernames()
+
+	sessionService := session.NewSessionStore(usersList)
+	server := server.NewServer(&db, sessionService)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8282"

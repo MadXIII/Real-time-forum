@@ -48,7 +48,7 @@ func (s *Server) WSChat(h *Hub, w http.ResponseWriter, r *http.Request) {
 		fmt.Println(usernames)
 		// get ListUsers
 		// get OnlineUsers
-		owner, err := s.getUsernameByCookie(r)
+		_, err = s.getUsernameByCookie(r)
 		if err != nil {
 			logger(w, http.StatusUnauthorized, err)
 			return

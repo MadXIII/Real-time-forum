@@ -4,7 +4,7 @@ import "forum/internal/models"
 
 // Repository - interface to work with DB
 type Repository interface {
-	Init(dbname string) error
+	NewDB(dbname string) error
 	User
 	Post
 	Comment

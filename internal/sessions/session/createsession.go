@@ -7,12 +7,13 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-//Store - to store cookies in map type
+// Store - to store cookies in map type
 type Store struct {
 	cookies map[int]*http.Cookie
+	users   map[string]bool
 }
 
-//CreateSession - create session
+// CreateSession - create session
 func (s *Store) CreateSession(uid int) *http.Cookie {
 	sid := uuid.NewV4().String()
 	s.cookies[uid] = &http.Cookie{
@@ -24,14 +25,18 @@ func (s *Store) CreateSession(uid int) *http.Cookie {
 	return s.cookies[uid]
 }
 
-//New - Initializtioner of cookie store
-func New() *Store {
+// New - Initializtioner of cookie store
+func NewSessionStore(usersList []string) *Store {
 	s := new(Store)
 	s.cookies = make(map[int]*http.Cookie)
+	s.users = make(map[string]bool)
+	for _, user := range usersList {
+		s.users[user] = false
+	}
 	return s
 }
 
-//DeleteCoo`kie - delete cookie if find from map
+// DeleteCoo`kie - delete cookie if find from map
 func (s *Store) DeleteCookie(ck *http.Cookie) error {
 	for key, val := range s.cookies {
 		if val.Value == ck.Value {
@@ -42,7 +47,7 @@ func (s *Store) DeleteCookie(ck *http.Cookie) error {
 	return newErr.ErrDelCookie
 }
 
-//CheckCookie - check cookie in map
+// CheckCookie - check cookie in map
 func (s *Store) CheckCookie(cookieHash string) error {
 	for _, r := range s.cookies {
 		if r.Value == cookieHash {
@@ -52,7 +57,7 @@ func (s *Store) CheckCookie(cookieHash string) error {
 	return newErr.ErrNoCookie
 }
 
-//GetIDByCookie - search userid in cookies by request.Cookie
+// GetIDByCookie - search userid in cookies by request.Cookie
 func (s *Store) GetIDByCookie(inpCookie *http.Cookie) (int, error) {
 	for id, ck := range s.cookies {
 		if ck.Value == inpCookie.Value {
@@ -60,4 +65,7 @@ func (s *Store) GetIDByCookie(inpCookie *http.Cookie) (int, error) {
 		}
 	}
 	return 0, newErr.ErrNoCookie
+}
+
+func (s *Store) AddOnlineUser(nickname string) {
 }

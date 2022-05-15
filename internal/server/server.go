@@ -20,7 +20,7 @@ type Server struct {
 }
 
 // Init - Generator of Server struct
-func Init(store database.Repository, cookiesStore session.Repository) *Server {
+func NewServer(store database.Repository, cookiesStore session.Repository) *Server {
 	return &Server{
 		store:        store,
 		router:       *http.NewServeMux(),

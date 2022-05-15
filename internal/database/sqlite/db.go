@@ -8,13 +8,13 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-//Store - store hole of DB
+// Store - store hole of DB
 type Store struct {
 	db *sql.DB
 }
 
-//Init - Creat DB if not created
-func (s *Store) Init(dbname string) (err error) {
+// Init - Creat DB if not created
+func (s *Store) NewDB(dbname string) (err error) {
 	s.db, err = sql.Open("sqlite3", dbname)
 	if err != nil {
 		return fmt.Errorf("InitDB, sql.Open: %w", err)

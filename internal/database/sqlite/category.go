@@ -6,7 +6,7 @@ import (
 	"forum/internal/models"
 )
 
-//InsertCategories - insert Categories in db, while we Init db
+// InsertCategories - insert Categories in db, while we Init db
 func (s *Store) InsertCategories(categories []string) error {
 	for _, category := range categories {
 		categoryRow, err := s.db.Prepare(`INSERT INTO category (name) VALUES (?)
@@ -27,7 +27,7 @@ func (s *Store) InsertCategories(categories []string) error {
 	return nil
 }
 
-//GetCategories - Get all Categories from db
+// GetCategories - Get all Categories from db
 func (s *Store) GetCategories() ([]models.Categories, error) {
 	var categories []models.Categories
 
@@ -53,7 +53,7 @@ func (s *Store) GetCategories() ([]models.Categories, error) {
 	return categories, nil
 }
 
-//CheckCategoryID - check request Categories for correct ID
+// CheckCategoryID - check request Categories for correct ID
 func (s *Store) CheckCategoryID(categoryID int) error {
 	if categoryID < 1 || categoryID > 4 {
 		return newErr.ErrWrongCategory
