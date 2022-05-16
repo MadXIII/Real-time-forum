@@ -12,7 +12,7 @@ func (s *Server) middleWare(handler func(http.ResponseWriter, *http.Request)) ht
 			http.Redirect(w, r, "/signin", http.StatusSeeOther)
 			return
 		}
-		if err := s.cookiesStore.CheckCookie(ck.Value); err != nil {
+		if err := s.session.CheckCookie(ck.Value); err != nil {
 			http.Redirect(w, r, "/signin", http.StatusSeeOther)
 			return
 		}

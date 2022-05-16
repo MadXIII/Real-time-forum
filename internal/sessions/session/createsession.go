@@ -67,5 +67,14 @@ func (s *Store) GetIDByCookie(inpCookie *http.Cookie) (int, error) {
 	return 0, newErr.ErrNoCookie
 }
 
-func (s *Store) AddOnlineUser(nickname string) {
+func (s *Store) SetOnlineUser(nickname string) {
+	s.users[nickname] = true
+}
+
+func (s *Store) SetOfflineUser(nickname string) {
+	s.users[nickname] = false
+}
+
+func (s *Store) GetOnlineList() map[string]bool {
+	return s.users
 }

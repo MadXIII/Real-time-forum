@@ -39,20 +39,8 @@ var upgrader = websocket.Upgrader{
 
 func (s *Server) WSChat(h *Hub, w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		usernames, err := s.store.GetAllUsernames()
-		if err != nil {
-			logger(w, http.StatusInternalServerError, err)
-			return
-		}
+		onlineList := s.session.GetOnlineList()
 
-		fmt.Println(usernames)
-		// get ListUsers
-		// get OnlineUsers
-		_, err = s.getUsernameByCookie(r)
-		if err != nil {
-			logger(w, http.StatusUnauthorized, err)
-			return
-		}
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			logger(w, http.StatusInternalServerError, fmt.Errorf("WSChat, Upgrade: %v", err))
@@ -88,12 +76,11 @@ func (c *Client) WriteClient() {
 				return
 			}
 
-			i, err := w.Write(message)
+			_, err = w.Write(message)
 			if err != nil {
 				log.Println(err)
 				return
 			}
-			log.Println(i)
 
 			for i := 0; i < len(c.send); i++ {
 				w.Write([]byte{'\n'})

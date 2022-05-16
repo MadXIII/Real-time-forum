@@ -50,8 +50,10 @@ func (s *Server) handleSignIn(w http.ResponseWriter, r *http.Request) {
 		logger(w, http.StatusBadRequest, newErr.ErrWrongPass)
 		return
 	}
+	s.session.SetOnlineUser(user.Nickname)
 
-	cookie := s.cookiesStore.CreateSession(user.ID)
+	fmt.Println(s.session.GetOnlineList())
+	cookie := s.session.CreateSession(user.ID)
 	http.SetCookie(w, cookie)
 	success(w, "Login is Done")
 }

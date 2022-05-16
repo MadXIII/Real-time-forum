@@ -139,7 +139,7 @@ func (s *Server) checkInsertUpdVote(req *http.Request, like *models.PostLike) (s
 	if err != nil {
 		return http.StatusUnauthorized, newErr.ErrUnsignVote
 	}
-	like.UserID, err = s.cookiesStore.GetIDByCookie(ck)
+	like.UserID, err = s.session.GetIDByCookie(ck)
 	if err != nil || like.UserID < 1 {
 		return http.StatusUnauthorized, newErr.ErrUnsignVote
 	}

@@ -117,7 +117,7 @@ func (s *Server) getUsernameByCookie(req *http.Request) (string, error) {
 		return "", fmt.Errorf("getUsernameByCookie, r.Cookie(\"session\"): %w", err)
 	}
 
-	id, err := s.cookiesStore.GetIDByCookie(ck)
+	id, err := s.session.GetIDByCookie(ck)
 	if err != nil {
 		return "", err
 	}

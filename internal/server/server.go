@@ -13,19 +13,19 @@ import (
 
 // Server - store of DB, routes, cookies
 type Server struct {
-	store        database.Repository
-	router       http.ServeMux
-	cookiesStore session.Repository
-	hub          *Hub
+	store   database.Repository
+	router  http.ServeMux
+	session session.Repository
+	hub     *Hub
 }
 
 // Init - Generator of Server struct
-func NewServer(store database.Repository, cookiesStore session.Repository) *Server {
+func NewServer(store database.Repository, session session.Repository) *Server {
 	return &Server{
-		store:        store,
-		router:       *http.NewServeMux(),
-		cookiesStore: cookiesStore,
-		hub:          NewHub(),
+		store:   store,
+		router:  *http.NewServeMux(),
+		session: session,
+		hub:     NewHub(),
 	}
 }
 
