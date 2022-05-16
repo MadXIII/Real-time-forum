@@ -70,13 +70,11 @@ func (h *Hub) messageListener() {
 }
 
 // ListenAndServe - Listener with Configurations to ServMUX
-func (s *Server) ListenAndServe(port string) {
+func (s *Server) ListenAndServe(port string) error {
 	s.Conf()
 	log.Println("Server is listening" + port)
 	err := http.ListenAndServe(port, &s.router)
-	if err != nil {
-		fmt.Println(err)
-	}
+	return err
 }
 
 // Parser - to parse indexhtml

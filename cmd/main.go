@@ -29,6 +29,8 @@ func main() {
 	if port == "" {
 		port = "8383"
 	}
-	server.ListenAndServe(":" + port)
+	if err := server.ListenAndServe(":" + port); err != nil {
+		log.Fatal(err)
+	}
 	fmt.Println(usersList)
 }

@@ -158,10 +158,25 @@ func (s *Store) NewDB(dbname string) (err error) {
 
 	defer commentLikeTable.Close()
 
-	// chatTable, err := s.db.Prepare(`(CREATE TABLE IF NOT EXISTS chat (
-	// 	id integer NOT NULL,
-	// 	main_user VARCHAR(100)
-	// );`)
+	chatTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS chat (
+		id integer NOT NULL,
+		sender VARCHAR(100) NOT NULL,
+		reciever VARCHAR(100) NOT NULL,
+		message VARCHAR (255) NOT NULL,
+		timestamp TEXT NOT NULL,
+		FOREIGN KEY(sender) REFERENCES user(nickname),
+		FOREIGN KEY(reciever) REFERENCES user(nickname)
+	);`)
+	if err != nil {
+		return fmt.Errorf("InitDB, chatTable.Prepare: %w", err)
+	}
+
+	_, err = chatTable.Exec()
+	if err != nil {
+		return fmt.Errorf("InitDB, chatTable.Exec: %w", err)
+	}
+
+	defer chatTable.Close()
 
 	log.Println("DB Created")
 	return

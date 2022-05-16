@@ -53,7 +53,15 @@ type Sign struct {
 }
 
 type OnlineUsers struct {
-	ID       int    `json:"id_online"`
+	ID       int    `json:"online_id"`
 	Nickname string `json:"nickname"`
 	Online   bool   `json:"online"`
+}
+
+type MessageData struct {
+	ID               int    `json:"message_id"`
+	SenderNickname   string `json:"sender"`
+	ReceiverNickname string `json:"receiver"`
+	Message          string `json:"message"`
+	Timestamp        string `json:"timestamp"`
 }
