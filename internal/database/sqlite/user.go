@@ -68,23 +68,24 @@ func (s *Store) GetUsernameByID(id int) (string, error) {
 	return username, nil
 }
 
-func (s *Store) GetAllUsernames() ([]string, error) {
-	var usernames []string
+func (s *Store) GetAllUsernamesID() ([]models.OnlineUsers, error) {
+	users := []models.OnlineUsers{}
 
 	rows, err := s.db.Query(`
-	SELECT nickname FROM user
+	SELECT id, nickname FROM user
 	`)
 	if err != nil {
-		return usernames, fmt.Errorf("GetAllUsernames, Query: %w", err)
+		return nil, fmt.Errorf("GetAllUsernames, Query: %w", err)
 	}
 
-	var username string
+	user := models.OnlineUsers{}
+
 	for rows.Next() {
-		if err = rows.Scan(&username); err != nil {
-			return usernames, fmt.Errorf("GetAllUsernames, Scan: %w", err)
+		if err = rows.Scan(&user.ID, &user.Nickname); err != nil {
+			return nil, fmt.Errorf("GetAllUsernames, Scan: %w", err)
 		}
-		usernames = append(usernames, username)
+		users = append(users, user)
 	}
 
-	return usernames, nil
+	return users, nil
 }

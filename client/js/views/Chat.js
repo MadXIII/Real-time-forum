@@ -7,7 +7,7 @@ export default class extends AbstractView {
     }
 
     async init() {
-        // let response = await fetch('http://localhost:8282/api/chat')
+        // let response = await fetch('http://localhost:8383/api/chat')
         window.onload = function () {
 
                 var conn;
@@ -35,7 +35,7 @@ export default class extends AbstractView {
                 };
 
 
-                conn = new WebSocket("ws://localhost:8282/api/chat");
+                conn = new WebSocket("ws://localhost:8383/api/chat");
 
                 conn.onclose = function (evt) {
                     var item = document.createElement("div");

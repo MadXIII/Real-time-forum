@@ -51,3 +51,9 @@ type Sign struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
 }
+
+type OnlineUsers struct {
+	ID       int    `json:"id_online"`
+	Nickname string `json:"nickname"`
+	Online   bool   `json:"online"`
+}

@@ -39,7 +39,7 @@ var upgrader = websocket.Upgrader{
 
 func (s *Server) WSChat(h *Hub, w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		onlineList := s.session.GetOnlineList()
+		// onlineList := s.session.GetOnlineList()
 
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {

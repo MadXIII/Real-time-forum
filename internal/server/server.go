@@ -73,7 +73,10 @@ func (h *Hub) messageListener() {
 func (s *Server) ListenAndServe(port string) {
 	s.Conf()
 	log.Println("Server is listening" + port)
-	http.ListenAndServe(port, &s.router)
+	err := http.ListenAndServe(port, &s.router)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 // Parser - to parse indexhtml

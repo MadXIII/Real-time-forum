@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	db "forum/internal/database/sqlite"
 	"forum/internal/server"
 	"forum/internal/sessions/session"
@@ -17,14 +18,17 @@ func main() {
 
 	defer db.Close()
 
-	usersList, err := db.GetAllUsernames()
+	usersList, err := db.GetAllUsernamesID()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	sessionService := session.NewSessionStore(usersList)
 	server := server.NewServer(&db, sessionService)
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8282"
+		port = "8383"
 	}
-
 	server.ListenAndServe(":" + port)
+	fmt.Println(usersList)
 }

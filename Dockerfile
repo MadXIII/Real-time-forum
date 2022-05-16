@@ -9,6 +9,6 @@ RUN go mod download
 
 COPY . /app
 
-EXPOSE 8282
+EXPOSE 8383
 
 CMD ["make", "all"]

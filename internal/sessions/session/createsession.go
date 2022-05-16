@@ -2,6 +2,7 @@ package session
 
 import (
 	newErr "forum/internal/error"
+	"forum/internal/models"
 	"net/http"
 
 	uuid "github.com/satori/go.uuid"
@@ -10,7 +11,7 @@ import (
 // Store - to store cookies in map type
 type Store struct {
 	cookies map[int]*http.Cookie
-	users   map[string]bool
+	users   []models.OnlineUsers
 }
 
 // CreateSession - create session
@@ -26,13 +27,13 @@ func (s *Store) CreateSession(uid int) *http.Cookie {
 }
 
 // New - Initializtioner of cookie store
-func NewSessionStore(usersList []string) *Store {
+func NewSessionStore(usersList []models.OnlineUsers) *Store {
 	s := new(Store)
+
 	s.cookies = make(map[int]*http.Cookie)
-	s.users = make(map[string]bool)
-	for _, user := range usersList {
-		s.users[user] = false
-	}
+
+	s.users = usersList
+
 	return s
 }
 
@@ -68,13 +69,21 @@ func (s *Store) GetIDByCookie(inpCookie *http.Cookie) (int, error) {
 }
 
 func (s *Store) SetOnlineUser(nickname string) {
-	s.users[nickname] = true
+	for i, user := range s.users {
+		if user.Nickname == nickname {
+			s.users[i].Online = true
+		}
+	}
 }
 
 func (s *Store) SetOfflineUser(nickname string) {
-	s.users[nickname] = false
+	for i, user := range s.users {
+		if user.Nickname == nickname {
+			s.users[i].Online = false
+		}
+	}
 }
 
-func (s *Store) GetOnlineList() map[string]bool {
+func (s *Store) GetOnlineList() []models.OnlineUsers {
 	return s.users
 }

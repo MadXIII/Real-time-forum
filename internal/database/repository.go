@@ -17,7 +17,7 @@ type User interface {
 	InsertUser(*models.User) error
 	GetUserByLogin(string) (models.User, error)
 	GetUsernameByID(int) (string, error)
-	GetAllUsernames() ([]string, error)
+	GetAllUsernamesID() ([]models.OnlineUsers, error)
 }
 
 type Post interface {

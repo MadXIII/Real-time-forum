@@ -1,6 +1,9 @@
 package session
 
-import "net/http"
+import (
+	"forum/internal/models"
+	"net/http"
+)
 
 // Repository - interface to work with cookies
 type Repository interface {
@@ -18,5 +21,5 @@ type Cookies interface {
 type UserList interface {
 	SetOnlineUser(string)
 	SetOfflineUser(string)
-	GetOnlineList() map[string]bool
+	GetOnlineList() []models.OnlineUsers
 }

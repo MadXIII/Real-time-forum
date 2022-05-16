@@ -10,7 +10,7 @@ export default class extends AbstractView {
     async init() {
         let urlID = new URLSearchParams(window.location.search).get('id')
 
-        let response = await fetch(`http://localhost:8282/api/post?id=${urlID}`)
+        let response = await fetch(`http://localhost:8383/api/post?id=${urlID}`)
 
         if (response.ok) {
             let res = await response.json()
@@ -35,7 +35,7 @@ export default class extends AbstractView {
                 cpost_id: parseInt(urlID),
                 content: newComment.value,
             }
-            let response = await fetch('http://localhost:8282/api/post', {
+            let response = await fetch('http://localhost:8383/api/post', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
@@ -66,7 +66,7 @@ export default class extends AbstractView {
                 post_id: parseInt(urlID),
                 vote_type: "like",
             }
-            let response = await fetch('http://localhost:8282/api/post', {
+            let response = await fetch('http://localhost:8383/api/post', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'

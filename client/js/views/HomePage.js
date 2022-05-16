@@ -8,7 +8,7 @@ export default class extends AbstractView {
     }
 
     async init() {
-        let response = await fetch('http://localhost:8282/api/')
+        let response = await fetch('http://localhost:8383/api/')
 
         if (response.ok) {
             let result = await response.json()
@@ -26,7 +26,7 @@ export default class extends AbstractView {
             let category = {
                 id: parseInt(cateogriesID.value)
             }
-            let response = await fetch('http://localhost:8282/api/', {
+            let response = await fetch('http://localhost:8383/api/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
