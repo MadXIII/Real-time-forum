@@ -27,9 +27,9 @@ func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
 
 // handleGetPostPage - if GetPost GET method
 func (s *Server) handleGetPostPage(w http.ResponseWriter, r *http.Request) {
-	postid, err := checkAndGetPostID(r)
+	postid, err := checkAndGetParamID(r)
 	if err != nil {
-		logger(w, http.StatusBadRequest, fmt.Errorf("handleGetPostPage, checkAndGetPostID: %w", err))
+		logger(w, http.StatusBadRequest, fmt.Errorf("handleGetPostPage, checkAndGetParamID: %w", err))
 		return
 	}
 
@@ -97,14 +97,14 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 	success(w, "Comment is created")
 }
 
-// checkAndGetPostID - get PostID from request and check for digits
-func checkAndGetPostID(r *http.Request) (string, error) {
+// checkAndGetParamID - get PostID from request and check for digits
+func checkAndGetParamID(r *http.Request) (string, error) {
 	r.ParseForm()
 	value := r.FormValue("id")
 
 	_, err := strconv.Atoi(value)
 	if err != nil {
-		return "", fmt.Errorf("checkAndGetPostID, Atoi: %w", err)
+		return "", fmt.Errorf("checkAndGetParamID, Atoi: %w", err)
 	}
 	return value, nil
 }
@@ -139,7 +139,7 @@ func (s *Server) checkInsertUpdVote(req *http.Request, like *models.PostLike) (s
 	if err != nil {
 		return http.StatusUnauthorized, newErr.ErrUnsignVote
 	}
-	like.UserID, err = s.session.GetIDByCookie(ck)
+	like.UserID, err = s.cookiesStore.GetIDByCookie(ck)
 	if err != nil || like.UserID < 1 {
 		return http.StatusUnauthorized, newErr.ErrUnsignVote
 	}

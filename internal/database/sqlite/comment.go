@@ -5,19 +5,17 @@ import (
 	"forum/internal/models"
 )
 
-//InsertComment - Insert new comment in db
+// InsertComment - Insert new comment in db
 func (s *Store) InsertComment(newComment *models.Comment) error {
 	createRow, err := s.db.Prepare(`
 		INSERT INTO comment
 		(post_id, username, content, timestamp)
 		VALUES (?, ?, ?, ?)
 		`)
-
-	defer createRow.Close()
-
 	if err != nil {
 		return fmt.Errorf("InsertComment, Prepare: %w", err)
 	}
+	defer createRow.Close()
 
 	res, err := createRow.Exec(
 		newComment.PostID,
@@ -38,19 +36,17 @@ func (s *Store) InsertComment(newComment *models.Comment) error {
 	return nil
 }
 
-//GetCommentsByPostID - Get slice of all comments by postID
+// GetCommentsByPostID - Get slice of all comments by postID
 func (s *Store) GetCommentsByPostID(pid string) ([]models.Comment, error) {
 	var comments []models.Comment
 
 	rows, err := s.db.Query(`
 		SELECT * FROM comment WHERE post_id = ?
 	`, pid)
-
-	defer rows.Close()
-
 	if err != nil {
 		return nil, fmt.Errorf("GetCommentsByPostID, Query: %w", err)
 	}
+	defer rows.Close()
 
 	var comment models.Comment
 	for rows.Next() {

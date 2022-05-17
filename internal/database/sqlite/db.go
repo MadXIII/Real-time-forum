@@ -159,13 +159,14 @@ func (s *Store) NewDB(dbname string) (err error) {
 	defer commentLikeTable.Close()
 
 	chatTable, err := s.db.Prepare(`CREATE TABLE IF NOT EXISTS chat (
-		id integer NOT NULL,
+		chat_id integer NOT NULL,
 		sender VARCHAR(100) NOT NULL,
-		reciever VARCHAR(100) NOT NULL,
+		receiver VARCHAR(100) NOT NULL,
 		message VARCHAR (255) NOT NULL,
 		timestamp TEXT NOT NULL,
+		FOREIGN KEY(chat_id) REFERENCES user(id),
 		FOREIGN KEY(sender) REFERENCES user(nickname),
-		FOREIGN KEY(reciever) REFERENCES user(nickname)
+		FOREIGN KEY(receiver) REFERENCES user(nickname)
 	);`)
 	if err != nil {
 		return fmt.Errorf("InitDB, chatTable.Prepare: %w", err)

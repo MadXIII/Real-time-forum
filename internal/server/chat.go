@@ -39,13 +39,20 @@ var upgrader = websocket.Upgrader{
 
 func (s *Server) WSChat(h *Hub, w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		// onlineList := s.session.GetOnlineList()
-
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			logger(w, http.StatusInternalServerError, fmt.Errorf("WSChat, Upgrade: %v", err))
 			return
 		}
+
+		chatID, err := checkAndGetParamID(r)
+		if err != nil {
+			logger(w, http.StatusBadRequest, fmt.Errorf("WSChat, GetPostByID: %w", err))
+			return
+		}
+
+		s.store.GetUsernameByID(chatID)
+
 		client := &Client{hub: h, conn: conn, send: make(chan []byte, 256)}
 		client.hub.Register <- client
 		go client.WriteClient()
@@ -72,13 +79,13 @@ func (c *Client) WriteClient() {
 
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
-				log.Println(err)
+				log.Printf("error: WriteClient, NextWriter: %v", err)
 				return
 			}
 
 			_, err = w.Write(message)
 			if err != nil {
-				log.Println(err)
+				log.Printf("error: WriteClient, Write: %v", err)
 				return
 			}
 
@@ -88,13 +95,13 @@ func (c *Client) WriteClient() {
 			}
 
 			if err = w.Close(); err != nil {
-				log.Println(err)
+				log.Printf("error: WriteClient, Close: %v", err)
 				return
 			}
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				log.Println(err)
+				log.Printf("error: WriteClient, WriteMessage: %v", err)
 				return
 			}
 		}

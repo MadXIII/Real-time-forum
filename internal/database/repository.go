@@ -10,6 +10,7 @@ type Repository interface {
 	Comment
 	Vote
 	Category
+	Chat
 	Close()
 }
 
@@ -42,4 +43,9 @@ type Category interface {
 	InsertCategories([]string) error
 	GetCategories() ([]models.Categories, error)
 	CheckCategoryID(int) error
+}
+
+type Chat interface {
+	InsertMessage(models.MessageData) error
+	GetChatByID(int, string) ([]models.MessageData, error)
 }
