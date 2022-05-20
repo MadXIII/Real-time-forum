@@ -38,12 +38,21 @@ func (s *Server) handleMainPageGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	usernames, err := s.store.GetAllUsernamesID()
+	fmt.Println(usernames)
+	if err != nil {
+		logger(w, http.StatusInternalServerError, fmt.Errorf("MainPage, GetAllUsernamesID: %w", err))
+		return
+	}
+
 	response := struct {
 		Categories []models.Categories
 		Posts      []models.Post
+		Usernames  []models.OnlineUsers
 	}{
 		Categories: getCategories,
 		Posts:      getPosts,
+		Usernames:  usernames,
 	}
 
 	bytes, err := json.Marshal(response)

@@ -19,6 +19,7 @@ type Cookies interface {
 }
 
 type UserList interface {
+	AddOnlineUser(int, string)
 	SetOnlineUser(string)
 	SetOfflineUser(string)
 	GetOnlineList() []models.OnlineUsers

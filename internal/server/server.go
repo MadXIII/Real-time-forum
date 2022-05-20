@@ -100,6 +100,7 @@ func logger(w http.ResponseWriter, status int, inputErr error) {
 		log.Println(inputErr)
 		return
 	}
+	fmt.Println("STATUS", status)
 	w.WriteHeader(status)
 	log.Println(inputErr)
 }

@@ -3,8 +3,10 @@ package server
 import (
 	"bytes"
 	"fmt"
+	"forum/internal/models"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -45,13 +47,38 @@ func (s *Server) WSChat(h *Hub, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		chatID, err := checkAndGetParamID(r)
+		param, err := checkAndGetParamID(r)
+		fmt.Println(param)
 		if err != nil {
-			logger(w, http.StatusBadRequest, fmt.Errorf("WSChat, GetPostByID: %w", err))
+			logger(w, http.StatusBadRequest, fmt.Errorf("WSChat, checkAndGetParamID: %w", err))
+			return
+		}
+		param = "1"
+		chatID, err := strconv.Atoi(param)
+		if err != nil {
+			logger(w, http.StatusBadRequest, fmt.Errorf("WSChat, Atoi: %w", err))
 			return
 		}
 
-		s.store.GetUsernameByID(chatID)
+		var data models.MessageData
+		data.ReceiverNickname, err = s.store.GetUsernameByID(chatID)
+		if err != nil {
+			logger(w, http.StatusInternalServerError, fmt.Errorf("WSChat, GetUsernameByID: %w", err))
+			return
+		}
+
+		data.SenderNickname, err = s.getUsernameByCookie(r)
+		if err != nil {
+			logger(w, http.StatusInternalServerError, fmt.Errorf("WSChat, getUsernameByCookie: %w", err))
+			return
+		}
+
+		chat, err := s.store.GetChatByID(chatID, data.SenderNickname)
+		if err != nil {
+			logger(w, http.StatusInternalServerError, fmt.Errorf("WSChat, GetChatByID: %w", err))
+			return
+		}
+		fmt.Println("CHAT", chat)
 
 		client := &Client{hub: h, conn: conn, send: make(chan []byte, 256)}
 		client.hub.Register <- client

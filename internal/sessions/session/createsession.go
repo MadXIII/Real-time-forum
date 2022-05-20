@@ -68,6 +68,16 @@ func (s *Store) GetIDByCookie(inpCookie *http.Cookie) (int, error) {
 	return 0, newErr.ErrNoCookie
 }
 
+func (s *Store) AddOnlineUser(id int, nickname string) {
+	user := models.OnlineUsers{
+		ID:       id,
+		Nickname: nickname,
+		Online:   true,
+	}
+
+	s.users = append(s.users, user)
+}
+
 func (s *Store) SetOnlineUser(nickname string) {
 	for i, user := range s.users {
 		if user.Nickname == nickname {

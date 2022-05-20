@@ -101,6 +101,7 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 func checkAndGetParamID(r *http.Request) (string, error) {
 	r.ParseForm()
 	value := r.FormValue("id")
+	fmt.Println(value)
 
 	_, err := strconv.Atoi(value)
 	if err != nil {
@@ -139,7 +140,7 @@ func (s *Server) checkInsertUpdVote(req *http.Request, like *models.PostLike) (s
 	if err != nil {
 		return http.StatusUnauthorized, newErr.ErrUnsignVote
 	}
-	like.UserID, err = s.cookiesStore.GetIDByCookie(ck)
+	like.UserID, err = s.session.GetIDByCookie(ck)
 	if err != nil || like.UserID < 1 {
 		return http.StatusUnauthorized, newErr.ErrUnsignVote
 	}

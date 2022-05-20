@@ -55,7 +55,7 @@ func (s *Server) handleCreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// s.session.SetOnlineUser(newUser.Nickname)
+	s.session.AddOnlineUser(newUser.ID, newUser.Nickname)
 
 	cookie := s.session.CreateSession(newUser.ID)
 	http.SetCookie(w, cookie)
