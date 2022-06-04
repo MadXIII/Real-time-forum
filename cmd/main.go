@@ -1,21 +1,23 @@
 package main
 
 import (
-	db "forum/internal/database/sqlite"
+	"forum/internal/repository/sqlite"
 	"forum/internal/server"
 	"forum/internal/sessions/session"
+	"forum/repository"
+	"forum/repository/sqlite"
 	"log"
 	"os"
 )
 
 func main() {
-	store := db.Store{}
-	err := store.Init("forum.db")
+	db, err := sqlite.New("forum.db")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("error initializing db: %s", err.Error())
 	}
+	defer db.Close()
 
-	defer store.Close()
+	repos := repository.New(db)
 
 	sessionService := session.New()
 	server := server.Init(&store, sessionService)
