@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"forum/internal/sqlite"
-	"forum/model"
+	"github.com/madxiii/real-time-forum/model"
+	"github.com/madxiii/real-time-forum/repository/sqlite"
 
 	"github.com/jmoiron/sqlx"
 )

@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/jmoiron/sqlx"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func New(name string) (*sqlx.DB, error) {

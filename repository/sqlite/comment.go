@@ -2,9 +2,9 @@ package sqlite
 
 import (
 	"fmt"
-	"forum/internal/models"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/madxiii/real-time-forum/model"
 )
 
 type Comment struct {
@@ -16,7 +16,7 @@ func NewComment(db *sqlx.DB) *Comment {
 }
 
 // InsertComment - Insert new comment in db
-func (c *Comment) InsertComment(newComment *models.Comment) error {
+func (c *Comment) InsertComment(newComment *model.Comment) error {
 	createRow, err := c.db.Prepare(`
 		INSERT INTO comment
 		(post_id, username, content, timestamp)
@@ -49,8 +49,8 @@ func (c *Comment) InsertComment(newComment *models.Comment) error {
 }
 
 // GetCommentsByPostID - Get slice of all comments by postID
-func (c *Comment) GetCommentsByPostID(pid string) ([]models.Comment, error) {
-	var comments []models.Comment
+func (c *Comment) GetCommentsByPostID(pid string) ([]model.Comment, error) {
+	var comments []model.Comment
 
 	rows, err := c.db.Query(`
 		SELECT * FROM comment WHERE post_id = ?
@@ -62,7 +62,7 @@ func (c *Comment) GetCommentsByPostID(pid string) ([]models.Comment, error) {
 		return nil, fmt.Errorf("GetCommentsByPostID, Query: %w", err)
 	}
 
-	var comment models.Comment
+	var comment model.Comment
 	for rows.Next() {
 		if err := rows.Scan(&comment.ID, &comment.PostID, &comment.Username, &comment.Content, &comment.Timestamp); err != nil {
 			return nil, fmt.Errorf("GetCommentsByPostID, Scan: %w", err)

@@ -1,30 +1,29 @@
 package main
 
 import (
-	"forum/internal/repository/sqlite"
-	"forum/internal/server"
-	"forum/internal/sessions/session"
-	"forum/repository"
-	"forum/repository/sqlite"
 	"log"
-	"os"
+
+	"github.com/madxiii/real-time-forum/http"
+	"github.com/madxiii/real-time-forum/repository"
+	"github.com/madxiii/real-time-forum/repository/sqlite"
+	"github.com/madxiii/real-time-forum/server"
+	"github.com/madxiii/real-time-forum/service"
 )
 
 func main() {
 	db, err := sqlite.New("forum.db")
 	if err != nil {
-		log.Fatal("error initializing db: %s", err.Error())
+		log.Fatalf("error initializing db: %s", err.Error())
 	}
 	defer db.Close()
 
-	repos := repository.New(db)
+	repo := repository.New(db)
+	services := service.New(repo)
+	handlers := http.NewAPI(services).InitRoutes()
 
-	sessionService := session.New()
-	server := server.Init(&store, sessionService)
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8282"
+	serv := new(server.Server)
+
+	if err := serv.Run("localhost:8383", handlers); err != nil {
+		log.Fatalf("error occured while running server: %s", err.Error())
 	}
-
-	server.ListenAndServe(":" + port)
 }

@@ -1,28 +1,29 @@
 package sqlite
 
 import (
-	"database/sql"
 	"fmt"
-	"forum/internal/models"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/madxiii/real-time-forum/model"
 )
 
 type Post struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
-func NewPost(db *sql.DB) *Post {
+func NewPost(db *sqlx.DB) *Post {
 	return &Post{db: db}
 }
 
-// InsertPost - insert newpost in db
-func (p *Post) InsertPost(newPost *models.Post) (int, error) {
+// CreatePost - insert newpost in db
+func (p *Post) CreatePost(newPost *model.Post) (int, error) {
 	createRow, err := p.db.Prepare(`
 		INSERT INTO post 
 		(username, category_id, title, content, timestamp, like_count)
 		VALUES (?, ?, ?, ?, ?, ?)
 	`)
 	if err != nil {
-		return 0, fmt.Errorf("InsertPost, Prepare: %w", err)
+		return 0, fmt.Errorf("CreatePost, Prepare: %w", err)
 	}
 
 	res, err := createRow.Exec(
@@ -34,12 +35,12 @@ func (p *Post) InsertPost(newPost *models.Post) (int, error) {
 		newPost.LikeCount,
 	)
 	if err != nil {
-		return 0, fmt.Errorf("InsertPost, Exec: %w", err)
+		return 0, fmt.Errorf("CreatePost, Exec: %w", err)
 	}
 
 	postid, err := res.LastInsertId()
 	if err != nil {
-		return 0, fmt.Errorf("InsertPost, LastInsertId: %w", err)
+		return 0, fmt.Errorf("CreatePost, LastInsertId: %w", err)
 	}
 	newPost.ID = int(postid)
 
@@ -47,8 +48,8 @@ func (p *Post) InsertPost(newPost *models.Post) (int, error) {
 }
 
 // GetPostByID - Get post by postID from db
-func (p *Post) GetPostByID(id string) (models.Post, error) {
-	var post models.Post
+func (p *Post) GetPostByID(id string) (model.Post, error) {
+	var post model.Post
 
 	err := p.db.QueryRow(`
 		SELECT * FROM post WHERE id = ?
@@ -61,15 +62,15 @@ func (p *Post) GetPostByID(id string) (models.Post, error) {
 }
 
 // GetAllPostsByCategoryID - Get all posts by CategoryID to show in main page
-func (p *Post) GetAllPostsByCategoryID(categoryID int) (posts []models.Post, err error) {
-	var rows *sql.Rows
+func (p *Post) GetAllPostsByCategoryID(categoryID int) (posts []model.Post, err error) {
+	var rows *sqlx.Rows
 
 	if categoryID < 2 {
-		rows, err = p.db.Query(`
+		rows, err = p.db.Queryx(`
 		SELECT * FROM post ORDER BY id DESC
 	`)
 	} else {
-		rows, err = p.db.Query(`
+		rows, err = p.db.Queryx(`
 		SELECT * FROM post WHERE category_id = ? ORDER BY id DESC
 		`, categoryID)
 	}
@@ -81,7 +82,7 @@ func (p *Post) GetAllPostsByCategoryID(categoryID int) (posts []models.Post, err
 	}
 
 	for rows.Next() {
-		var post models.Post
+		var post model.Post
 		if err := rows.Scan(&post.ID, &post.CategoryID, &post.Username, &post.Title, &post.Content, &post.Timestamp, &post.LikeCount); err != nil {
 			return nil, fmt.Errorf("GetAllPosts, Scan: %w", err)
 		}
@@ -89,27 +90,4 @@ func (p *Post) GetAllPostsByCategoryID(categoryID int) (posts []models.Post, err
 	}
 
 	return posts, nil
-}
-
-// UpdateVotes - udate LikeCount in Posts data
-func (p *Post) UpdateVotes(like *models.PostLike) error {
-	if like.VoteState {
-		_, err := p.db.Exec(`
-			UPDATE post SET like_count = like_count + 1
-			WHERE id = ?
-		`, like.PostID)
-		if err != nil {
-			return fmt.Errorf("UpdateVotes, incrementLike: %w", err)
-		}
-	}
-	if !like.VoteState {
-		_, err := p.db.Exec(`
-		UPDATE post SET like_count = like_count - 1
-		WHERE id = ?
-		`, like.PostID)
-		if err != nil {
-			return fmt.Errorf("UpdateVotes, decrementLike: %w", err)
-		}
-	}
-	return nil
 }

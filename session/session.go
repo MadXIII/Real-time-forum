@@ -25,7 +25,7 @@ type Cookie interface {
 
 func New() *Sesssion {
 	return &Sesssion{
-		Cookie: NewCookie(),
+		// Cookie: NewCookie(),
 		// Chat: NewChat(),
 	}
 }

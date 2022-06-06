@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -11,11 +12,12 @@ type Server struct {
 
 func (s *Server) Run(address string, handlers http.Handler) error {
 	s.httpServer = &http.Server{
-		Addr:           address, // TODO: specify an address ??????
+		Addr:           address,
 		Handler:        handlers,
 		MaxHeaderBytes: 1 << 20, // 1MB
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 	}
+	fmt.Println(address)
 	return s.httpServer.ListenAndServe()
 }

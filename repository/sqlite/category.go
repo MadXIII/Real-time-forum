@@ -2,8 +2,9 @@ package sqlite
 
 import (
 	"fmt"
-	newErr "forum/internal/error"
-	"forum/internal/models"
+
+	newErr "github.com/madxiii/real-time-forum/error"
+	"github.com/madxiii/real-time-forum/model"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -33,13 +34,12 @@ func (c *Category) InsertCategories(categories []string) error {
 			return fmt.Errorf("InsertCategories, Exec: %w", err)
 		}
 	}
-
 	return nil
 }
 
 // GetCategories - Get all Categories from db
-func (c *Category) GetCategories() ([]models.Categories, error) {
-	var categories []models.Categories
+func (c *Category) GetCategories() ([]model.Categories, error) {
+	var categories []model.Categories
 
 	rows, err := c.db.Query(`
 		SELECT * FROM category
@@ -51,7 +51,7 @@ func (c *Category) GetCategories() ([]models.Categories, error) {
 		return nil, fmt.Errorf("GetCategories, Query: %w", err)
 	}
 
-	var category models.Categories
+	var category model.Categories
 
 	for rows.Next() {
 		if err = rows.Scan(&category.ID, &category.Name); err != nil {
