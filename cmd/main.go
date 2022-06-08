@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/madxiii/real-time-forum/config"
 	"github.com/madxiii/real-time-forum/http"
 	"github.com/madxiii/real-time-forum/repository"
 	"github.com/madxiii/real-time-forum/repository/sqlite"
@@ -11,7 +12,12 @@ import (
 )
 
 func main() {
-	db, err := sqlite.New("forum.db")
+	configs, err := config.Get("./config/config.yml")
+	if err != nil {
+		log.Fatalf("error initializing configs: %s", err.Error())
+	}
+
+	db, err := sqlite.New(configs.DB)
 	if err != nil {
 		log.Fatalf("error initializing db: %s", err.Error())
 	}
@@ -23,7 +29,7 @@ func main() {
 
 	serv := new(server.Server)
 
-	if err := serv.Run("localhost:8383", handlers); err != nil {
+	if err := serv.Run(configs.Port, handlers); err != nil {
 		log.Fatalf("error occured while running server: %s", err.Error())
 	}
 }

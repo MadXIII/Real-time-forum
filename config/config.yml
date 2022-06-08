@@ -1,0 +1,9 @@
+server:
+  port: ":8282"
+
+db:
+  driver: "sqlite3"
+  store: "./cmd/"
+  filename: "forum.db"
+
+  

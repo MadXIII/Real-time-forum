@@ -5,11 +5,12 @@ import (
 	"log"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/madxiii/real-time-forum/config"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func New(name string) (*sqlx.DB, error) {
-	db, err := sqlx.Open("sqlite3", name)
+func New(cfg config.DB) (*sqlx.DB, error) {
+	db, err := sqlx.Open(cfg.Driver, cfg.Filename)
 	if err != nil {
 		return nil, fmt.Errorf("InitDB, sql.Open: %w", err)
 	}

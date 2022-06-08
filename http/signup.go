@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/madxiii/real-time-forum/model"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func (a *API) SignUp(w http.ResponseWriter, r *http.Request) {
@@ -19,57 +18,25 @@ func (a *API) SignUp(w http.ResponseWriter, r *http.Request) {
 		}
 
 		var newUser model.User
+
 		if err = json.Unmarshal(bytes, &newUser); err != nil {
 			logger(w, http.StatusBadRequest, fmt.Errorf("handleCreateAccount, Unmarshal: %w", err))
 			return
 		}
 
-		if err := isCorrectDatasToSignUp(newUser); err != nil {
-			logger(w, http.StatusBadRequest, err)
+		if status, err := a.service.Register(&newUser); err != nil {
+			logger(w, status, err)
 			return
 		}
 
-		bytes, err = bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.MinCost)
+		cookie, err := a.service.Create(newUser.ID)
 		if err != nil {
-			logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreateAccount, GenerateFromPassword: %w", err))
+			logger(w, http.StatusInternalServerError, err)
 			return
 		}
-		newUser.Password = string(bytes)
-
-		if err = s.insertUserDB(&newUser); err != nil {
-			logger(w, http.StatusBadRequest, err)
-			return
-		}
-
-		cookie := s.cookiesStore.CreateSession(newUser.ID)
 		http.SetCookie(w, cookie)
 		success(w, "User successfully created")
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
-	return
-}
-
-//handleCreateAccount - if SignUp POST method
-func (a *API) handleCreateAccount(w http.ResponseWriter, r *http.Request) {
-	bytes, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreateAccount, ReadAll(r.Body): %w", err))
-		return
-	}
-
-	var newUser model.User
-	if err = json.Unmarshal(bytes, &newUser); err != nil {
-		logger(w, http.StatusBadRequest, fmt.Errorf("handleCreateAccount, Unmarshal: %w", err))
-		return
-	}
-
-	if err := a.service.CheckUserData(newUser); err != nil {
-		logger(w, http.StatusBadRequest, err)
-		return
-	}
-
-	cookie := s.cookiesStore.CreateSession(newUser.ID)
-	http.SetCookie(w, cookie)
-	success(w, "User successfully created")
 }

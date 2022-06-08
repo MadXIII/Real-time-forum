@@ -23,7 +23,6 @@ func (a *API) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
-	return
 }
 
 func checkURLPath(path string) error {

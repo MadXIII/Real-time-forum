@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"unicode"
 
+	newErr "github.com/madxiii/real-time-forum/error"
 	"github.com/madxiii/real-time-forum/model"
 	"github.com/madxiii/real-time-forum/repository"
 	"golang.org/x/crypto/bcrypt"
@@ -20,34 +21,36 @@ func NewUser(repo repository.Repository) *User {
 	return &User{repo: repo}
 }
 
-func (u *User) CheckUserData(user model.User) error {
+func (u *User) Register(user *model.User) (int, error) {
 	if err := checkEmpty(user); err != nil {
-		return err
+		return http.StatusBadRequest, err
 	}
 	if err := isValidEmail(user.Email); err != nil {
-		return err
+		return http.StatusBadRequest, err
 	}
 	if user.Password != user.Confirm {
-		return newErr.ErrDiffSecondPass
+		return http.StatusBadRequest, newErr.ErrDiffSecondPass
 	}
 	if err := isValidPass(user.Password); err != nil {
-		return err
+		return http.StatusBadRequest, err
 	}
 	if err := isValidAge(user.Age); err != nil {
-		return err
+		return http.StatusBadRequest, err
 	}
 
-	bytes, err = bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
+	bytes, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
 	if err != nil {
-		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreateAccount, GenerateFromPassword: %w", err))
-		return
+		return http.StatusInternalServerError, fmt.Errorf("handleCreateAccount, GenerateFromPassword: %w", err)
 	}
 	user.Password = string(bytes)
 
-	return nil
+	if err := u.repo.User.CreateUser(user); err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return 0, nil
 }
 
-//checkin email for validity
+// checkin email for validity
 func isValidEmail(email string) error {
 	regex := regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9-_.]+[^\^!#\$%&'\@()*+\/=\?\^\n_{\|}~-]@[a-z]{2,}\.[a-zA-Z]{2,6}$`)
 	if !regex.MatchString(email) {
@@ -56,7 +59,7 @@ func isValidEmail(email string) error {
 	return nil
 }
 
-//checking pass for validity
+// checking pass for validity
 func isValidPass(pass string) error {
 	if len(pass) < 8 || len(pass) > 32 {
 		return newErr.ErrInvalidPass
@@ -84,7 +87,7 @@ func isValidPass(pass string) error {
 	return newErr.ErrInvalidPass
 }
 
-//isValidAge - is input age is valid?
+// isValidAge - is input age is valid?
 func isValidAge(age string) error {
 	if age == "" {
 		return nil
@@ -99,8 +102,8 @@ func isValidAge(age string) error {
 	return nil
 }
 
-//checking for empty fields in signup page
-func checkEmpty(newUser model.User) error {
+// checking for empty fields in signup page
+func checkEmpty(newUser *model.User) error {
 	if newUser.Nickname == "" {
 		return newErr.ErrEmptyNickname
 	}
