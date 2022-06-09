@@ -10,11 +10,21 @@ import (
 type Service struct {
 	Registerer
 	Loginer
+	Logouter
 	Cookie
+	Post
 }
 
 type Registerer interface {
 	Register(user *model.User) (int, error)
+}
+
+type Loginer interface {
+	Login(user model.Sign) (int, int, error)
+}
+
+type Logouter interface {
+	Logout(http.ResponseWriter, *http.Cookie)
 }
 
 type Cookie interface {
@@ -24,14 +34,16 @@ type Cookie interface {
 	GetIDByCookie(*http.Cookie) (int, error)
 }
 
-type Loginer interface {
-	Login(user model.Sign) (int, int, error)
+type Post interface {
+	Create(*model.Post) (int, int, error)
 }
 
 func New(repo *repository.Repository) *Service {
 	return &Service{
 		Registerer: NewUser(*repo),
 		Loginer:    NewLogin(*repo),
+		Logouter:   NewLogout(),
 		Cookie:     NewStore(),
+		Post:       NewPost(repo),
 	}
 }

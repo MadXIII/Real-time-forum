@@ -27,7 +27,7 @@ func (l *Login) Login(signer model.Sign) (int, int, error) {
 		return 0, http.StatusBadRequest, newErr.ErrWrongLogin
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(signer.Password), []byte(user.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(signer.Password)); err != nil {
 		return 0, http.StatusBadRequest, newErr.ErrWrongPass
 	}
 

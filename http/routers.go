@@ -22,9 +22,9 @@ func (a *API) InitRoutes() http.Handler {
 	mux.HandleFunc("/", a.Index)
 	mux.HandleFunc("/api/home", a.Home)
 	mux.HandleFunc("/api/signup", a.SignUp)
-	mux.HandleFunc("/api/signup", a.SignIn)
+	mux.HandleFunc("/api/signin", a.SignIn)
 	mux.HandleFunc("/api/logout", a.Logout)
-	mux.HandleFunc("/api/newpost", a.CreatePost)
+	// mux.HandleFunc("/api/newpost", a.CreatePost)
 
 	return mux
 }

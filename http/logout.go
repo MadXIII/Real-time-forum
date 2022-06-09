@@ -12,7 +12,7 @@ func (a *API) Logout(w http.ResponseWriter, r *http.Request) {
 			logger(w, http.StatusInternalServerError, fmt.Errorf("LogOut, r.Cookie(session): %w", err))
 			return
 		}
-		logout(w, ck)
+		a.service.Logout(w, ck)
 		if err := a.service.Cookie.Delete(ck); err != nil {
 			logger(w, http.StatusInternalServerError, fmt.Errorf("LogOut, DeleteCookie: %w", err))
 			return
@@ -21,5 +21,4 @@ func (a *API) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
-	return
 }

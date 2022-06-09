@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 	"unicode"
 
 	newErr "github.com/madxiii/real-time-forum/error"
@@ -45,7 +46,12 @@ func (u *User) Register(user *model.User) (int, error) {
 	user.Password = string(bytes)
 
 	if err := u.repo.User.CreateUser(user); err != nil {
-		return http.StatusInternalServerError, err
+		if strings.Contains(err.Error(), "nickname") {
+			return http.StatusBadRequest, newErr.ErrNickname
+		}
+		if strings.Contains(err.Error(), "email") {
+			return http.StatusBadRequest, newErr.ErrEmail
+		}
 	}
 	return 0, nil
 }
