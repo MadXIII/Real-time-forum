@@ -111,3 +111,8 @@ func (p *Post) voteThumbler(like *model.PostLike) (err error) {
 	}
 	return nil
 }
+
+func (p *Post) Comments(id int) ([]model.Comment, error) {
+	comments, err := p.repo.PostComments(id)
+	return comments, err
+}

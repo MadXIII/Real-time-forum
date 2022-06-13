@@ -30,7 +30,7 @@ type Post interface {
 
 type Comment interface {
 	InsertComment(comment *model.Comment) error
-	GetCommentsByPostID(id string) ([]model.Comment, error)
+	PostComments(id int) ([]model.Comment, error)
 }
 
 type Vote interface {

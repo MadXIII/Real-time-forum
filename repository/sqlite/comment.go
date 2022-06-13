@@ -47,7 +47,7 @@ func (c *Comment) InsertComment(newComment *model.Comment) error {
 }
 
 // GetCommentsByPostID - Get slice of all comments by postID
-func (c *Comment) PostComments(pid string) ([]model.Comment, error) {
+func (c *Comment) PostComments(pid int) ([]model.Comment, error) {
 	var comments []model.Comment
 
 	rows, err := c.db.Query(`

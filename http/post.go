@@ -18,18 +18,18 @@ func (a *API) Post(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// comments, err := s.store.GetCommentsByPostID(postid)
-		// if err != nil {
-		// 	logger(w, http.StatusInternalServerError, fmt.Errorf("handleGetPostPage, GetCommentsByPostID: %w", err))
-		// 	return
-		// }
+		comments, err := a.service.Comments(post.ID)
+		if err != nil {
+			logger(w, http.StatusInternalServerError, fmt.Errorf("handleGetPostPage, GetCommentsByPostID: %w", err))
+			return
+		}
 
 		PostData := struct {
 			Post     model.Post      `json:"Post"`
 			Comments []model.Comment `json:"Comments"`
 		}{
-			Post: post,
-			// Comments: comments,
+			Post:     post,
+			Comments: comments,
 		}
 
 		bytes, err := json.Marshal(&PostData)

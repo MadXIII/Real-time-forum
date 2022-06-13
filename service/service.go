@@ -40,6 +40,7 @@ type PostChecker interface {
 	Post(*http.Request) (model.Post, error)
 	CheckComment(*model.Comment) (int, error)
 	CheckVote(*model.PostLike) (int, error)
+	Comments(int) ([]model.Comment, error)
 }
 
 func New(repo *repository.Repository) *Service {
