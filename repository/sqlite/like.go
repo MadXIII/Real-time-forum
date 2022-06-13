@@ -21,12 +21,10 @@ func (v *Vote) CreateVote(like *model.PostLike) error {
 	createRow, err := v.db.Prepare(`
 		INSERT INTO postlike (user_id, post_id, like) VALUES (?, ?, ?)
 	`)
-
-	defer createRow.Close()
-
 	if err != nil {
 		return fmt.Errorf("CreateVote, Prepare: %w", err)
 	}
+	defer createRow.Close()
 
 	_, err = createRow.Exec(
 		like.UserID,
@@ -41,7 +39,7 @@ func (v *Vote) CreateVote(like *model.PostLike) error {
 }
 
 // GetVoteState - get state of vote of post from db
-func (v *Vote) GetVoteState(like *model.PostLike) (bool, error) {
+func (v *Vote) VoteState(like *model.PostLike) (bool, error) {
 	var vote bool
 
 	if err := v.db.QueryRow(`SELECT like FROM postlike WHERE post_id = ? AND user_id = ?

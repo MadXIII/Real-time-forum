@@ -6,14 +6,17 @@ import (
 
 	"github.com/gofrs/uuid"
 	newErr "github.com/madxiii/real-time-forum/error"
+	"github.com/madxiii/real-time-forum/repository"
 )
 
 type Store struct {
+	repo   repository.Repository
 	cookie map[int]*http.Cookie
 }
 
-func NewStore() *Store {
+func NewStore(repo repository.Repository) *Store {
 	return &Store{
+		repo:   repo,
 		cookie: map[int]*http.Cookie{},
 	}
 }
@@ -61,4 +64,24 @@ func (s *Store) GetIDByCookie(inpCookie *http.Cookie) (int, error) {
 		}
 	}
 	return 0, newErr.ErrNoCookie
+}
+
+// getUsernameByCookie - get Username from db, by GetIDByCookie
+func (s *Store) GetUsernameByCookie(req *http.Request) (string, error) {
+	ck, err := req.Cookie("session")
+	if err != nil {
+		return "", fmt.Errorf("GetUsernameByCookie, r.Cookie: %w", err)
+	}
+
+	id, err := s.GetIDByCookie(ck)
+	if err != nil {
+		return "", err
+	}
+
+	username, err := s.repo.GetUsernameByID(id)
+	if err != nil {
+		return "", err
+	}
+
+	return username, nil
 }

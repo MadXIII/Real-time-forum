@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/madxiii/real-time-forum/model"
@@ -16,7 +17,10 @@ func NewPost(db *sqlx.DB) *Post {
 }
 
 // CreatePost - insert newpost in db
-func (p *Post) CreatePost(newPost *model.Post) (int, error) {
+func (p *Post) CreatePost(post *model.Post) (int, error) {
+	// Set date format
+	post.Timestamp = time.Now().Format("2.Jan.2006, 15:04")
+
 	createRow, err := p.db.Prepare(`
 		INSERT INTO post 
 		(username, category_id, title, content, timestamp, like_count)
@@ -25,14 +29,15 @@ func (p *Post) CreatePost(newPost *model.Post) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("CreatePost, Prepare: %w", err)
 	}
+	defer createRow.Close()
 
 	res, err := createRow.Exec(
-		newPost.Username,
-		newPost.CategoryID,
-		newPost.Title,
-		newPost.Content,
-		newPost.Timestamp,
-		newPost.LikeCount,
+		post.Username,
+		post.CategoryID,
+		post.Title,
+		post.Content,
+		post.Timestamp,
+		post.LikeCount,
 	)
 	if err != nil {
 		return 0, fmt.Errorf("CreatePost, Exec: %w", err)
@@ -42,9 +47,9 @@ func (p *Post) CreatePost(newPost *model.Post) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("CreatePost, LastInsertId: %w", err)
 	}
-	newPost.ID = int(postid)
+	post.ID = int(postid)
 
-	return newPost.ID, nil
+	return post.ID, nil
 }
 
 // GetPostByID - Get post by postID from db

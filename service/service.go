@@ -12,7 +12,7 @@ type Service struct {
 	Loginer
 	Logouter
 	Cookie
-	Post
+	PostChecker
 }
 
 type Registerer interface {
@@ -32,18 +32,22 @@ type Cookie interface {
 	Delete(*http.Cookie) error
 	Check(string) error
 	GetIDByCookie(*http.Cookie) (int, error)
+	GetUsernameByCookie(*http.Request) (string, error)
 }
 
-type Post interface {
-	Create(*model.Post) (int, int, error)
+type PostChecker interface {
+	CheckData(*model.Post) (int, int, error)
+	Post(*http.Request) (model.Post, error)
+	CheckComment(*model.Comment) (int, error)
+	CheckVote(*model.PostLike) (int, error)
 }
 
 func New(repo *repository.Repository) *Service {
 	return &Service{
-		Registerer: NewUser(*repo),
-		Loginer:    NewLogin(*repo),
-		Logouter:   NewLogout(),
-		Cookie:     NewStore(),
-		Post:       NewPost(repo),
+		Registerer:  NewUser(*repo),
+		Loginer:     NewLogin(*repo),
+		Logouter:    NewLogout(),
+		Cookie:      NewStore(*repo),
+		PostChecker: NewPost(*repo),
 	}
 }

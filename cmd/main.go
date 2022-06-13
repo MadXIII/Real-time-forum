@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 
+	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/madxiii/real-time-forum/config"
 	"github.com/madxiii/real-time-forum/http"
 	"github.com/madxiii/real-time-forum/repository"

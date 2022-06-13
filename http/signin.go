@@ -35,6 +35,7 @@ func (a *API) SignIn(w http.ResponseWriter, r *http.Request) {
 		}
 		http.SetCookie(w, cookie)
 		success(w, "Login is Done")
+		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
 }

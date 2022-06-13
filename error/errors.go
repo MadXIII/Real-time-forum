@@ -48,9 +48,7 @@ func CheckErr(err error) bool {
 		return true
 	case ErrLenComment:
 		return true
-	case ErrUnsignComment:
-		return true
-	case ErrUnsignVote:
+	case ErrUnsignAction:
 		return true
 	case ErrWrongCategory:
 		return true
@@ -82,7 +80,6 @@ var (
 	ErrDelCookie      = errors.New("can't delete cookie")
 	ErrEmptyComment   = errors.New("comment is empty ")
 	ErrLenComment     = errors.New("comment is too Long")
-	ErrUnsignComment  = errors.New("need to login before to comment")
-	ErrUnsignVote     = errors.New("need to login before to vote")
+	ErrUnsignAction   = errors.New("client is unauthorized")
 	ErrWrongCategory  = errors.New("wrong Category")
 )

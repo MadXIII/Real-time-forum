@@ -27,6 +27,8 @@ func (u *User) CreateUser(user *model.User) error {
 		return fmt.Errorf("CreateUser, Prepare: %w", err)
 	}
 
+	defer createTable.Close()
+
 	res, err := createTable.Exec(
 		user.Nickname,
 		user.Email,

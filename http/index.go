@@ -26,7 +26,8 @@ func (a *API) Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func checkURLPath(path string) error {
-	if path != "/" && path != "/signin" && path != "/signup" && path != "/newpost" && path != "/post" && path != "/logout" {
+	if path != "/" && path != "/signin" && path != "/signup" && path != "/newpost" && path != "/post" && path != "/logout" && path != "/api/" {
+		fmt.Println("Test", path)
 		return newErr.ErrNotFound
 	}
 	return nil

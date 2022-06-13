@@ -22,12 +22,10 @@ func (c *Comment) InsertComment(newComment *model.Comment) error {
 		(post_id, username, content, timestamp)
 		VALUES (?, ?, ?, ?)
 		`)
-
-	defer createRow.Close()
-
 	if err != nil {
 		return fmt.Errorf("InsertComment, Prepare: %w", err)
 	}
+	defer createRow.Close()
 
 	res, err := createRow.Exec(
 		newComment.PostID,
@@ -49,18 +47,16 @@ func (c *Comment) InsertComment(newComment *model.Comment) error {
 }
 
 // GetCommentsByPostID - Get slice of all comments by postID
-func (c *Comment) GetCommentsByPostID(pid string) ([]model.Comment, error) {
+func (c *Comment) PostComments(pid string) ([]model.Comment, error) {
 	var comments []model.Comment
 
 	rows, err := c.db.Query(`
 		SELECT * FROM comment WHERE post_id = ?
 	`, pid)
-
-	defer rows.Close()
-
 	if err != nil {
 		return nil, fmt.Errorf("GetCommentsByPostID, Query: %w", err)
 	}
+	defer rows.Close()
 
 	var comment model.Comment
 	for rows.Next() {

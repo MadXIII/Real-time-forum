@@ -19,18 +19,17 @@ func NewCategory(db *sqlx.DB) *Category {
 
 // InsertCategories - insert Categories in db, while we Init db
 func (c *Category) InsertCategories(categories []string) error {
-	for _, category := range categories {
-		categoryRow, err := c.db.Prepare(`INSERT INTO category (name) VALUES (?)
+	for _, category := range categories { // FIXME without Prepare in For
+		categoryRow, err := c.db.Prepare(`INSERT INTO category (name) VALUES (?) 
 		`)
-		defer categoryRow.Close()
-
 		if err != nil {
 			return fmt.Errorf("InsertCategories, Prepare: %w", err)
 		}
 
-		_, err = categoryRow.Exec(category)
+		defer categoryRow.Close()
 
-		if err != nil && err.Error() != "UNIQUE constraint failed: category.name" {
+		_, err = categoryRow.Exec(category)
+		if err != nil && err.Error() != "UNIQUE constraint failed: category.name" { // FIXME unreadable
 			return fmt.Errorf("InsertCategories, Exec: %w", err)
 		}
 	}
@@ -44,12 +43,10 @@ func (c *Category) GetCategories() ([]model.Categories, error) {
 	rows, err := c.db.Query(`
 		SELECT * FROM category
 	`)
-
-	defer rows.Close()
-
 	if err != nil {
 		return nil, fmt.Errorf("GetCategories, Query: %w", err)
 	}
+	defer rows.Close()
 
 	var category model.Categories
 

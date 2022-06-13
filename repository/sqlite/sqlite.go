@@ -6,7 +6,6 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/madxiii/real-time-forum/config"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func New(cfg config.DB) (*sqlx.DB, error) {

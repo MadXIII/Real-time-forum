@@ -35,7 +35,7 @@ type Comment interface {
 
 type Vote interface {
 	CreateVote(vote *model.PostLike) error
-	GetVoteState(vote *model.PostLike) (bool, error)
+	VoteState(vote *model.PostLike) (bool, error)
 	UpdateVoteState(vote *model.PostLike) error
 	UpdateVotes(vote *model.PostLike) error
 }
