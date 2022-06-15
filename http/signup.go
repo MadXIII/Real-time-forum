@@ -10,7 +10,8 @@ import (
 )
 
 func (a *API) SignUp(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
+	switch r.Method {
+	case http.MethodPost:
 		bytes, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreateAccount, ReadAll(r.Body): %w", err))
@@ -36,7 +37,8 @@ func (a *API) SignUp(w http.ResponseWriter, r *http.Request) {
 		}
 		http.SetCookie(w, cookie)
 		success(w, "User successfully created")
-		return
+
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
-	w.WriteHeader(http.StatusMethodNotAllowed)
 }

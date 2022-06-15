@@ -17,25 +17,6 @@ func NewCategory(db *sqlx.DB) *Category {
 	return &Category{db: db}
 }
 
-// InsertCategories - insert Categories in db, while we Init db
-func (c *Category) InsertCategories(categories []string) error {
-	for _, category := range categories { // FIXME without Prepare in For
-		categoryRow, err := c.db.Prepare(`INSERT INTO category (name) VALUES (?) 
-		`)
-		if err != nil {
-			return fmt.Errorf("InsertCategories, Prepare: %w", err)
-		}
-
-		defer categoryRow.Close()
-
-		_, err = categoryRow.Exec(category)
-		if err != nil && err.Error() != "UNIQUE constraint failed: category.name" { // FIXME unreadable
-			return fmt.Errorf("InsertCategories, Exec: %w", err)
-		}
-	}
-	return nil
-}
-
 // GetCategories - Get all Categories from db
 func (c *Category) GetCategories() ([]model.Categories, error) {
 	var categories []model.Categories

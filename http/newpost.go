@@ -12,20 +12,20 @@ import (
 
 // CreatePost - /newpost's handler
 func (a *API) CreatePost(w http.ResponseWriter, r *http.Request) {
-	// if r.Method == http.MethodGet {
-	// 	categories, err := a.service.GetCategories()
-	// 	if err != nil {
-	// 		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePostPage, GetCategories: %w", err))
-	// 		return
-	// 	}
-	// 	bytes, err := json.Marshal(&categories)
-	// 	if err != nil {
-	// 		logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePostPage, Marshal: %w", err))
-	// 	}
-	// 	w.Write(bytes)
-	// }
+	switch r.Method {
+	case http.MethodGet:
+		categories, err := a.service.Categories()
+		if err != nil {
+			logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePostPage, GetCategories: %w", err))
+			return
+		}
+		bytes, err := json.Marshal(&categories)
+		if err != nil {
+			logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePostPage, Marshal: %w", err))
+		}
+		w.Write(bytes)
 
-	if r.Method == http.MethodPost {
+	case http.MethodPost:
 		bytes, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			logger(w, http.StatusInternalServerError, fmt.Errorf("handleCreatePost, ReadAll(r.Body): %w", err))
@@ -47,7 +47,7 @@ func (a *API) CreatePost(w http.ResponseWriter, r *http.Request) {
 			logger(w, http.StatusInternalServerError, err)
 			return
 		}
-		fmt.Println("newpost", &newPost)
+
 		id, status, err := a.service.CheckData(&newPost)
 		if err != nil {
 			logger(w, status, err)
@@ -67,9 +67,9 @@ func (a *API) CreatePost(w http.ResponseWriter, r *http.Request) {
 			logger(w, http.StatusInternalServerError, err)
 			return
 		}
-
 		w.Write(bytes)
-		return
+
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
-	w.WriteHeader(http.StatusMethodNotAllowed)
 }

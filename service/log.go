@@ -9,15 +9,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Login struct {
+type Log struct {
 	repo repository.Repository
 }
 
-func NewLogin(repo repository.Repository) *Login {
-	return &Login{repo: repo}
+func NewLog(repo repository.Repository) *Log {
+	return &Log{repo: repo}
 }
 
-func (l *Login) Login(signer model.Sign) (int, int, error) {
+func (l *Log) Login(signer model.Sign) (int, int, error) {
 	if err := checkLoginDatas(signer); err != nil {
 		return 0, http.StatusBadRequest, err
 	}
@@ -43,4 +43,10 @@ func checkLoginDatas(user model.Sign) error {
 		return newErr.ErrPassData
 	}
 	return nil
+}
+
+func (l *Log) Logout(w http.ResponseWriter, ck *http.Cookie) {
+	ck.MaxAge = -1
+	http.SetCookie(w, ck)
+	w.WriteHeader(http.StatusOK)
 }

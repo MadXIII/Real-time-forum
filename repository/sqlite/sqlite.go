@@ -55,24 +55,28 @@ func New(cfg config.DB) (*sqlx.DB, error) {
 
 	defer signerTable.Close()
 
-	// categoryTable, err := db.Prepare(`CREATE TABLE IF NOT EXISTS category (
-	// 	id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	// 	name VARCHAR(50) NOT NULL UNIQUE
-	// );`)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("InitDB, categoryTable.Prepare: %w", err)
-	// }
+	categoryTable, err := db.Prepare(`CREATE TABLE IF NOT EXISTS category (
+		id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+		name VARCHAR(50) NOT NULL UNIQUE
+	);`)
+	if err != nil {
+		return nil, fmt.Errorf("InitDB, categoryTable.Prepare: %w", err)
+	}
+	defer categoryTable.Close()
 
-	// _, err = categoryTable.Exec()
-	// if err != nil {
-	// 	return nil, fmt.Errorf("InitDB, categoryTabel.Exec: %w", err)
-	// }
+	_, err = categoryTable.Exec()
+	if err != nil {
+		return nil, fmt.Errorf("InitDB, categoryTabel.Exec: %w", err)
+	}
 
-	// categories := []string{"All", "UFC", "Anime", "Other"}
+	categories := []string{"All", "UFC", "Anime", "Other"}
 
-	// if err = InsertCategories(categories); err != nil {
-	// 	return nil, fmt.Errorf("InitDB, InsertCategories: %w", err)
-	// }
+	for _, category := range categories {
+		_, err = db.Exec(`INSERT INTO category (name) VALUES (?)`, category)
+		if err != nil && err.Error() != "UNIQUE constraint failed: category.name" { // FIX add IF ELSE, OR SOMETHING another
+			return nil, fmt.Errorf("InitDB, Insert category Exec: %w", err)
+		}
+	}
 
 	postTable, err := db.Prepare(`CREATE TABLE IF NOT EXISTS post (
 		id integer PRIMARY KEY AUTOINCREMENT NOT NULL,

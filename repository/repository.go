@@ -13,7 +13,7 @@ type Repository struct {
 	Post
 	Comment
 	Vote
-	// Category
+	Category
 }
 
 type User interface {
@@ -41,17 +41,16 @@ type Vote interface {
 }
 
 type Category interface {
-	InsertCategories(categories []string) error
 	GetCategories() ([]model.Categories, error)
 	CheckCategoryID(id int) error
 }
 
 func New(db *sqlx.DB) *Repository {
 	return &Repository{
-		User:    sqlite.NewUser(db),
-		Post:    sqlite.NewPost(db),
-		Comment: sqlite.NewComment(db),
-		Vote:    sqlite.NewVote(db),
-		// Category: sqlite.NewCategory(db),
+		User:     sqlite.NewUser(db),
+		Post:     sqlite.NewPost(db),
+		Comment:  sqlite.NewComment(db),
+		Vote:     sqlite.NewVote(db),
+		Category: sqlite.NewCategory(db),
 	}
 }

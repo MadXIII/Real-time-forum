@@ -2,7 +2,7 @@ package http
 
 import "net/http"
 
-func (a *API) MiddleWare(handler func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
+func (a *API) middleWare(handler func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ck, err := r.Cookie("session")
 		if err != nil {

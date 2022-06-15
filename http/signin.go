@@ -11,7 +11,8 @@ import (
 
 // SignIn - Sigin page
 func (a *API) SignIn(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
+	switch r.Method {
+	case http.MethodPost:
 		bytes, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			logger(w, http.StatusInternalServerError, fmt.Errorf("handleSignIn, ReadAll(r.Body): %w", err))
@@ -35,7 +36,8 @@ func (a *API) SignIn(w http.ResponseWriter, r *http.Request) {
 		}
 		http.SetCookie(w, cookie)
 		success(w, "Login is Done")
-		return
+
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
-	w.WriteHeader(http.StatusMethodNotAllowed)
 }

@@ -11,7 +11,8 @@ import (
 )
 
 func (a *API) Post(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
+	switch r.Method {
+	case http.MethodGet:
 		post, err := a.service.Post(r)
 		if err != nil {
 			logger(w, http.StatusBadRequest, fmt.Errorf("Post, GetID: %w", err))
@@ -39,9 +40,8 @@ func (a *API) Post(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.Write(bytes)
-		return
-	}
-	if r.Method == http.MethodPost {
+
+	case http.MethodPost:
 		bytes, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			logger(w, http.StatusInternalServerError, fmt.Errorf("handlePost, ReadAll(r.Body): %w", err))
@@ -87,8 +87,8 @@ func (a *API) Post(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		success(w, "Comment is created")
-		return
+
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
-	w.WriteHeader(http.StatusMethodNotAllowed)
-	return
 }

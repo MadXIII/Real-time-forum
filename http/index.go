@@ -10,7 +10,8 @@ import (
 )
 
 func (a *API) Index(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
+	switch r.Method {
+	case http.MethodGet:
 		if err := checkURLPath(r.URL.Path); err != nil {
 			logger(w, http.StatusNotFound, err)
 			return
@@ -20,9 +21,9 @@ func (a *API) Index(w http.ResponseWriter, r *http.Request) {
 			logger(w, http.StatusInternalServerError, fmt.Errorf("Index, Execute: %w", err))
 			return
 		}
-		return
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
-	w.WriteHeader(http.StatusMethodNotAllowed)
 }
 
 func checkURLPath(path string) error {

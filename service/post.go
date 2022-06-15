@@ -116,3 +116,8 @@ func (p *Post) Comments(id int) ([]model.Comment, error) {
 	comments, err := p.repo.PostComments(id)
 	return comments, err
 }
+
+func (p *Post) Categories() ([]model.Categories, error) {
+	categories, err := p.repo.GetCategories()
+	return categories, err
+}

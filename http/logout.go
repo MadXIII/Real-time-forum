@@ -6,7 +6,8 @@ import (
 )
 
 func (a *API) Logout(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
+	switch r.Method {
+	case http.MethodPost:
 		ck, err := r.Cookie("session")
 		if err != nil {
 			logger(w, http.StatusInternalServerError, fmt.Errorf("LogOut, r.Cookie(session): %w", err))
@@ -18,7 +19,7 @@ func (a *API) Logout(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		success(w, "Logout is Done")
-		return
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
-	w.WriteHeader(http.StatusMethodNotAllowed)
 }
